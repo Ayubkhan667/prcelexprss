@@ -22,7 +22,7 @@ dependencies:
   go_router: ^13.2.0
 
   # Charts
-  fl_chart: ^0.67.0
+  fl_chart: ^1.2.0
 
   # Location
   geolocator: ^11.0.0
