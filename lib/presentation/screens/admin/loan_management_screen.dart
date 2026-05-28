@@ -39,13 +39,13 @@ class LoanManagementScreen extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _summaryItem(
-                    'Total Balance',
+                    context.tr('total_balance'),
                     'OMR ${totalBalance.toStringAsFixed(0)}',
                     AppColors.error,
                     Icons.account_balance),
-                _summaryItem('Active Loans', activeCount.toString(),
+                _summaryItem(context.tr('active_loans'), activeCount.toString(),
                     AppColors.primary, Icons.pending_actions),
-                _summaryItem('Total Loans', loans.length.toString(),
+                _summaryItem(context.tr('total_loans'), loans.length.toString(),
                     AppColors.textSecondary, Icons.list_alt),
               ],
             ),
@@ -121,10 +121,10 @@ class LoanManagementScreen extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('${(loan.repaymentProgress * 100).toStringAsFixed(0)}% Paid',
+              Text('${(loan.repaymentProgress * 100).toStringAsFixed(0)}${context.tr('percent_paid')}',
                   style:
                       const TextStyle(fontSize: 11, color: AppColors.success)),
-              Text('OMR ${loan.balanceAmount.toStringAsFixed(0)} remaining',
+              Text('OMR ${loan.balanceAmount.toStringAsFixed(0)} ${context.tr('remaining_balance')}',
                   style: const TextStyle(fontSize: 11, color: AppColors.error)),
             ],
           ),
@@ -133,23 +133,23 @@ class LoanManagementScreen extends ConsumerWidget {
             children: [
               Expanded(
                   child: _loanStatItem(
-                      'Total',
+                      context.tr('total_label'),
                       'OMR ${loan.loanAmount.toStringAsFixed(0)}',
                       AppColors.textPrimary)),
               Expanded(
                   child: _loanStatItem(
-                      'Paid',
+                      context.tr('paid_label'),
                       'OMR ${loan.paidAmount.toStringAsFixed(0)}',
                       AppColors.success)),
               Expanded(
                   child: _loanStatItem(
-                      'Monthly',
+                      context.tr('monthly_label'),
                       'OMR ${loan.monthlyDeduction.toStringAsFixed(0)}',
                       AppColors.primary)),
             ],
           ),
           const SizedBox(height: 8),
-          Text('Loan Date: ${AppUtils.formatDate(loan.loanDate)}',
+          Text('${context.tr('loan_date')}: ${AppUtils.formatDate(loan.loanDate)}',
               style: const TextStyle(
                   fontSize: 11, color: AppColors.textSecondary)),
         ],
@@ -202,9 +202,9 @@ class LoanManagementScreen extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               DropdownButtonFormField<String>(
-                decoration: const InputDecoration(
-                    labelText: 'Select Staff',
-                    prefixIcon: Icon(Icons.person_outline)),
+                decoration: InputDecoration(
+                    labelText: context.tr('select_staff'),
+                    prefixIcon: const Icon(Icons.person_outline)),
                 items: staffList
                     .map((s) =>
                         DropdownMenuItem(value: s.id, child: Text(s.name)))
@@ -214,24 +214,25 @@ class LoanManagementScreen extends ConsumerWidget {
               const SizedBox(height: 12),
               CustomTextField(
                   controller: amountCtrl,
-                  label: 'Loan Amount (PKR)',
+                  label: context.tr('loan_amount_label'),
                   keyboardType: TextInputType.number),
               const SizedBox(height: 12),
               CustomTextField(
                   controller: monthlyCtrl,
-                  label: 'Monthly Deduction (PKR)',
+                  label: context.tr('monthly_deduction_label'),
                   keyboardType: TextInputType.number),
               const SizedBox(height: 12),
               CustomTextField(
                   controller: purposeCtrl,
-                  label: 'Purpose / Reason',
+                  label: context.tr('purpose_reason'),
                   maxLines: 2),
             ],
           ),
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx), child: Text(context.tr('cancel'))),
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(context.tr('cancel'))),
           ElevatedButton(
             onPressed: () async {
               dynamic selectedStaff;
@@ -277,6 +278,7 @@ class LoanManagementScreen extends ConsumerWidget {
                     );
                 ref.read(mockDataRevisionProvider.notifier).state++;
               } catch (_) {
+                ref.read(mockDataRevisionProvider.notifier).state++;
                 if (!context.mounted) {
                   return;
                 }

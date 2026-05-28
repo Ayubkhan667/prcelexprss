@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pe_attendance/core/l10n/app_localizations.dart';
 import 'package:pe_attendance/core/theme/app_theme.dart';
 import 'package:pe_attendance/data/models/user_model.dart';
 import 'package:pe_attendance/data/providers/api_config_provider.dart';
@@ -19,7 +21,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('HR Configuration'), findsOneWidget);
-    expect(find.text('Branch Settings'), findsOneWidget);
+    expect(find.text('Branch Management'), findsOneWidget);
     expect(find.text('Shift Management'), findsOneWidget);
     expect(find.text('Salary & Payroll'), findsOneWidget);
   });
@@ -34,7 +36,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('HR Configuration'), findsNothing);
-    expect(find.text('Branch Settings'), findsNothing);
+    expect(find.text('Branch Management'), findsNothing);
     expect(find.text('Shift Management'), findsNothing);
     expect(find.text('Salary & Payroll'), findsNothing);
     expect(find.text('Backend Configuration'), findsOneWidget);
@@ -60,6 +62,16 @@ Widget _buildSettingsApp({required UserModel user}) {
     ],
     child: MaterialApp(
       theme: AppTheme.lightTheme,
+      supportedLocales: const [
+        Locale('en'),
+        Locale('ar'),
+      ],
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       home: const SettingsScreen(),
     ),
   );

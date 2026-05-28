@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,7 +8,9 @@ import 'core/theme/app_theme.dart';
 import 'core/routes/app_router.dart';
 import 'core/utils/tap_effects.dart';
 import 'data/providers/app_providers.dart';
+import 'data/providers/auth_provider.dart';
 import 'data/providers/locale_provider.dart';
+import 'data/services/push_notification_service.dart';
 
 class PEAttendanceApp extends ConsumerStatefulWidget {
   const PEAttendanceApp({super.key});
@@ -25,6 +29,16 @@ class _PEAttendanceAppState extends ConsumerState<PEAttendanceApp> {
   @override
   Widget build(BuildContext context) {
     ref.watch(autoRefreshProvider);
+    ref.listen<AuthState>(authProvider, (previous, next) {
+      final repository = ref.read(hrOperationsRepositoryProvider);
+      if (next.isLoggedIn) {
+        unawaited(
+            PushNotificationService.instance.syncRegistration(repository));
+      } else if (previous?.isLoggedIn == true && !next.isLoggedIn) {
+        unawaited(
+            PushNotificationService.instance.clearRegistration(repository));
+      }
+    });
     final router = ref.watch(routerProvider);
     final locale = ref.watch(localeProvider);
 

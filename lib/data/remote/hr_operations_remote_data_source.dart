@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import '../models/attendance_edit_log_model.dart';
+import '../models/helpdesk_ticket_model.dart';
 import '../models/expense_model.dart';
 import '../models/holiday_model.dart';
 import '../models/kpi_model.dart';
@@ -10,6 +11,8 @@ import '../models/notification_model.dart';
 import '../models/salary_model.dart';
 import '../models/staff_model.dart';
 import '../models/task_model.dart';
+import '../models/shift_roster_model.dart';
+import '../models/shift_swap_request_model.dart';
 import 'api_client.dart';
 import 'remote_payload_parser.dart';
 
@@ -61,6 +64,11 @@ abstract class HrOperationsRemoteDataSource {
     String? staffId,
     String? type,
   });
+  Future<NotificationModel?> publishAnnouncement({
+    required String title,
+    required String body,
+    required String targetRole,
+  });
 
   Future<List<ExpenseModel>> fetchExpenses({String? staffId, String? status});
   Future<void> saveExpense(
@@ -77,6 +85,44 @@ abstract class HrOperationsRemoteDataSource {
   Future<List<HolidayModel>> fetchHolidays({int? year});
   Future<void> saveHoliday(HolidayModel holiday);
   Future<void> deleteHoliday(String id);
+
+  Future<List<ShiftRosterModel>> fetchShiftRosters({
+    String? staffId,
+    DateTime? fromDate,
+    DateTime? toDate,
+  });
+  Future<ShiftRosterModel?> saveShiftRoster({
+    required ShiftRosterModel roster,
+    required bool isEdit,
+  });
+  Future<List<ShiftSwapRequestModel>> fetchShiftSwapRequests({
+    String? status,
+  });
+  Future<ShiftSwapRequestModel?> saveShiftSwapRequest(
+    ShiftSwapRequestModel request,
+  );
+  Future<ShiftSwapRequestModel?> updateShiftSwapRequestStatus({
+    required String requestId,
+    required String status,
+    String? rejectionReason,
+  });
+
+  Future<List<HelpdeskTicketModel>> fetchHelpdeskTickets({
+    String? staffId,
+    String? status,
+  });
+  Future<HelpdeskTicketModel?> saveHelpdeskTicket(HelpdeskTicketModel ticket);
+  Future<HelpdeskTicketModel?> updateHelpdeskTicketStatus({
+    required String ticketId,
+    required String status,
+    String? response,
+  });
+
+  Future<void> registerPushToken({
+    required String token,
+    required String platform,
+  });
+  Future<void> deletePushToken({String? token});
 
   Future<List<AttendanceEditLogModel>> fetchEditLogs({
     String? staffId,
@@ -336,6 +382,24 @@ class ApiHrOperationsRemoteDataSource implements HrOperationsRemoteDataSource {
   }
 
   @override
+  Future<NotificationModel?> publishAnnouncement({
+    required String title,
+    required String body,
+    required String targetRole,
+  }) async {
+    final response = await client.post(
+      '/announcements',
+      data: {
+        'title': title,
+        'body': body,
+        'target_role': targetRole,
+      },
+    );
+    final payload = RemotePayloadParser.parseOptionalMap(response.data);
+    return payload == null ? null : NotificationModel.fromMap(payload);
+  }
+
+  @override
   Future<List<ExpenseModel>> fetchExpenses(
       {String? staffId, String? status}) async {
     final response = await client.get(
@@ -422,6 +486,177 @@ class ApiHrOperationsRemoteDataSource implements HrOperationsRemoteDataSource {
   @override
   Future<void> deleteHoliday(String id) async {
     await client.delete('/holidays/$id');
+  }
+
+  @override
+  Future<List<ShiftRosterModel>> fetchShiftRosters({
+    String? staffId,
+    DateTime? fromDate,
+    DateTime? toDate,
+  }) async {
+    final response = await client.get(
+      '/shift-rosters',
+      queryParameters: {
+        if (staffId != null && staffId.isNotEmpty) 'staff_id': staffId,
+        if (fromDate != null) 'from_date': fromDate.toIso8601String(),
+        if (toDate != null) 'to_date': toDate.toIso8601String(),
+      },
+    );
+
+    return RemotePayloadParser.parseList(response.data)
+        .map(ShiftRosterModel.fromMap)
+        .toList();
+  }
+
+  @override
+  Future<ShiftRosterModel?> saveShiftRoster({
+    required ShiftRosterModel roster,
+    required bool isEdit,
+  }) async {
+    final response = isEdit
+        ? await client.put(
+            '/shift-rosters/${roster.id}',
+            data: {
+              'shift_id': roster.shiftId,
+              'status': roster.status,
+              'notes': roster.notes,
+            },
+          )
+        : await client.post(
+            '/shift-rosters',
+            data: {
+              'staff_id': roster.staffId,
+              'roster_date': roster.rosterDate.toIso8601String(),
+              'shift_id': roster.shiftId,
+              'status': roster.status,
+              'notes': roster.notes,
+            },
+          );
+    final payload = RemotePayloadParser.parseOptionalMap(response.data);
+    return payload == null ? null : ShiftRosterModel.fromMap(payload);
+  }
+
+  @override
+  Future<List<ShiftSwapRequestModel>> fetchShiftSwapRequests({
+    String? status,
+  }) async {
+    final response = await client.get(
+      '/shift-swap-requests',
+      queryParameters: {
+        if (status != null && status.isNotEmpty) 'status': status,
+      },
+    );
+
+    return RemotePayloadParser.parseList(response.data)
+        .map(ShiftSwapRequestModel.fromMap)
+        .toList();
+  }
+
+  @override
+  Future<ShiftSwapRequestModel?> saveShiftSwapRequest(
+    ShiftSwapRequestModel request,
+  ) async {
+    final response = await client.post(
+      '/shift-swap-requests',
+      data: {
+        'requester_staff_id': request.requesterStaffId,
+        'target_staff_id': request.targetStaffId,
+        'roster_date': request.rosterDate.toIso8601String(),
+        'reason': request.reason,
+      },
+    );
+    final payload = RemotePayloadParser.parseOptionalMap(response.data);
+    return payload == null ? null : ShiftSwapRequestModel.fromMap(payload);
+  }
+
+  @override
+  Future<ShiftSwapRequestModel?> updateShiftSwapRequestStatus({
+    required String requestId,
+    required String status,
+    String? rejectionReason,
+  }) async {
+    final response = await client.patch(
+      '/shift-swap-requests/$requestId/status',
+      data: {
+        'status': status,
+        'rejection_reason': rejectionReason,
+      },
+    );
+    final payload = RemotePayloadParser.parseOptionalMap(response.data);
+    return payload == null ? null : ShiftSwapRequestModel.fromMap(payload);
+  }
+
+  @override
+  Future<List<HelpdeskTicketModel>> fetchHelpdeskTickets({
+    String? staffId,
+    String? status,
+  }) async {
+    final response = await client.get(
+      '/helpdesk-tickets',
+      queryParameters: {
+        if (staffId != null && staffId.isNotEmpty) 'staff_id': staffId,
+        if (status != null && status.isNotEmpty) 'status': status,
+      },
+    );
+
+    return RemotePayloadParser.parseList(response.data)
+        .map(HelpdeskTicketModel.fromMap)
+        .toList();
+  }
+
+  @override
+  Future<HelpdeskTicketModel?> saveHelpdeskTicket(
+      HelpdeskTicketModel ticket) async {
+    final response = await client.post(
+      '/helpdesk-tickets',
+      data: {
+        'staff_id': ticket.staffId,
+        'subject': ticket.subject,
+        'category': ticket.category,
+        'message': ticket.message,
+      },
+    );
+    final payload = RemotePayloadParser.parseOptionalMap(response.data);
+    return payload == null ? null : HelpdeskTicketModel.fromMap(payload);
+  }
+
+  @override
+  Future<HelpdeskTicketModel?> updateHelpdeskTicketStatus({
+    required String ticketId,
+    required String status,
+    String? response,
+  }) async {
+    final result = await client.patch(
+      '/helpdesk-tickets/$ticketId/status',
+      data: {
+        'status': status,
+        'response': response,
+      },
+    );
+    final payload = RemotePayloadParser.parseOptionalMap(result.data);
+    return payload == null ? null : HelpdeskTicketModel.fromMap(payload);
+  }
+
+  @override
+  Future<void> registerPushToken({
+    required String token,
+    required String platform,
+  }) async {
+    await client.post(
+      '/push-tokens',
+      data: {
+        'token': token,
+        'platform': platform,
+      },
+    );
+  }
+
+  @override
+  Future<void> deletePushToken({String? token}) async {
+    await client.delete(
+      '/push-tokens',
+      data: token == null ? null : {'token': token},
+    );
   }
 
   @override

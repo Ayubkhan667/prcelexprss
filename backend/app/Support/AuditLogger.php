@@ -10,23 +10,27 @@ class AuditLogger
 {
     public static function record(Request $request, array $payload): void
     {
-        $user = $request->user();
+        try {
+            $user = $request->user();
 
-        DB::table('audit_logs')->insert([
-            'id' => (string) Str::uuid(),
-            'action' => $payload['action'],
-            'title' => $payload['title'],
-            'description' => $payload['description'] ?? null,
-            'actor_id' => $user?->getKey(),
-            'actor_name' => $user?->name ?? $user?->email ?? 'System',
-            'actor_role' => $user?->role ?? 'system',
-            'target_type' => $payload['target_type'] ?? null,
-            'target_id' => $payload['target_id'] ?? null,
-            'target_name' => $payload['target_name'] ?? null,
-            'metadata' => isset($payload['metadata']) ? json_encode($payload['metadata'], JSON_THROW_ON_ERROR) : null,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+            DB::table('audit_logs')->insert([
+                'id' => (string) Str::uuid(),
+                'action' => $payload['action'],
+                'title' => $payload['title'],
+                'description' => $payload['description'] ?? null,
+                'actor_id' => $user?->getKey(),
+                'actor_name' => $user?->name ?? $user?->email ?? 'System',
+                'actor_role' => $user?->role ?? 'system',
+                'target_type' => $payload['target_type'] ?? null,
+                'target_id' => $payload['target_id'] ?? null,
+                'target_name' => $payload['target_name'] ?? null,
+                'metadata' => isset($payload['metadata']) ? json_encode($payload['metadata']) : null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        } catch (\Throwable) {
+            // Audit logging is non-critical — never crash the main response
+        }
     }
 
     public static function payload(object $row): array

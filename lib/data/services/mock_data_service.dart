@@ -12,6 +12,9 @@ import '../models/attendance_edit_log_model.dart';
 import '../models/task_model.dart';
 import '../models/expense_model.dart';
 import '../models/holiday_model.dart';
+import '../models/helpdesk_ticket_model.dart';
+import '../models/shift_roster_model.dart';
+import '../models/shift_swap_request_model.dart';
 import '../../core/constants/app_constants.dart';
 import 'package:intl/intl.dart';
 
@@ -1094,6 +1097,85 @@ class MockDataService {
       targetRole: 'admin',
       createdAt: DateTime(2026, 5, 22, 16, 0),
     ),
+    NotificationModel(
+      id: 'notif011',
+      title: 'Weekly operations briefing',
+      body: 'Friday shift handover will start 30 minutes earlier this week.',
+      type: 'announcement',
+      targetRole: 'all',
+      createdAt: DateTime(2026, 5, 25, 9, 0),
+    ),
+  ];
+
+  static final List<ShiftRosterModel> _shiftRosters = [
+    ShiftRosterModel(
+      id: 'roster001',
+      staffId: 'st001',
+      staffName: 'Salma Al-Rashdi',
+      staffCode: 'SHR-001',
+      rosterDate: DateTime(2026, 5, 28),
+      shiftId: 's001',
+      shiftName: 'Morning Shift',
+      startTime: '08:00',
+      endTime: '16:00',
+      status: 'Scheduled',
+      notes: 'Primary delivery route',
+      assignedBy: 'Saif Al-Bulushi',
+      createdAt: DateTime(2026, 5, 25, 9, 0),
+    ),
+    ShiftRosterModel(
+      id: 'roster002',
+      staffId: 'st002',
+      staffName: 'Khalid Al-Balushi',
+      staffCode: 'SHR-002',
+      rosterDate: DateTime(2026, 5, 28),
+      shiftId: 's002',
+      shiftName: 'Day Shift',
+      startTime: '09:00',
+      endTime: '17:00',
+      status: 'Scheduled',
+      notes: 'Warehouse coverage',
+      assignedBy: 'Saif Al-Bulushi',
+      createdAt: DateTime(2026, 5, 25, 9, 0),
+    ),
+  ];
+
+  static final List<ShiftSwapRequestModel> _shiftSwapRequests = [
+    ShiftSwapRequestModel(
+      id: 'swap001',
+      requesterStaffId: 'st001',
+      requesterName: 'Salma Al-Rashdi',
+      requesterCode: 'SHR-001',
+      targetStaffId: 'st002',
+      targetName: 'Khalid Al-Balushi',
+      targetCode: 'SHR-002',
+      rosterDate: DateTime(2026, 5, 28),
+      requesterShiftId: 's001',
+      requesterShiftName: 'Morning Shift',
+      targetShiftId: 's002',
+      targetShiftName: 'Day Shift',
+      reason: 'Personal appointment in the morning.',
+      status: 'Pending',
+      createdAt: DateTime(2026, 5, 26, 10, 15),
+    ),
+  ];
+
+  static final List<HelpdeskTicketModel> _helpdeskTickets = [
+    HelpdeskTicketModel(
+      id: 'help001',
+      staffId: 'st001',
+      staffName: 'Salma Al-Rashdi',
+      staffCode: 'SHR-001',
+      subject: 'Attendance selfie upload issue',
+      category: 'Attendance',
+      message:
+          'Check-out selfie failed on weak connection and the queue retried twice.',
+      status: 'In Progress',
+      response: 'We are reviewing the sync logs and device network state.',
+      respondedBy: 'Saif Al-Bulushi',
+      respondedAt: DateTime(2026, 5, 26, 11, 0),
+      createdAt: DateTime(2026, 5, 26, 9, 30),
+    ),
   ];
 
   static final List<TaskModel> _tasks = [
@@ -1882,6 +1964,23 @@ class MockDataService {
       rejectionReason: rejectionReason ?? old.rejectionReason,
       createdAt: old.createdAt,
     );
+    _notifications.insert(
+      0,
+      NotificationModel(
+        id: 'notif_expense_${old.id}_$status',
+        title: 'Expense $status',
+        body: status == 'Approved'
+            ? 'Your ${old.expenseType} expense claim was approved.'
+            : status == 'Rejected'
+                ? 'Your ${old.expenseType} expense claim was rejected.'
+                : 'Your ${old.expenseType} expense claim is pending review.',
+        type: 'expense',
+        staffId: old.staffId,
+        staffName: old.staffName,
+        targetRole: AppConstants.roleStaff,
+        createdAt: DateTime.now(),
+      ),
+    );
   }
 
   List<AttendanceEditLogModel> getEditLogs(
@@ -1926,7 +2025,9 @@ class MockDataService {
   List<NotificationModel> getNotifications(
       {String? targetRole, String? staffId}) {
     var list = List<NotificationModel>.from(_notifications);
-    if (targetRole != null && targetRole.isNotEmpty) {
+    if (targetRole == AppConstants.roleAdmin) {
+      // Admin can review all notifications across roles.
+    } else if (targetRole != null && targetRole.isNotEmpty) {
       list = list
           .where((n) => n.targetRole == targetRole || n.targetRole == 'all')
           .toList();
@@ -1969,6 +2070,238 @@ class MockDataService {
         _notifications[index] = notification.copyWith(isRead: true);
       }
     }
+  }
+
+  void addNotification(NotificationModel notification) {
+    _notifications.insert(0, notification);
+  }
+
+  List<ShiftRosterModel> getShiftRosters({
+    String? staffId,
+    DateTime? fromDate,
+    DateTime? toDate,
+  }) {
+    var list = List<ShiftRosterModel>.from(_shiftRosters);
+    if (staffId != null && staffId.isNotEmpty) {
+      list = list.where((item) => item.staffId == staffId).toList();
+    }
+    if (fromDate != null) {
+      list = list.where((item) => !item.rosterDate.isBefore(fromDate)).toList();
+    }
+    if (toDate != null) {
+      list = list.where((item) => !item.rosterDate.isAfter(toDate)).toList();
+    }
+    list.sort((a, b) => a.rosterDate.compareTo(b.rosterDate));
+    return list;
+  }
+
+  void saveShiftRoster(ShiftRosterModel roster, {required bool isEdit}) {
+    final index = _shiftRosters.indexWhere((item) =>
+        item.id == roster.id ||
+        (item.staffId == roster.staffId &&
+            item.rosterDate.year == roster.rosterDate.year &&
+            item.rosterDate.month == roster.rosterDate.month &&
+            item.rosterDate.day == roster.rosterDate.day));
+    if (index >= 0) {
+      _shiftRosters[index] = roster;
+    } else {
+      _shiftRosters.add(roster);
+    }
+  }
+
+  List<ShiftSwapRequestModel> getShiftSwapRequests({String? status}) {
+    var list = List<ShiftSwapRequestModel>.from(_shiftSwapRequests);
+    if (status != null && status.isNotEmpty) {
+      list = list.where((item) => item.status == status).toList();
+    }
+    list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return list;
+  }
+
+  void addShiftSwapRequest(ShiftSwapRequestModel request) {
+    _shiftSwapRequests.insert(0, request);
+    _notifications.insert(
+      0,
+      NotificationModel(
+        id: 'notif_swap_${request.id}',
+        title: 'Shift swap requested',
+        body: '${request.requesterName} requested a shift swap.',
+        type: 'shift_swap',
+        staffId: request.requesterStaffId,
+        staffName: request.requesterName,
+        targetRole: AppConstants.roleAdmin,
+        createdAt: DateTime.now(),
+      ),
+    );
+  }
+
+  void updateShiftSwapRequestStatus({
+    required String requestId,
+    required String status,
+    required String approvedBy,
+    String? rejectionReason,
+  }) {
+    final index = _shiftSwapRequests.indexWhere((item) => item.id == requestId);
+    if (index < 0) {
+      return;
+    }
+
+    final current = _shiftSwapRequests[index];
+    _shiftSwapRequests[index] = ShiftSwapRequestModel(
+      id: current.id,
+      requesterStaffId: current.requesterStaffId,
+      requesterName: current.requesterName,
+      requesterCode: current.requesterCode,
+      targetStaffId: current.targetStaffId,
+      targetName: current.targetName,
+      targetCode: current.targetCode,
+      rosterDate: current.rosterDate,
+      requesterShiftId: current.requesterShiftId,
+      requesterShiftName: current.requesterShiftName,
+      targetShiftId: current.targetShiftId,
+      targetShiftName: current.targetShiftName,
+      reason: current.reason,
+      status: status,
+      approvedBy: approvedBy,
+      approvedAt: DateTime.now(),
+      rejectionReason: rejectionReason,
+      createdAt: current.createdAt,
+    );
+
+    if (status == 'Approved') {
+      final requesterRosterIndex = _shiftRosters.indexWhere((item) =>
+          item.staffId == current.requesterStaffId &&
+          item.rosterDate.year == current.rosterDate.year &&
+          item.rosterDate.month == current.rosterDate.month &&
+          item.rosterDate.day == current.rosterDate.day);
+      final targetRosterIndex = _shiftRosters.indexWhere((item) =>
+          item.staffId == current.targetStaffId &&
+          item.rosterDate.year == current.rosterDate.year &&
+          item.rosterDate.month == current.rosterDate.month &&
+          item.rosterDate.day == current.rosterDate.day);
+      if (requesterRosterIndex >= 0 && targetRosterIndex >= 0) {
+        final requesterRoster = _shiftRosters[requesterRosterIndex];
+        final targetRoster = _shiftRosters[targetRosterIndex];
+        _shiftRosters[requesterRosterIndex] = ShiftRosterModel(
+          id: requesterRoster.id,
+          staffId: requesterRoster.staffId,
+          staffName: requesterRoster.staffName,
+          staffCode: requesterRoster.staffCode,
+          rosterDate: requesterRoster.rosterDate,
+          shiftId: targetRoster.shiftId,
+          shiftName: targetRoster.shiftName,
+          startTime: targetRoster.startTime,
+          endTime: targetRoster.endTime,
+          status: requesterRoster.status,
+          notes: requesterRoster.notes,
+          assignedBy: requesterRoster.assignedBy,
+          createdAt: requesterRoster.createdAt,
+        );
+        _shiftRosters[targetRosterIndex] = ShiftRosterModel(
+          id: targetRoster.id,
+          staffId: targetRoster.staffId,
+          staffName: targetRoster.staffName,
+          staffCode: targetRoster.staffCode,
+          rosterDate: targetRoster.rosterDate,
+          shiftId: requesterRoster.shiftId,
+          shiftName: requesterRoster.shiftName,
+          startTime: requesterRoster.startTime,
+          endTime: requesterRoster.endTime,
+          status: targetRoster.status,
+          notes: targetRoster.notes,
+          assignedBy: targetRoster.assignedBy,
+          createdAt: targetRoster.createdAt,
+        );
+      }
+    }
+
+    _notifications.insert(
+      0,
+      NotificationModel(
+        id: 'notif_swap_status_$requestId',
+        title: 'Shift swap $status',
+        body: 'Your shift swap request is now $status.',
+        type: 'shift_swap',
+        staffId: current.requesterStaffId,
+        staffName: current.requesterName,
+        targetRole: AppConstants.roleStaff,
+        createdAt: DateTime.now(),
+      ),
+    );
+  }
+
+  List<HelpdeskTicketModel> getHelpdeskTickets({
+    String? staffId,
+    String? status,
+  }) {
+    var list = List<HelpdeskTicketModel>.from(_helpdeskTickets);
+    if (staffId != null && staffId.isNotEmpty) {
+      list = list.where((item) => item.staffId == staffId).toList();
+    }
+    if (status != null && status.isNotEmpty) {
+      list = list.where((item) => item.status == status).toList();
+    }
+    list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return list;
+  }
+
+  void addHelpdeskTicket(HelpdeskTicketModel ticket) {
+    _helpdeskTickets.insert(0, ticket);
+    _notifications.insert(
+      0,
+      NotificationModel(
+        id: 'notif_helpdesk_${ticket.id}',
+        title: 'New helpdesk ticket',
+        body: '${ticket.staffName} submitted ${ticket.subject}.',
+        type: 'helpdesk',
+        staffId: ticket.staffId,
+        staffName: ticket.staffName,
+        targetRole: AppConstants.roleAdmin,
+        createdAt: DateTime.now(),
+      ),
+    );
+  }
+
+  void updateHelpdeskTicketStatus({
+    required String ticketId,
+    required String status,
+    required String respondedBy,
+    String? response,
+  }) {
+    final index = _helpdeskTickets.indexWhere((item) => item.id == ticketId);
+    if (index < 0) {
+      return;
+    }
+
+    final current = _helpdeskTickets[index];
+    _helpdeskTickets[index] = HelpdeskTicketModel(
+      id: current.id,
+      staffId: current.staffId,
+      staffName: current.staffName,
+      staffCode: current.staffCode,
+      subject: current.subject,
+      category: current.category,
+      message: current.message,
+      status: status,
+      response: response ?? current.response,
+      respondedBy: respondedBy,
+      respondedAt: DateTime.now(),
+      createdAt: current.createdAt,
+    );
+
+    _notifications.insert(
+      0,
+      NotificationModel(
+        id: 'notif_helpdesk_status_$ticketId',
+        title: 'Helpdesk ticket updated',
+        body: '${current.subject} is now $status.',
+        type: 'helpdesk',
+        staffId: current.staffId,
+        staffName: current.staffName,
+        targetRole: AppConstants.roleStaff,
+        createdAt: DateTime.now(),
+      ),
+    );
   }
 
   List<TaskModel> getTasks({String? staffId, String? status}) {
@@ -2339,6 +2672,33 @@ class MockDataService {
         .fold<double>(0, (s, l) => s + l.balanceAmount);
     final pendingSalaries =
         _salaries.where((s) => s.paymentStatus == 'Pending').length;
+    var expiringDocuments = 0;
+    var expiredDocuments = 0;
+    final today = DateTime(date.year, date.month, date.day);
+    for (final staff in staffList) {
+      for (final expiryDate in [
+        staff.passportExpireDate,
+        staff.civilIdExpireDate,
+        staff.contractExpireDate,
+      ]) {
+        if (expiryDate == null) {
+          continue;
+        }
+        final daysRemaining = DateTime(
+          expiryDate.year,
+          expiryDate.month,
+          expiryDate.day,
+        ).difference(today).inDays;
+        if (daysRemaining > 30) {
+          continue;
+        }
+        if (daysRemaining < 0) {
+          expiredDocuments++;
+        } else {
+          expiringDocuments++;
+        }
+      }
+    }
     KpiModel? bestStaff, lowestKpi, highestOt;
     for (final k in kpiRecords) {
       if (bestStaff == null || k.totalKpiScore > bestStaff.totalKpiScore) {
@@ -2370,6 +2730,8 @@ class MockDataService {
       'best_staff': bestStaff?.staffName ?? '-',
       'lowest_kpi_staff': lowestKpi?.staffName ?? '-',
       'highest_overtime_staff': highestOt?.staffName ?? '-',
+      'expiring_documents': expiringDocuments,
+      'expired_documents': expiredDocuments,
     };
   }
 

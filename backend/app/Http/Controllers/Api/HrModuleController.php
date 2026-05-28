@@ -712,6 +712,445 @@ class HrModuleController extends Controller
         return response()->json($this->expensePayload(DB::table('expenses')->where('id', $id)->firstOrFail()));
     }
 
+    public function shiftRosters(Request $request)
+    {
+        $query = DB::table('shift_rosters')
+            ->orderByDesc('roster_date')
+            ->orderBy('start_time');
+
+        if ($response = $this->applyScopedStaffTableFilters(
+            $request,
+            $query,
+            'You can only access shift rosters within your assigned branch.',
+        )) {
+            return $response;
+        }
+
+        if ($request->filled('from_date')) {
+            $query->whereDate('roster_date', '>=', Carbon::parse($request->string('from_date'))->toDateString());
+        }
+        if ($request->filled('to_date')) {
+            $query->whereDate('roster_date', '<=', Carbon::parse($request->string('to_date'))->toDateString());
+        }
+
+        return response()->json($query->get()->map(fn ($row) => $this->shiftRosterPayload($row))->all());
+    }
+
+    public function storeShiftRoster(Request $request)
+    {
+        $payload = $request->validate([
+            'id' => ['nullable', 'string'],
+            'staff_id' => ['required', 'string', 'exists:staff,id'],
+            'roster_date' => ['required', 'date'],
+            'shift_id' => ['required', 'string', 'exists:shifts,id'],
+            'status' => ['nullable', 'string', 'max:255'],
+            'notes' => ['nullable', 'string'],
+            'created_at' => ['nullable', 'date'],
+        ]);
+
+        $staff = $this->staffRecord($payload['staff_id']);
+        $shift = DB::table('shifts')->where('id', $payload['shift_id'])->firstOrFail();
+        $rosterDate = Carbon::parse($payload['roster_date'])->toDateString();
+        $existing = DB::table('shift_rosters')
+            ->where('staff_id', $staff->id)
+            ->whereDate('roster_date', $rosterDate)
+            ->first();
+        $id = $existing?->id ?? $this->generateId('roster');
+
+        DB::table('shift_rosters')->updateOrInsert(
+            [
+                'staff_id' => $staff->id,
+                'roster_date' => $rosterDate,
+            ],
+            [
+                'id' => $id,
+                ...$this->staffSnapshot($staff),
+                'roster_date' => $rosterDate,
+                'shift_id' => $shift->id,
+                'shift_name' => $shift->shift_name,
+                'start_time' => $shift->start_time,
+                'end_time' => $shift->end_time,
+                'status' => $payload['status'] ?? 'Scheduled',
+                'notes' => $payload['notes'] ?? null,
+                'assigned_by' => $this->actorName($request),
+                'created_at' => $existing?->created_at ?? ($payload['created_at'] ?? now()),
+                'updated_at' => now(),
+            ],
+        );
+
+        $row = DB::table('shift_rosters')
+            ->where('staff_id', $staff->id)
+            ->whereDate('roster_date', $rosterDate)
+            ->firstOrFail();
+
+        return response()->json($this->shiftRosterPayload($row), 201);
+    }
+
+    public function updateShiftRoster(string $id, Request $request)
+    {
+        $payload = $request->validate([
+            'shift_id' => ['required', 'string', 'exists:shifts,id'],
+            'status' => ['nullable', 'string', 'max:255'],
+            'notes' => ['nullable', 'string'],
+        ]);
+
+        $row = DB::table('shift_rosters')->where('id', $id)->firstOrFail();
+        $shift = DB::table('shifts')->where('id', $payload['shift_id'])->firstOrFail();
+
+        DB::table('shift_rosters')->where('id', $id)->update([
+            'shift_id' => $shift->id,
+            'shift_name' => $shift->shift_name,
+            'start_time' => $shift->start_time,
+            'end_time' => $shift->end_time,
+            'status' => $payload['status'] ?? $row->status,
+            'notes' => $payload['notes'] ?? $row->notes,
+            'updated_at' => now(),
+        ]);
+
+        return response()->json(
+            $this->shiftRosterPayload(DB::table('shift_rosters')->where('id', $id)->firstOrFail())
+        );
+    }
+
+    public function shiftSwapRequests(Request $request)
+    {
+        $query = DB::table('shift_swap_requests')->orderByDesc('created_at');
+
+        if ($response = $this->ensureScopedContext($request)) {
+            return $response;
+        }
+
+        if ($this->isStaffRequest($request)) {
+            $currentStaffId = $this->currentStaffId($request);
+            $query->where(function ($builder) use ($currentStaffId) {
+                $builder->where('requester_staff_id', $currentStaffId)
+                    ->orWhere('target_staff_id', $currentStaffId);
+            });
+        } elseif ($this->isSupervisorRequest($request)) {
+            $query->whereIn('requester_staff_id', $this->scopedStaffIdsQuery($request));
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->string('status'));
+        }
+
+        return response()->json($query->get()->map(fn ($row) => $this->shiftSwapRequestPayload($row))->all());
+    }
+
+    public function storeShiftSwapRequest(Request $request)
+    {
+        $payload = $request->validate([
+            'requester_staff_id' => ['required', 'string', 'exists:staff,id'],
+            'target_staff_id' => ['required', 'string', 'exists:staff,id', 'different:requester_staff_id'],
+            'roster_date' => ['required', 'date'],
+            'reason' => ['required', 'string'],
+            'created_at' => ['nullable', 'date'],
+        ]);
+
+        if ($response = $this->ensureAccessibleStaffId(
+            $request,
+            $payload['requester_staff_id'],
+            'You can only create shift swaps for your assigned team.',
+        )) {
+            return $response;
+        }
+
+        $requester = $this->staffRecord($payload['requester_staff_id']);
+        $target = $this->staffRecord($payload['target_staff_id']);
+        $rosterDate = Carbon::parse($payload['roster_date'])->toDateString();
+
+        $requesterRoster = DB::table('shift_rosters')
+            ->where('staff_id', $requester->id)
+            ->whereDate('roster_date', $rosterDate)
+            ->first();
+        $targetRoster = DB::table('shift_rosters')
+            ->where('staff_id', $target->id)
+            ->whereDate('roster_date', $rosterDate)
+            ->first();
+
+        if (! $requesterRoster || ! $targetRoster) {
+            throw ValidationException::withMessages([
+                'roster_date' => ['Both employees must have an assigned roster for the selected date.'],
+            ]);
+        }
+
+        $id = $this->generateId('swap');
+        DB::table('shift_swap_requests')->insert([
+            'id' => $id,
+            'requester_staff_id' => $requester->id,
+            'requester_name' => $requester->name,
+            'requester_code' => $requester->staff_code,
+            'target_staff_id' => $target->id,
+            'target_name' => $target->name,
+            'target_code' => $target->staff_code,
+            'roster_date' => $rosterDate,
+            'requester_shift_id' => $requesterRoster->shift_id,
+            'requester_shift_name' => $requesterRoster->shift_name,
+            'target_shift_id' => $targetRoster->shift_id,
+            'target_shift_name' => $targetRoster->shift_name,
+            'reason' => $payload['reason'],
+            'status' => 'Pending',
+            'created_at' => $payload['created_at'] ?? now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->createNotification([
+            'id' => 'notif_swap_'.$id,
+            'title' => 'Shift swap requested',
+            'body' => $requester->name.' requested a shift swap with '.$target->name.'.',
+            'type' => 'shift_swap',
+            'staff_id' => $requester->id,
+            'staff_name' => $requester->name,
+            'target_role' => 'admin',
+            'is_read' => false,
+        ]);
+
+        return response()->json(
+            $this->shiftSwapRequestPayload(DB::table('shift_swap_requests')->where('id', $id)->firstOrFail()),
+            201,
+        );
+    }
+
+    public function updateShiftSwapRequestStatus(string $id, Request $request)
+    {
+        $payload = $request->validate([
+            'status' => ['required', 'in:Pending,Approved,Rejected'],
+            'rejection_reason' => ['nullable', 'string'],
+        ]);
+
+        $swap = DB::table('shift_swap_requests')->where('id', $id)->firstOrFail();
+        if ($response = $this->ensureAccessibleStaffId(
+            $request,
+            $swap->requester_staff_id,
+            'You can only manage shift swaps within your assigned branch.',
+        )) {
+            return $response;
+        }
+
+        if ($payload['status'] === 'Approved') {
+            $requesterRoster = DB::table('shift_rosters')
+                ->where('staff_id', $swap->requester_staff_id)
+                ->whereDate('roster_date', $swap->roster_date)
+                ->firstOrFail();
+            $targetRoster = DB::table('shift_rosters')
+                ->where('staff_id', $swap->target_staff_id)
+                ->whereDate('roster_date', $swap->roster_date)
+                ->firstOrFail();
+
+            DB::table('shift_rosters')->where('id', $requesterRoster->id)->update([
+                'shift_id' => $targetRoster->shift_id,
+                'shift_name' => $targetRoster->shift_name,
+                'start_time' => $targetRoster->start_time,
+                'end_time' => $targetRoster->end_time,
+                'updated_at' => now(),
+            ]);
+
+            DB::table('shift_rosters')->where('id', $targetRoster->id)->update([
+                'shift_id' => $requesterRoster->shift_id,
+                'shift_name' => $requesterRoster->shift_name,
+                'start_time' => $requesterRoster->start_time,
+                'end_time' => $requesterRoster->end_time,
+                'updated_at' => now(),
+            ]);
+        }
+
+        DB::table('shift_swap_requests')->where('id', $id)->update([
+            'status' => $payload['status'],
+            'approved_by' => $payload['status'] === 'Pending' ? null : $this->actorName($request),
+            'approved_at' => $payload['status'] === 'Pending' ? null : now(),
+            'rejection_reason' => $payload['status'] === 'Rejected'
+                ? ($payload['rejection_reason'] ?? null)
+                : null,
+            'updated_at' => now(),
+        ]);
+
+        $updated = DB::table('shift_swap_requests')->where('id', $id)->firstOrFail();
+        $this->createNotification([
+            'id' => 'notif_swap_status_'.$updated->id.'_'.$updated->status,
+            'title' => 'Shift swap '.$updated->status,
+            'body' => 'Your shift swap request is now '.$updated->status.'.',
+            'type' => 'shift_swap',
+            'staff_id' => $updated->requester_staff_id,
+            'staff_name' => $updated->requester_name,
+            'target_role' => 'staff',
+            'is_read' => false,
+        ]);
+
+        return response()->json($this->shiftSwapRequestPayload($updated));
+    }
+
+    public function helpdeskTickets(Request $request)
+    {
+        $query = DB::table('helpdesk_tickets')->orderByDesc('created_at');
+
+        if ($response = $this->applyScopedStaffTableFilters(
+            $request,
+            $query,
+            'You can only access helpdesk tickets within your assigned branch.',
+        )) {
+            return $response;
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->string('status'));
+        }
+
+        return response()->json($query->get()->map(fn ($row) => $this->helpdeskTicketPayload($row))->all());
+    }
+
+    public function storeHelpdeskTicket(Request $request)
+    {
+        $payload = $request->validate([
+            'staff_id' => ['required', 'string', 'exists:staff,id'],
+            'subject' => ['required', 'string', 'max:255'],
+            'category' => ['required', 'string', 'max:255'],
+            'message' => ['required', 'string'],
+            'created_at' => ['nullable', 'date'],
+        ]);
+
+        if ($response = $this->ensureAccessibleStaffId(
+            $request,
+            $payload['staff_id'],
+            'You can only create helpdesk tickets for your assigned team.',
+        )) {
+            return $response;
+        }
+
+        $staff = $this->isStaffRequest($request)
+            ? $this->currentStaffProfile($request)
+            : $this->staffRecord($payload['staff_id']);
+        $id = $this->generateId('helpdesk');
+
+        DB::table('helpdesk_tickets')->insert([
+            'id' => $id,
+            ...$this->staffSnapshot($staff),
+            'subject' => $payload['subject'],
+            'category' => $payload['category'],
+            'message' => $payload['message'],
+            'status' => 'Open',
+            'created_at' => $payload['created_at'] ?? now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->createNotification([
+            'id' => 'notif_helpdesk_'.$id,
+            'title' => 'New helpdesk ticket',
+            'body' => $staff->name.' submitted a helpdesk ticket: '.$payload['subject'],
+            'type' => 'helpdesk',
+            'staff_id' => $staff->id,
+            'staff_name' => $staff->name,
+            'target_role' => 'admin',
+            'is_read' => false,
+        ]);
+
+        return response()->json(
+            $this->helpdeskTicketPayload(DB::table('helpdesk_tickets')->where('id', $id)->firstOrFail()),
+            201,
+        );
+    }
+
+    public function updateHelpdeskTicketStatus(string $id, Request $request)
+    {
+        $payload = $request->validate([
+            'status' => ['required', 'in:Open,In Progress,Resolved,Closed'],
+            'response' => ['nullable', 'string'],
+        ]);
+
+        $ticket = DB::table('helpdesk_tickets')->where('id', $id)->firstOrFail();
+        if ($response = $this->ensureAccessibleStaffId(
+            $request,
+            $ticket->staff_id,
+            'You can only manage helpdesk tickets within your assigned branch.',
+        )) {
+            return $response;
+        }
+
+        DB::table('helpdesk_tickets')->where('id', $id)->update([
+            'status' => $payload['status'],
+            'response' => $payload['response'] ?? $ticket->response,
+            'responded_by' => $this->actorName($request),
+            'responded_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $updated = DB::table('helpdesk_tickets')->where('id', $id)->firstOrFail();
+        $this->createNotification([
+            'id' => 'notif_helpdesk_status_'.$updated->id.'_'.$updated->status,
+            'title' => 'Helpdesk ticket updated',
+            'body' => $updated->subject.' is now '.$updated->status.'.',
+            'type' => 'helpdesk',
+            'staff_id' => $updated->staff_id,
+            'staff_name' => $updated->staff_name,
+            'target_role' => 'staff',
+            'is_read' => false,
+        ]);
+
+        return response()->json($this->helpdeskTicketPayload($updated));
+    }
+
+    public function publishAnnouncement(Request $request)
+    {
+        $payload = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'body' => ['required', 'string'],
+            'target_role' => ['required', Rule::in(['all', 'staff', 'supervisor', 'admin'])],
+        ]);
+
+        $id = $this->generateId('announcement');
+        $this->createNotification([
+            'id' => $id,
+            'title' => $payload['title'],
+            'body' => $payload['body'],
+            'type' => 'announcement',
+            'staff_id' => null,
+            'staff_name' => null,
+            'target_role' => $payload['target_role'],
+            'is_read' => false,
+        ]);
+
+        return response()->json(
+            $this->notificationPayload(DB::table('notifications')->where('id', $id)->firstOrFail()),
+            201,
+        );
+    }
+
+    public function storePushToken(Request $request)
+    {
+        $payload = $request->validate([
+            'token' => ['required', 'string', 'max:4096'],
+            'platform' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        DB::table('push_tokens')->updateOrInsert(
+            ['token' => $payload['token']],
+            [
+                'user_id' => $request->user()?->id,
+                'platform' => $payload['platform'] ?? null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        );
+
+        return response()->json(['success' => true]);
+    }
+
+    public function deletePushToken(Request $request)
+    {
+        $payload = $request->validate([
+            'token' => ['nullable', 'string', 'max:4096'],
+        ]);
+
+        $query = DB::table('push_tokens');
+        if (! empty($payload['token'])) {
+            $query->where('token', $payload['token']);
+        } else {
+            $query->where('user_id', $request->user()?->id);
+        }
+        $query->delete();
+
+        return response()->json(['success' => true]);
+    }
+
     public function holidays(Request $request)
     {
         $query = DB::table('holidays')->orderBy('date');
@@ -930,6 +1369,28 @@ class HrModuleController extends Controller
         $bestStaff = $staff->sortByDesc('kpi_score')->first();
         $lowestStaff = $staff->sortBy('kpi_score')->first();
         $highestOvertime = $staff->sortByDesc('overtime_hours')->first();
+        $documentAlerts = collect();
+        foreach ($staff as $staffRow) {
+            foreach ([
+                'passport_expire_date' => 'Passport',
+                'civil_id_expire_date' => 'Civil ID',
+                'contract_expire_date' => 'Contract',
+            ] as $field => $label) {
+                if (empty($staffRow->{$field})) {
+                    continue;
+                }
+                $daysRemaining = $date->copy()
+                    ->startOfDay()
+                    ->diffInDays(Carbon::parse($staffRow->{$field})->startOfDay(), false);
+                if ($daysRemaining <= 30) {
+                    $documentAlerts->push([
+                        'staff_id' => $staffRow->id,
+                        'document_type' => $label,
+                        'days_remaining' => $daysRemaining,
+                    ]);
+                }
+            }
+        }
 
         $mPresent = $monthlyAttendance->whereIn('status', ['Present', 'Late', 'Overtime', 'Missing Checkout'])->count();
         $mAbsent = $monthlyAttendance->where('status', 'Absent')->count();
@@ -956,6 +1417,8 @@ class HrModuleController extends Controller
             'best_staff' => $bestStaff?->name,
             'lowest_kpi_staff' => $lowestStaff?->name,
             'highest_overtime_staff' => $highestOvertime?->name,
+            'expiring_documents' => $documentAlerts->where('days_remaining', '>=', 0)->count(),
+            'expired_documents' => $documentAlerts->where('days_remaining', '<', 0)->count(),
         ]);
     }
 
@@ -1035,14 +1498,18 @@ class HrModuleController extends Controller
 
     private function createNotification(array $payload): void
     {
-        DB::table('notifications')->updateOrInsert(
-            ['id' => $payload['id']],
-            [
-                ...$payload,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        );
+        try {
+            DB::table('notifications')->updateOrInsert(
+                ['id' => $payload['id']],
+                [
+                    ...$payload,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+            );
+        } catch (\Throwable) {
+            // Notification creation is non-critical — never crash the main response
+        }
     }
 
     private function applyNotificationScope(Request $request, mixed $query): ?JsonResponse
@@ -1311,6 +1778,67 @@ class HrModuleController extends Controller
             'status' => $row->status,
             'approved_by' => $row->approved_by,
             'rejection_reason' => $row->rejection_reason,
+            'created_at' => $this->dateString($row->created_at),
+        ];
+    }
+
+    private function shiftRosterPayload(object $row): array
+    {
+        return [
+            'id' => $row->id,
+            'staff_id' => $row->staff_id,
+            'staff_name' => $row->staff_name,
+            'staff_code' => $row->staff_code,
+            'roster_date' => $this->dateString($row->roster_date),
+            'shift_id' => $row->shift_id,
+            'shift_name' => $row->shift_name,
+            'start_time' => $row->start_time,
+            'end_time' => $row->end_time,
+            'status' => $row->status,
+            'notes' => $row->notes,
+            'assigned_by' => $row->assigned_by,
+            'created_at' => $this->dateString($row->created_at),
+        ];
+    }
+
+    private function shiftSwapRequestPayload(object $row): array
+    {
+        return [
+            'id' => $row->id,
+            'requester_staff_id' => $row->requester_staff_id,
+            'requester_name' => $row->requester_name,
+            'requester_code' => $row->requester_code,
+            'target_staff_id' => $row->target_staff_id,
+            'target_name' => $row->target_name,
+            'target_code' => $row->target_code,
+            'roster_date' => $this->dateString($row->roster_date),
+            'requester_shift_id' => $row->requester_shift_id,
+            'requester_shift_name' => $row->requester_shift_name,
+            'target_shift_id' => $row->target_shift_id,
+            'target_shift_name' => $row->target_shift_name,
+            'reason' => $row->reason,
+            'status' => $row->status,
+            'approved_by' => $row->approved_by,
+            'approved_at' => $this->dateString($row->approved_at),
+            'rejection_reason' => $row->rejection_reason,
+            'created_at' => $this->dateString($row->created_at),
+        ];
+    }
+
+    private function helpdeskTicketPayload(object $row): array
+    {
+        return [
+            'id' => $row->id,
+            'staff_id' => $row->staff_id,
+            'staff_name' => $row->staff_name,
+            'staff_code' => $row->staff_code,
+            'subject' => $row->subject,
+            'category' => $row->category,
+            'message' => $row->message,
+            'status' => $row->status,
+            'response' => $row->response,
+            'responded_by' => $row->responded_by,
+            'responded_at' => $this->dateString($row->responded_at),
             'created_at' => $this->dateString($row->created_at),
         ];
     }

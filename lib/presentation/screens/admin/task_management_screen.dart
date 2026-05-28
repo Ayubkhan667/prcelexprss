@@ -65,7 +65,7 @@ class _TaskManagementScreenState extends ConsumerState<TaskManagementScreen> {
               children: [
                 Expanded(
                   child: _summaryCard(
-                    'Pending',
+                    context.tr('pending_label'),
                     pendingCount.toString(),
                     AppColors.warning,
                   ),
@@ -73,7 +73,7 @@ class _TaskManagementScreenState extends ConsumerState<TaskManagementScreen> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: _summaryCard(
-                    'Done',
+                    context.tr('done_label'),
                     completedCount.toString(),
                     AppColors.success,
                   ),
@@ -81,7 +81,7 @@ class _TaskManagementScreenState extends ConsumerState<TaskManagementScreen> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: _summaryCard(
-                    'Closed',
+                    context.tr('closed_label'),
                     terminatedCount.toString(),
                     AppColors.error,
                   ),
@@ -130,7 +130,7 @@ class _TaskManagementScreenState extends ConsumerState<TaskManagementScreen> {
         children: [
           TextField(
             decoration: InputDecoration(
-              hintText: 'Search task or employee',
+              hintText: context.tr('search_task_employee'),
               prefixIcon: const Icon(Icons.search),
               filled: true,
               fillColor: AppColors.background,
@@ -147,7 +147,7 @@ class _TaskManagementScreenState extends ConsumerState<TaskManagementScreen> {
           DropdownButtonFormField<String>(
             value: _staffFilter.isEmpty ? null : _staffFilter,
             decoration: InputDecoration(
-              labelText: 'Employee Filter',
+              labelText: context.tr('employee_filter'),
               filled: true,
               fillColor: AppColors.background,
               border: OutlineInputBorder(
@@ -175,10 +175,10 @@ class _TaskManagementScreenState extends ConsumerState<TaskManagementScreen> {
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
-                _statusChip('', 'All'),
-                _statusChip(AppConstants.taskStatusPending, 'Pending'),
-                _statusChip(AppConstants.taskStatusCompleted, 'Completed'),
-                _statusChip(AppConstants.taskStatusTerminated, 'Closed'),
+                _statusChip('', context.tr('all_label')),
+                _statusChip(AppConstants.taskStatusPending, context.tr('pending_label')),
+                _statusChip(AppConstants.taskStatusCompleted, context.tr('completed_label')),
+                _statusChip(AppConstants.taskStatusTerminated, context.tr('closed_label')),
               ],
             ),
           ),
@@ -324,14 +324,14 @@ class _TaskManagementScreenState extends ConsumerState<TaskManagementScreen> {
             spacing: 8,
             runSpacing: 8,
             children: [
-              _metaChip(Icons.schedule, 'Due $dueText', AppColors.primary),
+              _metaChip(Icons.schedule, '${context.tr('due_prefix')} $dueText', AppColors.primary),
               if (task.isDailyTask)
-                _metaChip(Icons.today, 'Daily Task', AppColors.warning),
+                _metaChip(Icons.today, context.tr('daily_task'), AppColors.warning),
               if (task.assignedToAll)
-                _metaChip(Icons.groups_2, 'All Staff Batch', AppColors.accent),
+                _metaChip(Icons.groups_2, context.tr('all_staff_batch'), AppColors.accent),
               _metaChip(
                 Icons.admin_panel_settings,
-                'By ${task.assignedBy}',
+                '${context.tr('by_prefix')} ${task.assignedBy}',
                 AppColors.textSecondary,
               ),
             ],
@@ -340,7 +340,7 @@ class _TaskManagementScreenState extends ConsumerState<TaskManagementScreen> {
           if (task.status == AppConstants.taskStatusCompleted &&
               task.completedAt != null)
             Text(
-              'Completed ${DateFormat('dd MMM, hh:mm a').format(task.completedAt!)}',
+              '${context.tr('completed_at')} ${DateFormat('dd MMM, hh:mm a').format(task.completedAt!)}',
               style: const TextStyle(
                 fontSize: 12,
                 color: AppColors.success,
@@ -350,7 +350,7 @@ class _TaskManagementScreenState extends ConsumerState<TaskManagementScreen> {
           if (task.status == AppConstants.taskStatusTerminated &&
               task.terminatedAt != null)
             Text(
-              'Closed ${DateFormat('dd MMM, hh:mm a').format(task.terminatedAt!)}',
+              '${context.tr('closed_at')} ${DateFormat('dd MMM, hh:mm a').format(task.terminatedAt!)}',
               style: const TextStyle(
                 fontSize: 12,
                 color: AppColors.error,
@@ -406,15 +406,15 @@ class _TaskManagementScreenState extends ConsumerState<TaskManagementScreen> {
   }
 
   Widget _emptyState() {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.assignment_outlined, size: 72, color: AppColors.textHint),
-          SizedBox(height: 12),
+          const Icon(Icons.assignment_outlined, size: 72, color: AppColors.textHint),
+          const SizedBox(height: 12),
           Text(
-            'No task cards found',
-            style: TextStyle(
+            context.tr('no_task_cards'),
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: AppColors.textSecondary,
@@ -428,9 +428,9 @@ class _TaskManagementScreenState extends ConsumerState<TaskManagementScreen> {
   Future<void> _terminateTask(TaskModel task) async {
     final confirm = await AppUtils.showConfirmDialog(
       context,
-      title: 'Terminate Task',
+      title: context.tr('terminate_task'),
       message: 'Close "${task.title}" for ${task.staffName}?',
-      confirmText: 'Terminate',
+      confirmText: context.tr('terminate'),
       isDangerous: true,
     );
     if (confirm != true) {
@@ -458,6 +458,7 @@ class _TaskManagementScreenState extends ConsumerState<TaskManagementScreen> {
         ),
       );
     } catch (_) {
+      ref.read(mockDataRevisionProvider.notifier).state++;
       if (!mounted) {
         return;
       }
@@ -524,29 +525,28 @@ class _TaskManagementScreenState extends ConsumerState<TaskManagementScreen> {
                     const SizedBox(height: 16),
                     TextField(
                       controller: titleCtrl,
-                      decoration: _fieldDecoration('Task title'),
+                      decoration: _fieldDecoration(context.tr('task_title')),
                     ),
                     const SizedBox(height: 12),
                     TextField(
                       controller: descriptionCtrl,
                       minLines: 3,
                       maxLines: 5,
-                      decoration: _fieldDecoration('Task description'),
+                      decoration: _fieldDecoration(context.tr('task_description')),
                     ),
                     const SizedBox(height: 12),
                     SwitchListTile.adaptive(
                       value: assignToAll,
                       contentPadding: EdgeInsets.zero,
                       title: Text(context.tr('assign_to_all_active')),
-                      subtitle:
-                          Text(context.tr('creates_task_card_for_each')),
+                      subtitle: Text(context.tr('creates_task_card_for_each')),
                       onChanged: (value) =>
                           setSheetState(() => assignToAll = value),
                     ),
                     if (!assignToAll)
                       DropdownButtonFormField<String>(
                         value: selectedStaffId.isEmpty ? null : selectedStaffId,
-                        decoration: _fieldDecoration('Select employee'),
+                        decoration: _fieldDecoration(context.tr('select_employee')),
                         items: activeStaff
                             .map(
                               (staff) => DropdownMenuItem<String>(
@@ -580,9 +580,9 @@ class _TaskManagementScreenState extends ConsumerState<TaskManagementScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Due Date & Time',
-                            style: TextStyle(
+                          Text(
+                            context.tr('due_date_time'),
+                            style: const TextStyle(
                               fontWeight: FontWeight.w700,
                               color: AppColors.textPrimary,
                             ),
@@ -728,6 +728,7 @@ class _TaskManagementScreenState extends ConsumerState<TaskManagementScreen> {
                               ),
                             );
                           } catch (_) {
+                            ref.read(mockDataRevisionProvider.notifier).state++;
                             if (!mounted || !context.mounted) {
                               return;
                             }

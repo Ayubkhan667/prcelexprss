@@ -403,6 +403,7 @@ class _AttendanceEditLogScreenState
           );
       ref.read(mockDataRevisionProvider.notifier).state++;
     } catch (_) {
+      ref.read(mockDataRevisionProvider.notifier).state++;
       if (!mounted) {
         return;
       }
@@ -431,6 +432,7 @@ class _AttendanceEditLogScreenState
           );
       ref.read(mockDataRevisionProvider.notifier).state++;
     } catch (_) {
+      ref.read(mockDataRevisionProvider.notifier).state++;
       if (!mounted) {
         return;
       }
@@ -460,7 +462,8 @@ class _AttendanceEditLogScreenState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(context.tr('filter_by_approval_status'),
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             const SizedBox(height: 16),
             ...['All', 'Pending', 'Approved', 'Rejected'].map((s) {
               final value = s == 'All' ? '' : s;

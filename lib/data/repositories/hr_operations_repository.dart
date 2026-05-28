@@ -1,4 +1,5 @@
 import '../models/attendance_edit_log_model.dart';
+import '../models/helpdesk_ticket_model.dart';
 import '../models/expense_model.dart';
 import '../models/holiday_model.dart';
 import '../models/kpi_model.dart';
@@ -8,6 +9,8 @@ import '../models/notification_model.dart';
 import '../models/salary_model.dart';
 import '../models/staff_model.dart';
 import '../models/task_model.dart';
+import '../models/shift_roster_model.dart';
+import '../models/shift_swap_request_model.dart';
 import '../remote/hr_operations_remote_data_source.dart';
 import '../services/mock_data_service.dart';
 
@@ -59,6 +62,11 @@ abstract class HrOperationsRepository {
     String? staffId,
     String? type,
   });
+  Future<NotificationModel?> publishAnnouncement({
+    required String title,
+    required String body,
+    required String targetRole,
+  });
 
   Future<List<ExpenseModel>> getExpenses({String? staffId, String? status});
   Future<void> addExpense(
@@ -75,6 +83,42 @@ abstract class HrOperationsRepository {
   Future<List<HolidayModel>> getHolidays({int? year});
   Future<void> addHoliday(HolidayModel holiday);
   Future<void> removeHoliday(String id);
+
+  Future<List<ShiftRosterModel>> getShiftRosters({
+    String? staffId,
+    DateTime? fromDate,
+    DateTime? toDate,
+  });
+  Future<ShiftRosterModel?> saveShiftRoster({
+    required ShiftRosterModel roster,
+    required bool isEdit,
+  });
+  Future<List<ShiftSwapRequestModel>> getShiftSwapRequests({String? status});
+  Future<ShiftSwapRequestModel?> addShiftSwapRequest(
+    ShiftSwapRequestModel request,
+  );
+  Future<ShiftSwapRequestModel?> updateShiftSwapRequestStatus({
+    required String requestId,
+    required String status,
+    String? rejectionReason,
+  });
+
+  Future<List<HelpdeskTicketModel>> getHelpdeskTickets({
+    String? staffId,
+    String? status,
+  });
+  Future<HelpdeskTicketModel?> addHelpdeskTicket(HelpdeskTicketModel ticket);
+  Future<HelpdeskTicketModel?> updateHelpdeskTicketStatus({
+    required String ticketId,
+    required String status,
+    String? response,
+  });
+
+  Future<void> registerPushToken({
+    required String token,
+    required String platform,
+  });
+  Future<void> deletePushToken({String? token});
 
   Future<List<AttendanceEditLogModel>> getEditLogs({
     String? staffId,
@@ -235,6 +279,24 @@ class MockHrOperationsRepository implements HrOperationsRepository {
   }
 
   @override
+  Future<NotificationModel?> publishAnnouncement({
+    required String title,
+    required String body,
+    required String targetRole,
+  }) async {
+    final announcement = NotificationModel(
+      id: 'announcement_${DateTime.now().millisecondsSinceEpoch}',
+      title: title,
+      body: body,
+      type: 'announcement',
+      targetRole: targetRole,
+      createdAt: DateTime.now(),
+    );
+    _dataService.addNotification(announcement);
+    return announcement;
+  }
+
+  @override
   Future<List<ExpenseModel>> getExpenses(
       {String? staffId, String? status}) async {
     return _dataService.getExpenses(staffId: staffId, status: status);
@@ -280,6 +342,109 @@ class MockHrOperationsRepository implements HrOperationsRepository {
   Future<void> removeHoliday(String id) async {
     _dataService.removeHoliday(id);
   }
+
+  @override
+  Future<List<ShiftRosterModel>> getShiftRosters({
+    String? staffId,
+    DateTime? fromDate,
+    DateTime? toDate,
+  }) async {
+    return _dataService.getShiftRosters(
+      staffId: staffId,
+      fromDate: fromDate,
+      toDate: toDate,
+    );
+  }
+
+  @override
+  Future<ShiftRosterModel?> saveShiftRoster({
+    required ShiftRosterModel roster,
+    required bool isEdit,
+  }) async {
+    _dataService.saveShiftRoster(roster, isEdit: isEdit);
+    return _dataService.getShiftRosters().firstWhere((item) =>
+        item.staffId == roster.staffId &&
+        item.rosterDate.year == roster.rosterDate.year &&
+        item.rosterDate.month == roster.rosterDate.month &&
+        item.rosterDate.day == roster.rosterDate.day);
+  }
+
+  @override
+  Future<List<ShiftSwapRequestModel>> getShiftSwapRequests({
+    String? status,
+  }) async {
+    return _dataService.getShiftSwapRequests(status: status);
+  }
+
+  @override
+  Future<ShiftSwapRequestModel?> addShiftSwapRequest(
+    ShiftSwapRequestModel request,
+  ) async {
+    _dataService.addShiftSwapRequest(request);
+    return _dataService
+        .getShiftSwapRequests()
+        .firstWhere((item) => item.id == request.id);
+  }
+
+  @override
+  Future<ShiftSwapRequestModel?> updateShiftSwapRequestStatus({
+    required String requestId,
+    required String status,
+    String? rejectionReason,
+  }) async {
+    _dataService.updateShiftSwapRequestStatus(
+      requestId: requestId,
+      status: status,
+      rejectionReason: rejectionReason,
+      approvedBy: 'Admin',
+    );
+    return _dataService
+        .getShiftSwapRequests()
+        .firstWhere((item) => item.id == requestId);
+  }
+
+  @override
+  Future<List<HelpdeskTicketModel>> getHelpdeskTickets({
+    String? staffId,
+    String? status,
+  }) async {
+    return _dataService.getHelpdeskTickets(staffId: staffId, status: status);
+  }
+
+  @override
+  Future<HelpdeskTicketModel?> addHelpdeskTicket(
+      HelpdeskTicketModel ticket) async {
+    _dataService.addHelpdeskTicket(ticket);
+    return _dataService
+        .getHelpdeskTickets()
+        .firstWhere((item) => item.id == ticket.id);
+  }
+
+  @override
+  Future<HelpdeskTicketModel?> updateHelpdeskTicketStatus({
+    required String ticketId,
+    required String status,
+    String? response,
+  }) async {
+    _dataService.updateHelpdeskTicketStatus(
+      ticketId: ticketId,
+      status: status,
+      response: response,
+      respondedBy: 'Admin',
+    );
+    return _dataService
+        .getHelpdeskTickets()
+        .firstWhere((item) => item.id == ticketId);
+  }
+
+  @override
+  Future<void> registerPushToken({
+    required String token,
+    required String platform,
+  }) async {}
+
+  @override
+  Future<void> deletePushToken({String? token}) async {}
 
   @override
   Future<List<AttendanceEditLogModel>> getEditLogs({
@@ -460,6 +625,19 @@ class RemoteHrOperationsRepository implements HrOperationsRepository {
   }
 
   @override
+  Future<NotificationModel?> publishAnnouncement({
+    required String title,
+    required String body,
+    required String targetRole,
+  }) {
+    return _remoteDataSource.publishAnnouncement(
+      title: title,
+      body: body,
+      targetRole: targetRole,
+    );
+  }
+
+  @override
   Future<List<ExpenseModel>> getExpenses({String? staffId, String? status}) {
     return _remoteDataSource.fetchExpenses(staffId: staffId, status: status);
   }
@@ -503,6 +681,102 @@ class RemoteHrOperationsRepository implements HrOperationsRepository {
   @override
   Future<void> removeHoliday(String id) {
     return _remoteDataSource.deleteHoliday(id);
+  }
+
+  @override
+  Future<List<ShiftRosterModel>> getShiftRosters({
+    String? staffId,
+    DateTime? fromDate,
+    DateTime? toDate,
+  }) {
+    return _remoteDataSource.fetchShiftRosters(
+      staffId: staffId,
+      fromDate: fromDate,
+      toDate: toDate,
+    );
+  }
+
+  @override
+  Future<ShiftRosterModel?> saveShiftRoster({
+    required ShiftRosterModel roster,
+    required bool isEdit,
+  }) {
+    return _remoteDataSource.saveShiftRoster(
+      roster: roster,
+      isEdit: isEdit,
+    );
+  }
+
+  @override
+  Future<List<ShiftSwapRequestModel>> getShiftSwapRequests({
+    String? status,
+  }) {
+    return _remoteDataSource.fetchShiftSwapRequests(status: status);
+  }
+
+  @override
+  Future<ShiftSwapRequestModel?> addShiftSwapRequest(
+    ShiftSwapRequestModel request,
+  ) {
+    return _remoteDataSource.saveShiftSwapRequest(request);
+  }
+
+  @override
+  Future<ShiftSwapRequestModel?> updateShiftSwapRequestStatus({
+    required String requestId,
+    required String status,
+    String? rejectionReason,
+  }) {
+    return _remoteDataSource.updateShiftSwapRequestStatus(
+      requestId: requestId,
+      status: status,
+      rejectionReason: rejectionReason,
+    );
+  }
+
+  @override
+  Future<List<HelpdeskTicketModel>> getHelpdeskTickets({
+    String? staffId,
+    String? status,
+  }) {
+    return _remoteDataSource.fetchHelpdeskTickets(
+      staffId: staffId,
+      status: status,
+    );
+  }
+
+  @override
+  Future<HelpdeskTicketModel?> addHelpdeskTicket(HelpdeskTicketModel ticket) {
+    return _remoteDataSource.saveHelpdeskTicket(ticket);
+  }
+
+  @override
+  Future<HelpdeskTicketModel?> updateHelpdeskTicketStatus({
+    required String ticketId,
+    required String status,
+    String? response,
+  }) {
+    return _remoteDataSource.updateHelpdeskTicketStatus(
+      ticketId: ticketId,
+      status: status,
+      response: response,
+    );
+  }
+
+  @override
+  Future<void> registerPushToken({
+    required String token,
+    required String platform,
+  }) {
+    return _remoteDataSource.registerPushToken(
+      token: token,
+      platform: platform,
+    );
+  }
+
+  @override
+  Future<void> deletePushToken({String? token}) {
+    return _remoteDataSource.deletePushToken(token: token);
   }
 
   @override

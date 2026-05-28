@@ -50,9 +50,9 @@ class _LeaveApprovalScreenState extends ConsumerState<LeaveApprovalScreen>
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white70,
           tabs: [
-            Tab(text: 'Pending (${pending.length})'),
-            Tab(text: 'Approved'),
-            Tab(text: 'Rejected'),
+            Tab(text: '${context.tr('pending_tab')} (${pending.length})'),
+            Tab(text: context.tr('approved_tab')),
+            Tab(text: context.tr('rejected_tab')),
           ],
         ),
       ),
@@ -171,13 +171,13 @@ class _LeaveApprovalScreenState extends ConsumerState<LeaveApprovalScreen>
                 Text(leave.reason, style: const TextStyle(fontSize: 13)),
                 if (leave.approvedBy != null) ...[
                   const SizedBox(height: 6),
-                  Text('Approved by: ${leave.approvedBy}',
+                  Text('${context.tr('approved_by')}: ${leave.approvedBy}',
                       style: const TextStyle(
                           fontSize: 11, color: AppColors.success)),
                 ],
                 if (leave.rejectionReason != null) ...[
                   const SizedBox(height: 6),
-                  Text('Rejection: ${leave.rejectionReason}',
+                  Text('${context.tr('rejection_prefix')}: ${leave.rejectionReason}',
                       style: const TextStyle(
                           fontSize: 11, color: AppColors.error)),
                 ],
@@ -273,7 +273,7 @@ class _LeaveApprovalScreenState extends ConsumerState<LeaveApprovalScreen>
           title: Text(context.tr('reject_leave')),
           content: TextField(
             controller: reasonCtrl,
-            decoration: const InputDecoration(labelText: 'Rejection reason'),
+            decoration: InputDecoration(labelText: context.tr('rejection_reason')),
             maxLines: 2,
           ),
           actions: [

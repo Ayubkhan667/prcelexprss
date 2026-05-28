@@ -45,13 +45,13 @@ class SalaryManagementScreen extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _summaryItem(
-                    'Total Payroll',
+                    context.tr('total_payroll'),
                     'OMR ${totalNet.toStringAsFixed(0)}',
                     AppColors.primary,
                     Icons.payments),
-                _summaryItem('Pending', pendingCount.toString(),
+                _summaryItem(context.tr('pending_status'), pendingCount.toString(),
                     AppColors.warning, Icons.pending_actions),
-                _summaryItem('Paid', paidCount.toString(), AppColors.success,
+                _summaryItem(context.tr('paid_status'), paidCount.toString(), AppColors.success,
                     Icons.check_circle_outline),
               ],
             ),
@@ -125,26 +125,26 @@ class SalaryManagementScreen extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _salaryRow('Basic Salary', salary.basicSalary,
+                    _salaryRow(context.tr('basic_salary'), salary.basicSalary,
                         AppColors.textPrimary),
                     _salaryRow(
-                        'Overtime', salary.overtimeAmount, AppColors.success),
+                        context.tr('overtime'), salary.overtimeAmount, AppColors.success),
                   ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _salaryRow(
-                        'Allowance', salary.allowance, AppColors.primary),
-                    _salaryRow('Deduction', salary.deduction, AppColors.error),
+                        context.tr('allowance'), salary.allowance, AppColors.primary),
+                    _salaryRow(context.tr('deduction'), salary.deduction, AppColors.error),
                   ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _salaryRow('Loan Deduction', salary.loanDeduction,
+                    _salaryRow(context.tr('loan_deduction'), salary.loanDeduction,
                         AppColors.error),
-                    _salaryRow('Absence Ded.', salary.absenceDeduction,
+                    _salaryRow(context.tr('absence_ded_short'), salary.absenceDeduction,
                         AppColors.error),
                   ],
                 ),
@@ -168,7 +168,7 @@ class SalaryManagementScreen extends ConsumerWidget {
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () => _showSalaryDetail(context, salary),
-                        child: const Text('View Details'),
+                        child: Text(context.tr('view_details')),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -233,28 +233,28 @@ class SalaryManagementScreen extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Salary Details - ${salary.staffName}',
+            Text('${ctx.tr('salary_details')} - ${salary.staffName}',
                 style:
                     const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
             Text(salary.month,
                 style: const TextStyle(
                     fontSize: 12, color: AppColors.textSecondary)),
             const Divider(height: 20),
-            _detailRow('Basic Salary', salary.basicSalary, false),
-            _detailRow('Overtime Amount', salary.overtimeAmount, false),
-            _detailRow('Allowance', salary.allowance, false),
+            _detailRow(ctx.tr('basic_salary'), salary.basicSalary, false),
+            _detailRow(ctx.tr('overtime_amount'), salary.overtimeAmount, false),
+            _detailRow(ctx.tr('allowance'), salary.allowance, false),
             const Divider(height: 16),
-            _detailRow('Loan Deduction', salary.loanDeduction, true),
-            _detailRow('Absence Deduction', salary.absenceDeduction, true),
-            _detailRow('Other Deduction', salary.deduction, true),
-            _detailRow('Penalty', salary.penalty, true),
+            _detailRow(ctx.tr('loan_deduction'), salary.loanDeduction, true),
+            _detailRow(ctx.tr('absence_ded_short'), salary.absenceDeduction, true),
+            _detailRow(ctx.tr('other_deduction'), salary.deduction, true),
+            _detailRow(ctx.tr('penalty'), salary.penalty, true),
             const Divider(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(ctx.tr('net_salary_caps'),
-                    style:
-                        const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w700)),
                 Text('OMR ${salary.netSalary.toStringAsFixed(0)}',
                     style: const TextStyle(
                         fontSize: 18,
@@ -296,11 +296,11 @@ class SalaryManagementScreen extends ConsumerWidget {
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(context.tr('generate_salary')),
-        content: const Text(
-            'Generate salary for all active staff for the current month?'),
+        content: Text(context.tr('generate_salary_confirm')),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx), child: Text(context.tr('cancel'))),
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(context.tr('cancel'))),
           ElevatedButton(
             onPressed: () async {
               int generated = 0;
@@ -310,6 +310,7 @@ class SalaryManagementScreen extends ConsumerWidget {
                     .generateSalariesForMonth(DateTime.now());
                 ref.read(mockDataRevisionProvider.notifier).state++;
               } catch (_) {
+                ref.read(mockDataRevisionProvider.notifier).state++;
                 if (!context.mounted) {
                   return;
                 }
@@ -350,6 +351,7 @@ class SalaryManagementScreen extends ConsumerWidget {
           );
       ref.read(mockDataRevisionProvider.notifier).state++;
     } catch (_) {
+      ref.read(mockDataRevisionProvider.notifier).state++;
       if (!context.mounted) {
         return;
       }

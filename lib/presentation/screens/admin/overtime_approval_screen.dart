@@ -66,9 +66,9 @@ class _OvertimeApprovalScreenState extends ConsumerState<OvertimeApprovalScreen>
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white70,
           tabs: [
-            Tab(text: 'Pending (${pending.length})'),
-            Tab(text: 'Approved (${approved.length})'),
-            Tab(text: 'Rejected (${rejected.length})'),
+            Tab(text: '${context.tr('pending_tab')} (${pending.length})'),
+            Tab(text: '${context.tr('approved_tab')} (${approved.length})'),
+            Tab(text: '${context.tr('rejected_tab')} (${rejected.length})'),
           ],
         ),
       ),
@@ -106,7 +106,7 @@ class _OvertimeApprovalScreenState extends ConsumerState<OvertimeApprovalScreen>
       child: Row(
         children: [
           _summaryTile(
-            'Pending',
+            context.tr('pending_tab'),
             pending.length,
             pending.fold<double>(
                 0, (sum, record) => sum + record.overtimeHours),
@@ -114,7 +114,7 @@ class _OvertimeApprovalScreenState extends ConsumerState<OvertimeApprovalScreen>
           ),
           Container(width: 1, height: 40, color: AppColors.divider),
           _summaryTile(
-            'Approved',
+            context.tr('approved_tab'),
             approved.length,
             approved.fold<double>(
                 0, (sum, record) => sum + record.overtimeHours),
@@ -122,7 +122,7 @@ class _OvertimeApprovalScreenState extends ConsumerState<OvertimeApprovalScreen>
           ),
           Container(width: 1, height: 40, color: AppColors.divider),
           _summaryTile(
-            'Rejected',
+            context.tr('rejected_tab'),
             rejected.length,
             rejected.fold<double>(
                 0, (sum, record) => sum + record.overtimeHours),
@@ -149,7 +149,7 @@ class _OvertimeApprovalScreenState extends ConsumerState<OvertimeApprovalScreen>
             ),
             const SizedBox(height: 4),
             Text(
-              '$count records',
+              '$count ${context.tr('records_label')}',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: color,
@@ -171,10 +171,10 @@ class _OvertimeApprovalScreenState extends ConsumerState<OvertimeApprovalScreen>
     bool showActions = false,
   }) {
     if (records.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
-          'No overtime records',
-          style: TextStyle(color: AppColors.textSecondary),
+          context.tr('no_overtime_records'),
+          style: const TextStyle(color: AppColors.textSecondary),
         ),
       );
     }
@@ -325,26 +325,26 @@ class _OvertimeApprovalScreenState extends ConsumerState<OvertimeApprovalScreen>
                 children: [
                   _detailItem(
                     Icons.login,
-                    'Check In',
+                    context.tr('check_in'),
                     record.checkInTime != null
                         ? _fmt(record.checkInTime!)
                         : '--',
                   ),
                   _detailItem(
                     Icons.logout,
-                    'Check Out',
+                    context.tr('check_out'),
                     record.checkOutTime != null
                         ? _fmt(record.checkOutTime!)
                         : '--',
                   ),
                   _detailItem(
                     Icons.schedule,
-                    'Total Hours',
+                    context.tr('total_hours'),
                     '${record.workingHours.toStringAsFixed(1)}h',
                   ),
                   _detailItem(
                     Icons.payments,
-                    'OT Amount',
+                    context.tr('ot_amount'),
                     'OMR ${overtimeAmount.toStringAsFixed(0)}',
                     color: AppColors.success,
                   ),
@@ -461,6 +461,7 @@ class _OvertimeApprovalScreenState extends ConsumerState<OvertimeApprovalScreen>
         ),
       );
     } catch (_) {
+      ref.read(mockDataRevisionProvider.notifier).state++;
       if (!mounted) {
         return;
       }
@@ -495,7 +496,7 @@ class _OvertimeApprovalScreenState extends ConsumerState<OvertimeApprovalScreen>
 
   String _statusLabel(String status) {
     if (_isPendingLabel(status)) {
-      return 'Pending';
+      return context.tr('pending_tab');
     }
     return status;
   }

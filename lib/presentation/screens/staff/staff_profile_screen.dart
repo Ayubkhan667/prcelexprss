@@ -536,7 +536,8 @@ class _StaffProfileScreenState extends ConsumerState<StaffProfileScreen> {
                             title: Text(context.tr('biometric_login'),
                                 style: const TextStyle(
                                     fontSize: 14, color: AppColors.textHint)),
-                            subtitle: Text(context.tr('not_available_on_device'),
+                            subtitle: Text(
+                                context.tr('not_available_on_device'),
                                 style: const TextStyle(fontSize: 12)),
                           ),
                   ),

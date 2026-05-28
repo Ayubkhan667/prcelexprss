@@ -22,6 +22,7 @@ class SoundService {
   Future<void>? _initializing;
   DateTime _lastClickAt = DateTime.fromMillisecondsSinceEpoch(0);
   bool _ready = false;
+  bool soundEnabled = true;
 
   Future<void> init() {
     if (_ready) return Future.value();
@@ -52,6 +53,7 @@ class SoundService {
   Future<void> playClick({
     Duration delay = Duration.zero,
   }) async {
+    if (!soundEnabled) return;
     if (delay > Duration.zero) {
       if (DateTime.now().difference(_lastClickAt) <
           const Duration(milliseconds: 120)) {
@@ -69,6 +71,7 @@ class SoundService {
   }
 
   Future<void> playConfirm() async {
+    if (!soundEnabled) return;
     cancelPendingClick();
     try {
       await HapticFeedback.mediumImpact();
@@ -77,6 +80,7 @@ class SoundService {
   }
 
   Future<void> playReject() async {
+    if (!soundEnabled) return;
     cancelPendingClick();
     try {
       await HapticFeedback.heavyImpact();

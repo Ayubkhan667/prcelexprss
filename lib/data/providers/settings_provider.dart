@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/utils/tap_effects.dart';
 import '../local/hr_settings_storage.dart';
 
 class HrSettings {
@@ -30,6 +31,7 @@ class HrSettings {
   final bool supervisorTaskAccess;
   final bool supervisorReportsAccess;
   final bool supervisorNotificationsAccess;
+  final bool soundEnabled;
 
   const HrSettings({
     this.gracePeriodMinutes = 15,
@@ -56,6 +58,7 @@ class HrSettings {
     this.supervisorTaskAccess = false,
     this.supervisorReportsAccess = true,
     this.supervisorNotificationsAccess = true,
+    this.soundEnabled = true,
     this.departments = const [
       'Operations',
       'HR & Admin',
@@ -92,6 +95,7 @@ class HrSettings {
     bool? supervisorTaskAccess,
     bool? supervisorReportsAccess,
     bool? supervisorNotificationsAccess,
+    bool? soundEnabled,
   }) =>
       HrSettings(
         gracePeriodMinutes: gracePeriodMinutes ?? this.gracePeriodMinutes,
@@ -125,6 +129,7 @@ class HrSettings {
             supervisorReportsAccess ?? this.supervisorReportsAccess,
         supervisorNotificationsAccess:
             supervisorNotificationsAccess ?? this.supervisorNotificationsAccess,
+        soundEnabled: soundEnabled ?? this.soundEnabled,
         departments: departments ?? this.departments,
       );
 
@@ -156,6 +161,7 @@ class HrSettings {
       supervisorReportsAccess: map['supervisor_reports_access'] ?? true,
       supervisorNotificationsAccess:
           map['supervisor_notifications_access'] ?? true,
+      soundEnabled: map['sound_enabled'] ?? true,
       departments: ((map['departments'] as List<dynamic>?)?.isNotEmpty ?? false)
           ? (map['departments'] as List<dynamic>)
               .map((department) => department.toString())
@@ -196,6 +202,7 @@ class HrSettings {
         'supervisor_task_access': supervisorTaskAccess,
         'supervisor_reports_access': supervisorReportsAccess,
         'supervisor_notifications_access': supervisorNotificationsAccess,
+        'sound_enabled': soundEnabled,
         'departments': departments,
       };
 }
@@ -211,6 +218,7 @@ class HrSettingsNotifier extends Notifier<HrSettings> {
   void update(HrSettings Function(HrSettings) fn) {
     final next = fn(state);
     state = next;
+    SoundService.instance.soundEnabled = next.soundEnabled;
     unawaited(HrSettingsStorage().saveSettingsMap(next.toMap()));
   }
 }

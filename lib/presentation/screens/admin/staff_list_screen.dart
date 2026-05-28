@@ -296,7 +296,8 @@ class _StaffListScreenState extends ConsumerState<StaffListScreen> {
         isDense: true,
         style: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
         items: [
-          DropdownMenuItem(value: '', child: Text(context.tr('all_categories'))),
+          DropdownMenuItem(
+              value: '', child: Text(context.tr('all_categories'))),
           ...AppConstants.staffCategories
               .map((c) => DropdownMenuItem(value: c, child: Text(c))),
         ],
@@ -316,7 +317,8 @@ class _StaffListScreenState extends ConsumerState<StaffListScreen> {
           const Icon(Icons.people_outline, size: 64, color: AppColors.textHint),
           const SizedBox(height: 16),
           Text(context.tr('no_staff_found'),
-              style: const TextStyle(fontSize: 16, color: AppColors.textSecondary)),
+              style: const TextStyle(
+                  fontSize: 16, color: AppColors.textSecondary)),
         ],
       ),
     );

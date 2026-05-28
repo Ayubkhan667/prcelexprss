@@ -324,7 +324,8 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
           Icon(Icons.notifications_none, size: 64, color: AppColors.textHint),
           const SizedBox(height: 12),
           Text(context.tr('no_notifications'),
-              style: const TextStyle(color: AppColors.textSecondary, fontSize: 16)),
+              style: const TextStyle(
+                  color: AppColors.textSecondary, fontSize: 16)),
           const SizedBox(height: 4),
           const Text('You\'re all caught up!',
               style: TextStyle(color: AppColors.textHint, fontSize: 13)),
@@ -343,6 +344,10 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
         {'value': 'location_alert', 'label': 'Location'},
         {'value': 'task', 'label': 'Tasks'},
         {'value': 'leave', 'label': 'Leave'},
+        {'value': 'expense', 'label': 'Expenses'},
+        {'value': 'helpdesk', 'label': 'Helpdesk'},
+        {'value': 'shift_swap', 'label': 'Swaps'},
+        {'value': 'announcement', 'label': 'Announcements'},
       ];
     }
     return [
@@ -352,6 +357,10 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
       {'value': 'loan', 'label': 'Loan'},
       {'value': 'overtime', 'label': 'Overtime'},
       {'value': 'task', 'label': 'Tasks'},
+      {'value': 'expense', 'label': 'Expenses'},
+      {'value': 'helpdesk', 'label': 'Helpdesk'},
+      {'value': 'shift_swap', 'label': 'Swaps'},
+      {'value': 'announcement', 'label': 'Announcements'},
     ];
   }
 
@@ -375,6 +384,14 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
         return Icons.account_balance;
       case 'task':
         return Icons.assignment;
+      case 'expense':
+        return Icons.receipt_long;
+      case 'helpdesk':
+        return Icons.support_agent;
+      case 'shift_swap':
+        return Icons.swap_horiz;
+      case 'announcement':
+        return Icons.campaign;
       case 'location_alert':
         return Icons.location_off;
       case 'fake_gps':
@@ -401,6 +418,14 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
         return AppColors.primary;
       case 'leave':
         return AppColors.onLeave;
+      case 'expense':
+        return const Color(0xFF00695C);
+      case 'helpdesk':
+        return const Color(0xFFCC5500);
+      case 'shift_swap':
+        return const Color(0xFF0E7490);
+      case 'announcement':
+        return AppColors.primaryDark;
       default:
         return AppColors.primary;
     }

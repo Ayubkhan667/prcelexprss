@@ -41,21 +41,21 @@ class KpiDashboardScreen extends ConsumerWidget {
               children: [
                 Expanded(
                     child: _kpiSummaryCard(
-                        'Average KPI',
+                        context.tr('average_kpi'),
                         avgScore.toStringAsFixed(1),
                         Icons.analytics,
                         AppColors.primary)),
                 const SizedBox(width: 10),
                 Expanded(
                     child: _kpiSummaryCard(
-                        'Best Score',
+                        context.tr('best_score'),
                         best.totalKpiScore.toStringAsFixed(1),
                         Icons.emoji_events,
                         AppColors.success)),
                 const SizedBox(width: 10),
                 Expanded(
                     child: _kpiSummaryCard(
-                        'Total Staff',
+                        context.tr('total_staff'),
                         kpiList.length.toString(),
                         Icons.people,
                         AppColors.accent)),
@@ -64,7 +64,7 @@ class KpiDashboardScreen extends ConsumerWidget {
             const SizedBox(height: 20),
 
             // KPI bar chart
-            _sectionHeader('Staff KPI Scores'),
+            _sectionHeader(context.tr('staff_kpi_scores')),
             const SizedBox(height: 12),
             Container(
               height: 200,
@@ -79,7 +79,7 @@ class KpiDashboardScreen extends ConsumerWidget {
             const SizedBox(height: 20),
 
             // Top performers
-            _sectionHeader('Top Performers'),
+            _sectionHeader(context.tr('top_performers')),
             const SizedBox(height: 10),
             ...kpiList.take(3).toList().asMap().entries.map((e) {
               final k = e.value;
@@ -89,14 +89,14 @@ class KpiDashboardScreen extends ConsumerWidget {
 
             const SizedBox(height: 20),
             // Full KPI list
-            _sectionHeader('All Staff KPI'),
+            _sectionHeader(context.tr('all_staff_kpi')),
             const SizedBox(height: 10),
-            ...kpiList.map((k) => _kpiListCard(k)),
+            ...kpiList.map((k) => _kpiListCard(context, k)),
 
             const SizedBox(height: 20),
-            _sectionHeader('Score Breakdown Weights'),
+            _sectionHeader(context.tr('score_breakdown_weights')),
             const SizedBox(height: 10),
-            _scoreWeightCard(),
+            _scoreWeightCard(context),
             const SizedBox(height: 24),
           ],
         ),
@@ -196,7 +196,7 @@ class KpiDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _kpiListCard(KpiModel k) {
+  Widget _kpiListCard(BuildContext context, KpiModel k) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: _cardDecor(),
@@ -245,12 +245,11 @@ class KpiDashboardScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             // Score bars
-            _scoreLine('Attendance', k.attendanceScore, 40, AppColors.present),
-            _scoreLine(
-                'Punctuality', k.punctualityScore, 25, AppColors.primary),
-            _scoreLine('Overtime', k.overtimeScore, 15, AppColors.accent),
-            _scoreLine('Location', k.locationScore, 10, AppColors.success),
-            _scoreLine('Discipline', k.disciplineScore, 10, AppColors.warning),
+            _scoreLine(context.tr('attendance_label'), k.attendanceScore, 40, AppColors.present),
+            _scoreLine(context.tr('punctuality'), k.punctualityScore, 25, AppColors.primary),
+            _scoreLine(context.tr('overtime'), k.overtimeScore, 15, AppColors.accent),
+            _scoreLine(context.tr('location_short'), k.locationScore, 10, AppColors.success),
+            _scoreLine(context.tr('discipline_short'), k.disciplineScore, 10, AppColors.warning),
           ],
         ),
       ),
@@ -287,23 +286,23 @@ class KpiDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _scoreWeightCard() {
+  Widget _scoreWeightCard(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: _cardDecor(),
       child: Column(
         children: [
-          _weightRow('Attendance', 40, AppColors.present),
-          _weightRow('Punctuality', 25, AppColors.primary),
-          _weightRow('Overtime / Extra Support', 15, AppColors.accent),
-          _weightRow('Location Compliance', 10, AppColors.success),
-          _weightRow('Discipline / Violation', 10, AppColors.warning),
+          _weightRow(context.tr('attendance_label'), 40, AppColors.present, context),
+          _weightRow(context.tr('punctuality'), 25, AppColors.primary, context),
+          _weightRow(context.tr('overtime_extra_support'), 15, AppColors.accent, context),
+          _weightRow(context.tr('location_compliance'), 10, AppColors.success, context),
+          _weightRow(context.tr('discipline_violation'), 10, AppColors.warning, context),
         ],
       ),
     );
   }
 
-  Widget _weightRow(String label, int weight, Color color) {
+  Widget _weightRow(String label, int weight, Color color, BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
@@ -319,7 +318,7 @@ class KpiDashboardScreen extends ConsumerWidget {
             decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12)),
-            child: Text('$weight pts',
+            child: Text('$weight ${context.tr('pts_label')}',
                 style: TextStyle(
                     fontSize: 12, fontWeight: FontWeight.w700, color: color)),
           ),

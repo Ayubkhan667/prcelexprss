@@ -30,15 +30,16 @@ class StaffKpiScreen extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.bar_chart, size: 72, color: AppColors.textHint),
+                  const Icon(Icons.bar_chart,
+                      size: 72, color: AppColors.textHint),
                   const SizedBox(height: 16),
                   Text(context.tr('no_kpi_data'),
                       style: const TextStyle(
                           color: AppColors.textSecondary, fontSize: 15)),
                   const SizedBox(height: 6),
                   Text(context.tr('kpi_calculated_end_month'),
-                      style:
-                          const TextStyle(color: AppColors.textHint, fontSize: 12)),
+                      style: const TextStyle(
+                          color: AppColors.textHint, fontSize: 12)),
                 ],
               ),
             )

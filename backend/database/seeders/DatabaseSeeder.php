@@ -76,6 +76,9 @@ class DatabaseSeeder extends Seeder
             $this->insertSimple('attendance_edit_logs', $seed['edit_logs'], $now);
             $this->insertSimple('notifications', $seed['notifications'], $now);
             $this->insertSimple('holidays', $seed['holidays'], $now);
+            $this->insertRosterSamples($now);
+            $this->insertHelpdeskSamples($now);
+            $this->insertAnnouncementSamples($now);
         });
     }
 
@@ -131,5 +134,113 @@ class DatabaseSeeder extends Seeder
                 'updated_at' => $row['updated_at'] ?? $createdAt,
             ]);
         }
+    }
+
+    private function insertRosterSamples(string $fallbackTimestamp): void
+    {
+        $samples = [
+            [
+                'id' => 'roster_demo_001',
+                'staff_id' => 'st001',
+                'staff_name' => 'Salma Al-Rashdi',
+                'staff_code' => 'SHR-001',
+                'roster_date' => '2026-05-28',
+                'shift_id' => 's001',
+                'shift_name' => 'Morning Shift',
+                'start_time' => '08:00',
+                'end_time' => '16:00',
+                'status' => 'Scheduled',
+                'notes' => 'Primary delivery route',
+                'assigned_by' => 'Saif Al-Bulushi',
+            ],
+            [
+                'id' => 'roster_demo_002',
+                'staff_id' => 'st002',
+                'staff_name' => 'Khalid Al-Balushi',
+                'staff_code' => 'SHR-002',
+                'roster_date' => '2026-05-28',
+                'shift_id' => 's002',
+                'shift_name' => 'Day Shift',
+                'start_time' => '09:00',
+                'end_time' => '17:00',
+                'status' => 'Scheduled',
+                'notes' => 'Warehouse coverage',
+                'assigned_by' => 'Saif Al-Bulushi',
+            ],
+        ];
+
+        foreach ($samples as $row) {
+            DB::table('shift_rosters')->updateOrInsert(
+                ['id' => $row['id']],
+                [
+                    ...$row,
+                    'created_at' => $fallbackTimestamp,
+                    'updated_at' => $fallbackTimestamp,
+                ],
+            );
+        }
+
+        DB::table('shift_swap_requests')->updateOrInsert(
+            ['id' => 'swap_demo_001'],
+            [
+                'requester_staff_id' => 'st001',
+                'requester_name' => 'Salma Al-Rashdi',
+                'requester_code' => 'SHR-001',
+                'target_staff_id' => 'st002',
+                'target_name' => 'Khalid Al-Balushi',
+                'target_code' => 'SHR-002',
+                'roster_date' => '2026-05-28',
+                'requester_shift_id' => 's001',
+                'requester_shift_name' => 'Morning Shift',
+                'target_shift_id' => 's002',
+                'target_shift_name' => 'Day Shift',
+                'reason' => 'Personal appointment in the morning.',
+                'status' => 'Pending',
+                'approved_by' => null,
+                'approved_at' => null,
+                'rejection_reason' => null,
+                'created_at' => $fallbackTimestamp,
+                'updated_at' => $fallbackTimestamp,
+            ],
+        );
+    }
+
+    private function insertHelpdeskSamples(string $fallbackTimestamp): void
+    {
+        DB::table('helpdesk_tickets')->updateOrInsert(
+            ['id' => 'helpdesk_demo_001'],
+            [
+                'staff_id' => 'st001',
+                'staff_name' => 'Salma Al-Rashdi',
+                'staff_code' => 'SHR-001',
+                'subject' => 'Attendance selfie upload issue',
+                'category' => 'Attendance',
+                'message' => 'Check-out selfie failed on weak connection and the queue retried twice.',
+                'status' => 'In Progress',
+                'response' => 'We are reviewing the sync logs and device network state.',
+                'responded_by' => 'Saif Al-Bulushi',
+                'responded_at' => $fallbackTimestamp,
+                'created_at' => $fallbackTimestamp,
+                'updated_at' => $fallbackTimestamp,
+            ],
+        );
+    }
+
+    private function insertAnnouncementSamples(string $fallbackTimestamp): void
+    {
+        DB::table('notifications')->updateOrInsert(
+            ['id' => 'announcement_demo_001'],
+            [
+                'title' => 'Weekly operations briefing',
+                'body' => 'Friday shift handover will start 30 minutes earlier this week.',
+                'type' => 'announcement',
+                'staff_id' => null,
+                'staff_name' => null,
+                'is_read' => false,
+                'target_role' => 'all',
+                'created_at' => $fallbackTimestamp,
+                'updated_at' => $fallbackTimestamp,
+            ],
+        );
     }
 }

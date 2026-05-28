@@ -188,6 +188,7 @@ class _ShiftSheetState extends ConsumerState<_ShiftSheet> {
           );
       ref.read(mockDataRevisionProvider.notifier).state++;
     } catch (_) {
+      ref.read(mockDataRevisionProvider.notifier).state++;
       if (!mounted) {
         return;
       }
@@ -248,7 +249,9 @@ class _ShiftSheetState extends ConsumerState<_ShiftSheet> {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  widget.existing == null ? context.tr('add_shift') : context.tr('edit'),
+                  widget.existing == null
+                      ? context.tr('add_shift')
+                      : context.tr('edit'),
                   style: const TextStyle(
                       fontSize: 18, fontWeight: FontWeight.w800),
                 ),

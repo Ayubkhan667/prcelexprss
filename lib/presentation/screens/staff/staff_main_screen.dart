@@ -78,14 +78,12 @@ class _FloatingNavBar extends StatelessWidget {
   static const _icons = [
     _NavItem(icon: Icons.home_outlined, activeIcon: Icons.home_rounded),
     _NavItem(icon: Icons.fingerprint, activeIcon: Icons.fingerprint),
-    _NavItem(
-        icon: Icons.history_outlined, activeIcon: Icons.history_rounded),
+    _NavItem(icon: Icons.history_outlined, activeIcon: Icons.history_rounded),
     _NavItem(
         icon: Icons.notifications_outlined,
         activeIcon: Icons.notifications_rounded),
     _NavItem(
-        icon: Icons.person_outline_rounded,
-        activeIcon: Icons.person_rounded),
+        icon: Icons.person_outline_rounded, activeIcon: Icons.person_rounded),
   ];
 
   @override

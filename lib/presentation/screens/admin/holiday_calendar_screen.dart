@@ -328,8 +328,8 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
               ref.read(holidayNotifierProvider.notifier).remove(holiday.id);
               Navigator.pop(context);
             },
-            child:
-                Text(context.tr('remove'), style: const TextStyle(color: AppColors.error)),
+            child: Text(context.tr('remove'),
+                style: const TextStyle(color: AppColors.error)),
           ),
         ],
       ),

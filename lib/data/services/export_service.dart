@@ -534,6 +534,151 @@ class ExportService {
     await OpenFilex.open(path);
   }
 
+  static Future<void> exportPayslipToPdf(
+    SalaryModel salary, {
+    String companyName = 'Parcel Express HR',
+  }) async {
+    final pdf = pw.Document();
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.a4,
+        build: (ctx) => pw.Padding(
+          padding: const pw.EdgeInsets.all(24),
+          child: pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text(
+                companyName,
+                style: pw.TextStyle(
+                  fontSize: 20,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
+              pw.SizedBox(height: 6),
+              pw.Text(
+                'Employee Payslip',
+                style: pw.TextStyle(
+                  fontSize: 12,
+                  color: PdfColors.grey700,
+                ),
+              ),
+              pw.SizedBox(height: 18),
+              pw.Container(
+                padding: const pw.EdgeInsets.all(12),
+                decoration: pw.BoxDecoration(
+                  color: PdfColors.blue50,
+                  borderRadius: pw.BorderRadius.circular(8),
+                ),
+                child: pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  children: [
+                    pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        pw.Text(
+                          salary.staffName,
+                          style: pw.TextStyle(
+                            fontSize: 16,
+                            fontWeight: pw.FontWeight.bold,
+                          ),
+                        ),
+                        pw.Text('Code: ${salary.staffCode}'),
+                        pw.Text('Month: ${salary.month}'),
+                      ],
+                    ),
+                    pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.end,
+                      children: [
+                        pw.Text(
+                          'Net Salary',
+                          style: pw.TextStyle(color: PdfColors.grey700),
+                        ),
+                        pw.Text(
+                          'OMR ${salary.netSalary.toStringAsFixed(3)}',
+                          style: pw.TextStyle(
+                            fontSize: 18,
+                            fontWeight: pw.FontWeight.bold,
+                          ),
+                        ),
+                        pw.Text('Status: ${salary.paymentStatus}'),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              pw.SizedBox(height: 20),
+              pw.Text(
+                'Earnings',
+                style: pw.TextStyle(
+                  fontSize: 14,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
+              pw.SizedBox(height: 8),
+              _payslipRow('Basic Salary', salary.basicSalary),
+              _payslipRow('Overtime', salary.overtimeAmount),
+              _payslipRow('Allowance', salary.allowance),
+              pw.Divider(),
+              _payslipRow('Total Earnings', salary.totalEarnings, bold: true),
+              pw.SizedBox(height: 18),
+              pw.Text(
+                'Deductions',
+                style: pw.TextStyle(
+                  fontSize: 14,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
+              pw.SizedBox(height: 8),
+              _payslipRow('General Deduction', salary.deduction),
+              _payslipRow('Loan Deduction', salary.loanDeduction),
+              _payslipRow('Absence Deduction', salary.absenceDeduction),
+              _payslipRow('Penalty', salary.penalty),
+              pw.Divider(),
+              _payslipRow(
+                'Total Deductions',
+                salary.totalDeductions,
+                bold: true,
+              ),
+              pw.SizedBox(height: 18),
+              pw.Container(
+                width: double.infinity,
+                padding: const pw.EdgeInsets.all(12),
+                decoration: pw.BoxDecoration(
+                  border: pw.Border.all(color: PdfColors.grey300),
+                  borderRadius: pw.BorderRadius.circular(8),
+                ),
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    _payslipRow(
+                      'Net Salary',
+                      salary.netSalary,
+                      bold: true,
+                      highlight: true,
+                    ),
+                    if (salary.paidDate != null)
+                      pw.Text('Paid on: ${_formatDate(salary.paidDate!)}'),
+                    if (salary.notes != null && salary.notes!.isNotEmpty)
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.only(top: 8),
+                        child: pw.Text('Notes: ${salary.notes!}'),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    final monthKey = salary.month.replaceAll(' ', '_').toLowerCase();
+    final path =
+        await _getTempPath('payslip_${salary.staffCode}_$monthKey.pdf');
+    await File(path).writeAsBytes(await pdf.save());
+    await OpenFilex.open(path);
+  }
+
   // ─── KPI PDF ─────────────────────────────────────────────────────────────────
 
   static Future<void> exportKpiToPdf(
@@ -646,4 +791,27 @@ class ExportService {
 
   static String _formatTime(DateTime dt) =>
       '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+
+  static pw.Widget _payslipRow(
+    String label,
+    double amount, {
+    bool bold = false,
+    bool highlight = false,
+  }) {
+    final style = pw.TextStyle(
+      fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal,
+      fontSize: highlight ? 13 : 11,
+      color: highlight ? PdfColors.blue800 : PdfColors.black,
+    );
+    return pw.Padding(
+      padding: const pw.EdgeInsets.symmetric(vertical: 3),
+      child: pw.Row(
+        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+        children: [
+          pw.Text(label, style: style),
+          pw.Text('OMR ${amount.toStringAsFixed(3)}', style: style),
+        ],
+      ),
+    );
+  }
 }

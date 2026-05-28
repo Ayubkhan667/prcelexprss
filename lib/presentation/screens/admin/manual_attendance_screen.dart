@@ -442,6 +442,7 @@ class _ManualAttendanceScreenState
       ref.read(mockDataRevisionProvider.notifier).state++;
       setState(() => _isSubmitting = false);
     } catch (_) {
+      ref.read(mockDataRevisionProvider.notifier).state++;
       setState(() => _isSubmitting = false);
       if (mounted) {
         AppUtils.showSnackBar(

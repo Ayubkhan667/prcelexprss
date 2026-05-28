@@ -79,6 +79,14 @@ class NotificationModel {
         return 'account_balance';
       case 'task':
         return 'assignment';
+      case 'announcement':
+        return 'campaign';
+      case 'expense':
+        return 'receipt_long';
+      case 'helpdesk':
+        return 'support_agent';
+      case 'shift_swap':
+        return 'swap_horiz';
       case 'location_alert':
         return 'location_off';
       case 'fake_gps':

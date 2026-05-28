@@ -6,8 +6,6 @@ import '../../data/providers/auth_provider.dart';
 import '../../presentation/screens/splash/splash_screen.dart';
 import '../../presentation/screens/auth/login_screen.dart';
 import '../../presentation/screens/admin/admin_main_screen.dart';
-import '../../presentation/screens/staff/staff_main_screen.dart';
-import '../../presentation/screens/supervisor/supervisor_main_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider);
@@ -26,17 +24,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         return isLogin ? null : AppConstants.routeLogin;
       }
 
-      final homeRoute = AppConstants.homeRouteForRole(authState.user!.role);
-
       if (isSplash || isLogin) {
-        return homeRoute;
+        return AppConstants.routeAdmin;
       }
 
-      if (!AppConstants.isRouteAllowedForRole(
-        role: authState.user!.role,
-        location: location,
-      )) {
-        return homeRoute;
+      if (!location.startsWith(AppConstants.routeAdmin)) {
+        return AppConstants.routeAdmin;
       }
 
       return null;
@@ -53,14 +46,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppConstants.routeAdmin,
         builder: (_, __) => const AdminMainScreen(),
-      ),
-      GoRoute(
-        path: AppConstants.routeSupervisor,
-        builder: (_, __) => const SupervisorMainScreen(),
-      ),
-      GoRoute(
-        path: AppConstants.routeStaff,
-        builder: (_, __) => const StaffMainScreen(),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(

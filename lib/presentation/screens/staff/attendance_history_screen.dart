@@ -7,6 +7,7 @@ import '../../../data/providers/app_providers.dart';
 import '../../../data/models/attendance_model.dart';
 import '../../widgets/common/status_badge.dart';
 import '../../../core/l10n/app_localizations.dart';
+import 'attendance_correction_request_screen.dart';
 
 class AttendanceHistoryScreen extends ConsumerStatefulWidget {
   const AttendanceHistoryScreen({super.key});
@@ -323,6 +324,22 @@ class _AttendanceHistoryScreenState
                 if (att.isMockGps)
                   _detailRow(
                       'GPS Warning', 'Mock GPS Detected!', AppColors.error),
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: OutlinedButton.icon(
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => AttendanceCorrectionRequestScreen(
+                          attendance: att,
+                        ),
+                      ),
+                    ),
+                    icon: const Icon(Icons.edit_calendar_outlined, size: 16),
+                    label: const Text('Request Correction'),
+                  ),
+                ),
               ],
             ),
           ),

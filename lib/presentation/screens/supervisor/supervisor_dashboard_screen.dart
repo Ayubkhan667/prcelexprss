@@ -5,6 +5,9 @@ import '../../../data/models/staff_model.dart';
 import '../../../data/providers/app_providers.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../../data/models/kpi_model.dart';
+import '../shared/expense_approval_screen.dart';
+import '../shared/helpdesk_screen.dart';
+import '../shared/shift_roster_screen.dart';
 import '../../widgets/common/stat_card.dart';
 import '../../../core/l10n/app_localizations.dart';
 
@@ -119,6 +122,50 @@ class SupervisorDashboardScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _actionButton(
+                        context,
+                        'Expenses',
+                        Icons.receipt_long_outlined,
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const ExpenseApprovalScreen(),
+                          ),
+                        ),
+                      ),
+                      _actionButton(
+                        context,
+                        'Helpdesk',
+                        Icons.support_agent_outlined,
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const HelpdeskScreen(
+                              adminMode: true,
+                            ),
+                          ),
+                        ),
+                      ),
+                      _actionButton(
+                        context,
+                        'Rosters',
+                        Icons.calendar_month_outlined,
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const ShiftRosterScreen(
+                              adminMode: true,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
                   _sectionTitle(context.tr('team_attendance')),
                   const SizedBox(height: 12),
                   GridView.count(
@@ -198,6 +245,23 @@ class SupervisorDashboardScreen extends ConsumerWidget {
           color: AppColors.textPrimary,
         ),
       );
+
+  Widget _actionButton(
+    BuildContext context,
+    String label,
+    IconData icon,
+    VoidCallback onTap,
+  ) {
+    return OutlinedButton.icon(
+      onPressed: onTap,
+      icon: Icon(icon, size: 18),
+      label: Text(label),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: AppColors.primary,
+        side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
+      ),
+    );
+  }
 
   Widget _kpiSummaryCard(double avg, KpiModel? best, KpiModel? worst) {
     return Container(

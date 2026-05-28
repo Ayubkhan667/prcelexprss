@@ -201,7 +201,9 @@ class StaffController extends Controller
                     'scope_branch_id' => $userPayload['scope_branch_id'] ?? null,
                     'scope_department' => $userPayload['scope_department'] ?? null,
                     'status' => $userPayload['status'] ?? $staff->status,
-                    'device_id' => $userPayload['device_id'] ?? null,
+                    'device_id' => array_key_exists('device_id', $userPayload)
+                        ? $userPayload['device_id']
+                        : $staff->user?->device_id,
                     'profile_image_url' => $userPayload['profile_image_url'] ?? null,
                 ]);
 

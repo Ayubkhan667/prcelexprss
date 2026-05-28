@@ -23,7 +23,9 @@ Flutter mobile/web app with a Laravel API backend for attendance, HR operations,
 - Admin task cards, daily termination, task assignment to one employee or all employees, and task contribution to KPI.
 - KPI dashboard with task-first score weighting, attendance, punctuality, overtime, location, and discipline.
 - Leave, overtime, expense, salary, loan, holiday, notification, and attendance edit-log flows.
+- Expense approvals, employee payslip PDF export, attendance correction requests, shift roster/swap requests, document expiry alerts, announcements, and helpdesk tickets.
 - Laravel Sanctum API with token/session hardening and role-scoped routes.
+- Firebase Messaging client plumbing with backend push token registration.
 
 ## Requirements
 
@@ -122,6 +124,7 @@ Production deployment docs:
 - [Temporary online setup without domain](backend/TEMP_ONLINE_WITHOUT_DOMAIN.md)
 - [API reference](docs/API.md)
 - [App demo flow](docs/APP_DEMO.md)
+- [Push notification setup](docs/PUSH_NOTIFICATIONS.md)
 - [Screenshot capture guide](docs/screenshots/README.md)
 
 ## Screenshots And Demo

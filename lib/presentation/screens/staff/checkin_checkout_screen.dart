@@ -48,6 +48,8 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
   String? _dutyOverrideAttendanceId;
   String? _dutyOverrideStatus;
   int _pendingQueueCount = 0;
+  bool _cameraPermissionGranted = false;
+  bool _isTestingCamera = false;
 
   @override
   void initState() {
@@ -70,7 +72,38 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
       unawaited(_restoreLostSelfie());
       unawaited(_refreshAccessStatus());
       unawaited(_refreshOfflineQueueCount());
+      unawaited(_checkCameraPermission());
     });
+  }
+
+  Future<void> _checkCameraPermission() async {
+    if (kIsWeb) return;
+    final status = await Permission.camera.status;
+    if (!mounted) return;
+    setState(() => _cameraPermissionGranted = status.isGranted);
+  }
+
+  Future<void> _testCamera() async {
+    if (_isTestingCamera) return;
+    setState(() => _isTestingCamera = true);
+    try {
+      final selfie = await _captureService.captureSelfie();
+      if (!mounted) return;
+      if (selfie.isSuccess && selfie.file != null) {
+        setState(() {
+          _cameraPermissionGranted = true;
+          _latestSelfieLabel = _fileLabel(selfie.file!.path);
+        });
+        AppUtils.showSnackBar(context, 'Camera works! Selfie preview saved.');
+      } else {
+        if (selfie.openAppSettingsSuggested) {
+          setState(() => _cameraPermissionGranted = false);
+        }
+        _showError(selfie.message);
+      }
+    } finally {
+      if (mounted) setState(() => _isTestingCamera = false);
+    }
   }
 
   @override
@@ -1818,53 +1851,107 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
   }
 
   Widget _buildSelfieCard() {
+    final denied = !kIsWeb && !_cameraPermissionGranted;
+    final cardColor = denied ? AppColors.error : AppColors.primary;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.primarySurface.withValues(alpha: 0.45),
+        color: cardColor.withValues(alpha: 0.07),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppColors.primary.withValues(alpha: 0.28),
+          color: cardColor.withValues(alpha: 0.28),
           width: 1.2,
         ),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.camera_alt_rounded,
-              color: AppColors.primary,
-            ),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: cardColor.withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  denied
+                      ? Icons.no_photography_rounded
+                      : Icons.camera_alt_rounded,
+                  color: cardColor,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      denied ? 'Camera Access Required' : 'Selfie Required',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 13,
+                        color: cardColor,
+                      ),
+                    ),
+                    Text(
+                      denied
+                          ? 'Grant camera permission to capture attendance selfie.'
+                          : _latestSelfieLabel == null
+                              ? 'A selfie will be taken automatically on check-in/out.'
+                              : 'Last captured: $_latestSelfieLabel',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Selfie Required',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 13,
-                    color: AppColors.primary,
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              if (denied) ...[
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () async {
+                      await openAppSettings();
+                      await _checkCameraPermission();
+                    },
+                    icon: const Icon(Icons.settings_outlined, size: 16),
+                    label: const Text('Open App Settings'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.error,
+                      side: const BorderSide(color: AppColors.error),
+                      textStyle: const TextStyle(fontSize: 12),
+                    ),
                   ),
                 ),
-                Text(
-                  _latestSelfieLabel == null
-                      ? 'A fresh selfie will be captured for check-in and check-out.'
-                      : 'Last captured: $_latestSelfieLabel',
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: AppColors.textSecondary,
+              ] else ...[
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _isTestingCamera ? null : _testCamera,
+                    icon: _isTestingCamera
+                        ? const SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.camera_front_rounded, size: 16),
+                    label: const Text('Test Camera'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.primary,
+                      side: const BorderSide(color: AppColors.primary),
+                      textStyle: const TextStyle(fontSize: 12),
+                    ),
                   ),
                 ),
               ],
-            ),
+            ],
           ),
         ],
       ),

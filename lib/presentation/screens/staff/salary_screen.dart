@@ -5,6 +5,7 @@ import '../../../core/utils/app_utils.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../../data/providers/app_providers.dart';
 import '../../../data/models/salary_model.dart';
+import '../../../data/services/export_service.dart';
 import '../../widgets/common/status_badge.dart';
 import '../../../core/l10n/app_localizations.dart';
 
@@ -26,7 +27,11 @@ class SalaryScreen extends ConsumerWidget {
         title: const Text('My Salary'),
         actions: [
           IconButton(
-              icon: const Icon(Icons.file_download_outlined), onPressed: () {}),
+            icon: const Icon(Icons.file_download_outlined),
+            onPressed: latestSalary == null
+                ? null
+                : () => ExportService.exportPayslipToPdf(latestSalary),
+          ),
         ],
       ),
       body: Column(
@@ -200,6 +205,15 @@ class SalaryScreen extends ConsumerWidget {
                       style: const TextStyle(
                           fontSize: 11, color: AppColors.success)),
                 ],
+                const SizedBox(height: 10),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: OutlinedButton.icon(
+                    onPressed: () => ExportService.exportPayslipToPdf(salary),
+                    icon: const Icon(Icons.picture_as_pdf_outlined, size: 16),
+                    label: const Text('Download Payslip'),
+                  ),
+                ),
               ],
             ),
           ),

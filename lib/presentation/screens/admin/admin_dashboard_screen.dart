@@ -51,7 +51,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                                'Good ${_greeting()}, ${user?.name.split(' ').first ?? 'Admin'}!',
+                                '${_greeting(context)}, ${user?.name.split(' ').first ?? 'Admin'}!',
                                 style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w700,
@@ -170,23 +170,23 @@ class AdminDashboardScreen extends ConsumerWidget {
                     childAspectRatio: 1.5,
                     children: [
                       DashboardStatCard(
-                          title: 'Total Staff',
+                          title: context.tr('total_staff'),
                           value: stats['total_staff'].toString(),
                           icon: Icons.people_alt,
                           color: AppColors.primary,
                           onTap: () => _navigate(
                               context,
-                              const TodayAttendanceListScreen(
-                                  title: 'All Staff'))),
+                              TodayAttendanceListScreen(
+                                  title: context.tr('all_staff_title')))),
                       DashboardStatCard(
-                          title: 'Present Today',
+                          title: context.tr('present_today'),
                           value: stats['present_today'].toString(),
                           icon: Icons.check_circle,
                           color: AppColors.present,
                           onTap: () => _navigate(
                               context,
-                              const TodayAttendanceListScreen(
-                                  title: 'Present Today',
+                              TodayAttendanceListScreen(
+                                  title: context.tr('present_today'),
                                   statuses: [
                                     'Present',
                                     'Late',
@@ -194,24 +194,25 @@ class AdminDashboardScreen extends ConsumerWidget {
                                     'Missing Checkout'
                                   ]))),
                       DashboardStatCard(
-                          title: 'Absent Today',
+                          title: context.tr('absent_today'),
                           value: stats['absent_today'].toString(),
                           icon: Icons.cancel,
                           color: AppColors.absent,
                           onTap: () => _navigate(
                               context,
-                              const TodayAttendanceListScreen(
-                                  title: 'Absent Today',
+                              TodayAttendanceListScreen(
+                                  title: context.tr('absent_today'),
                                   statuses: ['Absent']))),
                       DashboardStatCard(
-                          title: 'Late Today',
+                          title: context.tr('late_today'),
                           value: stats['late_today'].toString(),
                           icon: Icons.access_time,
                           color: AppColors.late,
                           onTap: () => _navigate(
                               context,
-                              const TodayAttendanceListScreen(
-                                  title: 'Late Today', statuses: ['Late']))),
+                              TodayAttendanceListScreen(
+                                  title: context.tr('late_today'),
+                                  statuses: ['Late']))),
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -224,48 +225,60 @@ class AdminDashboardScreen extends ConsumerWidget {
                     childAspectRatio: 1.1,
                     children: [
                       StatCard(
-                          title: 'On Leave',
+                          title: context.tr('on_leave'),
                           value: stats['on_leave'].toString(),
                           icon: Icons.beach_access,
                           color: AppColors.onLeave,
                           isSmall: true),
                       StatCard(
-                          title: 'OT Hours',
+                          title: context.tr('ot_hours'),
                           value:
                               stats['total_overtime_hours'].toStringAsFixed(0),
                           icon: Icons.more_time,
                           color: AppColors.overtime,
                           isSmall: true),
                       StatCard(
-                          title: 'Salary Pending',
+                          title: context.tr('salary_pending'),
                           value: stats['salary_pending'].toString(),
                           icon: Icons.payments,
                           color: AppColors.warning,
                           isSmall: true),
                       StatCard(
-                          title: 'Loan Balance',
+                          title: context.tr('loan_balance'),
                           value: _formatShort(stats['total_loan_balance']),
                           icon: Icons.account_balance,
                           color: AppColors.error,
                           isSmall: true),
                       StatCard(
-                          title: 'KPI Average',
+                          title: context.tr('kpi_average'),
                           value: '${stats['kpi_average'].toStringAsFixed(1)}%',
                           icon: Icons.show_chart,
                           color: AppColors.primary,
                           isSmall: true),
                       StatCard(
-                          title: 'Overtime Staff',
+                          title: context.tr('overtime_staff'),
                           value: stats['overtime_count'].toString(),
                           icon: Icons.timelapse,
                           color: AppColors.accent,
+                          isSmall: true),
+                      StatCard(
+                          title: 'Doc Alerts',
+                          value: stats['expiring_documents'].toString(),
+                          icon: Icons.badge_outlined,
+                          color: AppColors.warning,
+                          isSmall: true),
+                      StatCard(
+                          title: 'Expired Docs',
+                          value: stats['expired_documents'].toString(),
+                          icon: Icons.gpp_bad_outlined,
+                          color: AppColors.error,
                           isSmall: true),
                     ],
                   ),
 
                   const SizedBox(height: 20),
                   // Pie Chart
-                  _sectionHeader('Attendance Breakdown (This Month)'),
+                  _sectionHeader(context.tr('attendance_breakdown')),
                   const SizedBox(height: 12),
                   Container(
                     padding: const EdgeInsets.all(20),
@@ -299,16 +312,25 @@ class AdminDashboardScreen extends ConsumerWidget {
 
                   const SizedBox(height: 20),
                   // Highlights
-                  _sectionHeader('Performance Highlights'),
+                  _sectionHeader(context.tr('performance_highlights')),
                   const SizedBox(height: 12),
-                  _highlightCard(Icons.emoji_events, 'Best Staff of Month',
-                      stats['best_staff'], AppColors.success),
+                  _highlightCard(
+                      Icons.emoji_events,
+                      context.tr('best_staff_month'),
+                      stats['best_staff'],
+                      AppColors.success),
                   const SizedBox(height: 8),
-                  _highlightCard(Icons.trending_down, 'Lowest KPI Staff',
-                      stats['lowest_kpi_staff'], AppColors.error),
+                  _highlightCard(
+                      Icons.trending_down,
+                      context.tr('lowest_kpi_staff'),
+                      stats['lowest_kpi_staff'],
+                      AppColors.error),
                   const SizedBox(height: 8),
-                  _highlightCard(Icons.more_time, 'Highest Overtime',
-                      stats['highest_overtime_staff'], AppColors.accent),
+                  _highlightCard(
+                      Icons.more_time,
+                      context.tr('highest_overtime'),
+                      stats['highest_overtime_staff'],
+                      AppColors.accent),
                   const SizedBox(height: 24),
                 ],
               ),
@@ -319,11 +341,11 @@ class AdminDashboardScreen extends ConsumerWidget {
     );
   }
 
-  String _greeting() {
+  String _greeting(BuildContext context) {
     final h = DateTime.now().hour;
-    if (h < 12) return 'Morning';
-    if (h < 17) return 'Afternoon';
-    return 'Evening';
+    if (h < 12) return context.tr('good_morning');
+    if (h < 17) return context.tr('good_afternoon');
+    return context.tr('good_evening');
   }
 
   String _formatShort(dynamic value) {

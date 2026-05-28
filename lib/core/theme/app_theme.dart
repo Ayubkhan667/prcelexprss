@@ -39,34 +39,102 @@ class AppTheme {
         margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 4),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: AppColors.textOnPrimary,
-          elevation: 2,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.all(AppColors.primary),
+          foregroundColor: WidgetStateProperty.all(AppColors.textOnPrimary),
+          elevation: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.pressed)) return 1.0;
+            if (states.contains(WidgetState.disabled)) return 0.0;
+            return 5.0;
+          }),
+          shadowColor: WidgetStateProperty.all(
+            AppColors.primaryDark.withValues(alpha: 0.55),
           ),
-          textStyle: const TextStyle(
+          overlayColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.pressed)) {
+              return Colors.black.withValues(alpha: 0.10);
+            }
+            return Colors.white.withValues(alpha: 0.08);
+          }),
+          padding: WidgetStateProperty.all(
+            const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          ),
+          shape: WidgetStateProperty.all(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+          textStyle: WidgetStateProperty.all(const TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w600,
             fontFamily: 'Poppins',
+          )),
+          animationDuration: const Duration(milliseconds: 80),
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: ButtonStyle(
+          elevation: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.pressed)) return 1.0;
+            if (states.contains(WidgetState.disabled)) return 0.0;
+            return 5.0;
+          }),
+          shadowColor: WidgetStateProperty.all(
+            AppColors.primaryDark.withValues(alpha: 0.55),
           ),
+          overlayColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.pressed)) {
+              return Colors.black.withValues(alpha: 0.10);
+            }
+            return Colors.white.withValues(alpha: 0.08);
+          }),
+          padding: WidgetStateProperty.all(
+            const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          ),
+          shape: WidgetStateProperty.all(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+          textStyle: WidgetStateProperty.all(const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            fontFamily: 'Poppins',
+          )),
+          animationDuration: const Duration(milliseconds: 80),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.primary,
-          side: const BorderSide(color: AppColors.primary),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+        style: ButtonStyle(
+          foregroundColor: WidgetStateProperty.all(AppColors.primary),
+          elevation: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.pressed)) return 0.0;
+            if (states.contains(WidgetState.disabled)) return 0.0;
+            return 2.0;
+          }),
+          shadowColor: WidgetStateProperty.all(
+            AppColors.primary.withValues(alpha: 0.30),
           ),
-          textStyle: const TextStyle(
+          side: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.pressed)) {
+              return const BorderSide(color: AppColors.primaryDark, width: 1.5);
+            }
+            return const BorderSide(color: AppColors.primary, width: 1.5);
+          }),
+          overlayColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.pressed)) {
+              return AppColors.primary.withValues(alpha: 0.08);
+            }
+            return null;
+          }),
+          padding: WidgetStateProperty.all(
+            const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          ),
+          shape: WidgetStateProperty.all(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+          textStyle: WidgetStateProperty.all(const TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w600,
             fontFamily: 'Poppins',
-          ),
+          )),
+          animationDuration: const Duration(milliseconds: 80),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(

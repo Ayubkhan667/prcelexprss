@@ -154,6 +154,7 @@ Notifications:
 - `GET /notifications`
 - `PATCH /notifications/{id}/read`
 - `PATCH /notifications/read-all`
+- `POST /announcements`
 
 Leaves, expenses, payroll, and holidays:
 
@@ -169,6 +170,20 @@ Leaves, expenses, payroll, and holidays:
 - `GET /holidays`
 - `POST /holidays`
 - `DELETE /holidays/{id}`
+
+Rosters, swaps, helpdesk, and push tokens:
+
+- `GET /shift-rosters`
+- `POST /shift-rosters`
+- `PUT /shift-rosters/{id}`
+- `GET /shift-swap-requests`
+- `POST /shift-swap-requests`
+- `PATCH /shift-swap-requests/{id}/status`
+- `GET /helpdesk-tickets`
+- `POST /helpdesk-tickets`
+- `PATCH /helpdesk-tickets/{id}/status`
+- `POST /push-tokens`
+- `DELETE /push-tokens`
 
 ## Role Scope
 

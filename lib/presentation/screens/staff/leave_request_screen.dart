@@ -91,7 +91,8 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen>
               const SizedBox(height: 20),
 
               Text(ctx.tr('apply_for_leave'),
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                  style: const TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.w700)),
               const SizedBox(height: 12),
 
               CustomDropdown<String>(

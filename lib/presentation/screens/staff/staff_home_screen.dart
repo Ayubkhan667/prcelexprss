@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/l10n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/app_utils.dart';
 import '../../../data/models/attendance_model.dart';
+import '../../../data/models/notification_model.dart';
 import '../../../data/models/task_model.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../../data/providers/app_providers.dart';
 import '../../widgets/common/stat_card.dart';
 import '../../widgets/common/status_badge.dart';
+import '../shared/helpdesk_screen.dart';
+import '../shared/shift_roster_screen.dart';
 import 'leave_request_screen.dart';
 import 'salary_screen.dart';
 import 'loan_screen.dart';
@@ -32,6 +36,7 @@ class StaffHomeScreen extends ConsumerWidget {
         staff != null ? ref.watch(taskListProvider(staff.id)) : <TaskModel>[];
     final pendingTasks =
         taskList.where((task) => task.status == 'Pending').toList();
+    final announcements = ref.watch(announcementsProvider);
 
     final currentKpi = kpiList.isNotEmpty ? kpiList.first : null;
     final presentDays = attendanceList
@@ -75,7 +80,7 @@ class StaffHomeScreen extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                                '${_greeting()}, ${user?.name.split(' ').first ?? 'Staff'}!',
+                                '${_greeting(context)}, ${user?.name.split(' ').first ?? 'Staff'}!',
                                 style: const TextStyle(
                                     fontSize: 17,
                                     fontWeight: FontWeight.w700,
@@ -110,16 +115,20 @@ class StaffHomeScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Today check-in/out card
-                  _todayCard(todayAtt),
+                  _todayCard(context, todayAtt),
                   if (staff != null) ...[
                     const SizedBox(height: 12),
                     _taskCard(context, pendingTasks, taskList.length),
                   ],
+                  if (announcements.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    _announcementCard(announcements.first),
+                  ],
                   const SizedBox(height: 16),
 
                   // Quick actions
-                  const Text('Quick Actions',
-                      style: TextStyle(
+                  Text(context.tr('quick_actions'),
+                      style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
                           color: AppColors.textPrimary)),
@@ -129,7 +138,7 @@ class StaffHomeScreen extends ConsumerWidget {
                       _quickAction(
                           context,
                           Icons.payments_outlined,
-                          'My Salary',
+                          context.tr('my_salary'),
                           AppColors.primary,
                           () => Navigator.push(
                               context,
@@ -139,7 +148,7 @@ class StaffHomeScreen extends ConsumerWidget {
                       _quickAction(
                           context,
                           Icons.account_balance_outlined,
-                          'My Loans',
+                          context.tr('my_loans'),
                           AppColors.accent,
                           () => Navigator.push(
                               context,
@@ -149,7 +158,7 @@ class StaffHomeScreen extends ConsumerWidget {
                       _quickAction(
                           context,
                           Icons.beach_access_outlined,
-                          'Leave',
+                          context.tr('leave'),
                           AppColors.onLeave,
                           () => Navigator.push(
                               context,
@@ -159,7 +168,7 @@ class StaffHomeScreen extends ConsumerWidget {
                       _quickAction(
                           context,
                           Icons.bar_chart_outlined,
-                          'My KPI',
+                          context.tr('my_kpi'),
                           AppColors.success,
                           () => Navigator.push(
                               context,
@@ -173,16 +182,32 @@ class StaffHomeScreen extends ConsumerWidget {
                       _quickAction(
                           context,
                           Icons.receipt_long_outlined,
-                          'Expenses',
+                          context.tr('expenses'),
                           const Color(0xFF7B61FF),
                           () => Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (_) => const ExpenseScreen()))),
                       const SizedBox(width: 10),
-                      const Expanded(child: SizedBox()),
+                      _quickAction(
+                          context,
+                          Icons.calendar_month_outlined,
+                          'Roster',
+                          const Color(0xFF0E7490),
+                          () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => const ShiftRosterScreen()))),
                       const SizedBox(width: 10),
-                      const Expanded(child: SizedBox()),
+                      _quickAction(
+                          context,
+                          Icons.support_agent_outlined,
+                          'Helpdesk',
+                          const Color(0xFFCC5500),
+                          () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => const HelpdeskScreen()))),
                       const SizedBox(width: 10),
                       const Expanded(child: SizedBox()),
                     ],
@@ -190,8 +215,8 @@ class StaffHomeScreen extends ConsumerWidget {
                   const SizedBox(height: 20),
 
                   // Stats
-                  const Text('This Month Stats',
-                      style: TextStyle(
+                  Text(context.tr('this_month_stats'),
+                      style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
                           color: AppColors.textPrimary)),
@@ -205,23 +230,23 @@ class StaffHomeScreen extends ConsumerWidget {
                     childAspectRatio: 1.6,
                     children: [
                       StatCard(
-                          title: 'Present Days',
+                          title: context.tr('present_days'),
                           value: presentDays.toString(),
                           icon: Icons.check_circle_outline,
                           color: AppColors.present),
                       StatCard(
-                          title: 'Late Days',
+                          title: context.tr('late_days'),
                           value: lateDays.toString(),
                           icon: Icons.access_time_outlined,
                           color: AppColors.late),
                       StatCard(
-                          title: 'Overtime hrs',
+                          title: context.tr('overtime_hrs'),
                           value: totalOt.toStringAsFixed(1),
                           icon: Icons.more_time,
                           color: AppColors.overtime),
                       if (currentKpi != null)
                         StatCard(
-                            title: 'KPI Score',
+                            title: context.tr('kpi_score'),
                             value: currentKpi.totalKpiScore.toStringAsFixed(1),
                             icon: Icons.show_chart,
                             color:
@@ -231,19 +256,19 @@ class StaffHomeScreen extends ConsumerWidget {
 
                   if (currentKpi != null) ...[
                     const SizedBox(height: 20),
-                    const Text('KPI Performance',
-                        style: TextStyle(
+                    Text(context.tr('kpi_performance'),
+                        style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
                             color: AppColors.textPrimary)),
                     const SizedBox(height: 10),
-                    _kpiCard(currentKpi),
+                    _kpiCard(context, currentKpi),
                   ],
 
                   const SizedBox(height: 20),
                   // Recent activity
-                  const Text('Recent Activity',
-                      style: TextStyle(
+                  Text(context.tr('recent_activity'),
+                      style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
                           color: AppColors.textPrimary)),
@@ -259,7 +284,7 @@ class StaffHomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _todayCard(dynamic todayAtt) {
+  Widget _todayCard(BuildContext context, dynamic todayAtt) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -287,8 +312,8 @@ class StaffHomeScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("Today's Attendance",
-                    style: TextStyle(
+                Text(context.tr('todays_attendance'),
+                    style: const TextStyle(
                         fontSize: 14,
                         color: Colors.white,
                         fontWeight: FontWeight.w600)),
@@ -386,9 +411,9 @@ class StaffHomeScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'My Tasks',
-                    style: TextStyle(
+                  Text(
+                    context.tr('my_tasks'),
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                       color: AppColors.textPrimary,
@@ -397,7 +422,7 @@ class StaffHomeScreen extends ConsumerWidget {
                   const SizedBox(height: 4),
                   Text(
                     pendingTasks.isEmpty
-                        ? 'No pending tasks right now'
+                        ? context.tr('no_pending_tasks')
                         : '${pendingTasks.length} pending of $totalTasks total tasks',
                     style: const TextStyle(
                       fontSize: 12,
@@ -441,7 +466,7 @@ class StaffHomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _kpiCard(dynamic kpi) {
+  Widget _kpiCard(BuildContext context, dynamic kpi) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -459,8 +484,8 @@ class StaffHomeScreen extends ConsumerWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('KPI Score',
-                      style: TextStyle(
+                  Text(context.tr('kpi_score'),
+                      style: const TextStyle(
                           fontSize: 12, color: AppColors.textSecondary)),
                   Text(kpi.totalKpiScore.toStringAsFixed(1),
                       style: TextStyle(
@@ -537,10 +562,60 @@ class StaffHomeScreen extends ConsumerWidget {
     );
   }
 
-  String _greeting() {
+  Widget _announcementCard(NotificationModel announcement) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.15)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.primarySurface,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.campaign_outlined,
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(width: 10),
+              const Text(
+                'Announcement',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            announcement.title,
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            announcement.body,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _greeting(BuildContext context) {
     final h = DateTime.now().hour;
-    if (h < 12) return 'Good Morning';
-    if (h < 17) return 'Good Afternoon';
-    return 'Good Evening';
+    if (h < 12) return context.tr('good_morning');
+    if (h < 17) return context.tr('good_afternoon');
+    return context.tr('good_evening');
   }
 }

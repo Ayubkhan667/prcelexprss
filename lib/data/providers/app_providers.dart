@@ -13,9 +13,13 @@ import '../models/leave_model.dart';
 import '../models/kpi_model.dart';
 import '../models/notification_model.dart';
 import '../models/attendance_edit_log_model.dart';
+import '../models/document_alert_model.dart';
 import '../models/task_model.dart';
 import '../models/expense_model.dart';
+import '../models/helpdesk_ticket_model.dart';
 import '../models/holiday_model.dart';
+import '../models/shift_roster_model.dart';
+import '../models/shift_swap_request_model.dart';
 import '../remote/attendance_remote_data_source.dart';
 import '../remote/branch_remote_data_source.dart';
 import '../remote/hr_operations_remote_data_source.dart';
@@ -362,7 +366,7 @@ class LeaveNotifier extends StateNotifier<List<LeaveModel>> {
   Future<void> submit(LeaveModel leave, {String? attachmentPath}) async {
     await _repository.addLeave(leave, attachmentPath: attachmentPath);
     _bumpRevision();
-    await refresh();
+    try { await refresh(); } catch (_) {}
   }
 
   Future<void> updateStatus({
@@ -378,7 +382,7 @@ class LeaveNotifier extends StateNotifier<List<LeaveModel>> {
       rejectionReason: rejectionReason,
     );
     _bumpRevision();
-    await refresh();
+    try { await refresh(); } catch (_) {}
   }
 
   Future<void> refresh() async {
@@ -493,6 +497,8 @@ final dashboardStatsProvider = Provider<Map<String, dynamic>>((ref) {
         'best_staff': null,
         'lowest_kpi_staff': null,
         'highest_overtime_staff': null,
+        'expiring_documents': 0,
+        'expired_documents': 0,
       };
 });
 
@@ -544,7 +550,7 @@ class ExpenseNotifier extends StateNotifier<List<ExpenseModel>> {
       receiptFilePaths: receiptFilePaths,
     );
     _bumpRevision();
-    await refresh();
+    try { await refresh(); } catch (_) {}
   }
 
   Future<void> refresh() async {
@@ -600,13 +606,13 @@ class HolidayNotifier extends StateNotifier<List<HolidayModel>> {
   Future<void> add(HolidayModel holiday) async {
     await _repository.addHoliday(holiday);
     _bumpRevision();
-    await refresh();
+    try { await refresh(); } catch (_) {}
   }
 
   Future<void> remove(String id) async {
     await _repository.removeHoliday(id);
     _bumpRevision();
-    await refresh();
+    try { await refresh(); } catch (_) {}
   }
 
   Future<void> refresh() async {
@@ -633,6 +639,116 @@ final holidayListByYearProvider =
       .watch(holidayNotifierProvider)
       .where((h) => h.date.year == year)
       .toList();
+});
+
+// --- Shift Roster Providers ---
+
+final shiftRostersAsyncProvider =
+    FutureProvider.family<List<ShiftRosterModel>, String?>(
+        (ref, staffId) async {
+  ref.watch(mockDataRevisionProvider);
+  return ref.watch(hrOperationsRepositoryProvider).getShiftRosters(
+        staffId: staffId,
+      );
+});
+
+final shiftRostersProvider =
+    Provider.family<List<ShiftRosterModel>, String?>((ref, staffId) {
+  return ref.watch(shiftRostersAsyncProvider(staffId)).valueOrNull ?? const [];
+});
+
+final shiftSwapRequestsAsyncProvider =
+    FutureProvider<List<ShiftSwapRequestModel>>((ref) async {
+  ref.watch(mockDataRevisionProvider);
+  return ref.watch(hrOperationsRepositoryProvider).getShiftSwapRequests();
+});
+
+final shiftSwapRequestsProvider = Provider<List<ShiftSwapRequestModel>>((ref) {
+  return ref.watch(shiftSwapRequestsAsyncProvider).valueOrNull ?? const [];
+});
+
+final pendingShiftSwapRequestsProvider =
+    Provider<List<ShiftSwapRequestModel>>((ref) {
+  return ref
+      .watch(shiftSwapRequestsProvider)
+      .where((item) => item.status == 'Pending')
+      .toList();
+});
+
+// --- Helpdesk Providers ---
+
+final helpdeskTicketsAsyncProvider =
+    FutureProvider.family<List<HelpdeskTicketModel>, String?>(
+        (ref, staffId) async {
+  ref.watch(mockDataRevisionProvider);
+  return ref.watch(hrOperationsRepositoryProvider).getHelpdeskTickets(
+        staffId: staffId,
+      );
+});
+
+final helpdeskTicketsProvider =
+    Provider.family<List<HelpdeskTicketModel>, String?>((ref, staffId) {
+  return ref.watch(helpdeskTicketsAsyncProvider(staffId)).valueOrNull ??
+      const [];
+});
+
+final openHelpdeskTicketsProvider = Provider<List<HelpdeskTicketModel>>((ref) {
+  return ref
+      .watch(helpdeskTicketsProvider(null))
+      .where((item) => item.status != 'Resolved' && item.status != 'Closed')
+      .toList();
+});
+
+// --- Announcement Providers ---
+
+final announcementsProvider = Provider<List<NotificationModel>>((ref) {
+  return ref
+      .watch(notificationsProvider)
+      .where((item) => item.type == 'announcement')
+      .toList();
+});
+
+// --- Document Alerts ---
+
+final documentAlertsProvider = Provider<List<DocumentAlertModel>>((ref) {
+  final today = DateTime.now();
+  final alerts = <DocumentAlertModel>[];
+
+  for (final staff in ref.watch(allStaffListProvider)) {
+    final documents = <String, DateTime?>{
+      'Passport': staff.passportExpireDate,
+      'Civil ID': staff.civilIdExpireDate,
+      'Contract': staff.contractExpireDate,
+    };
+
+    for (final entry in documents.entries) {
+      final expiryDate = entry.value;
+      if (expiryDate == null) {
+        continue;
+      }
+      final daysRemaining = DateTime(
+        expiryDate.year,
+        expiryDate.month,
+        expiryDate.day,
+      ).difference(DateTime(today.year, today.month, today.day)).inDays;
+      if (daysRemaining > 30) {
+        continue;
+      }
+      alerts.add(
+        DocumentAlertModel(
+          staffId: staff.id,
+          staffName: staff.name,
+          staffCode: staff.staffCode,
+          documentType: entry.key,
+          expiryDate: expiryDate,
+          daysRemaining: daysRemaining,
+        ),
+      );
+    }
+  }
+
+  alerts.sort((a, b) => a.daysRemaining.compareTo(b.daysRemaining));
+  return alerts;
 });
 
 // --- Attendance Edit Log Providers ---

@@ -66,6 +66,8 @@ dependencies:
 
   # Notifications
   flutter_local_notifications: ^17.1.2
+  firebase_core: ^4.9.0
+  firebase_messaging: ^16.2.2
 
   # Biometric Authentication
   local_auth: ^2.3.0

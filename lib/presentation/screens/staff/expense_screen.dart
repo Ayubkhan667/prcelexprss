@@ -467,7 +467,8 @@ class _SubmitExpenseTabState extends ConsumerState<_SubmitExpenseTab> {
                   color: AppColors.primary, size: 28),
               const SizedBox(height: 4),
               Text(context.tr('add_more'),
-                  style: const TextStyle(fontSize: 10, color: AppColors.primary)),
+                  style:
+                      const TextStyle(fontSize: 10, color: AppColors.primary)),
             ],
           ),
         ),
@@ -513,10 +514,12 @@ class _MyExpensesTab extends StatelessWidget {
             const Icon(Icons.receipt_long, size: 72, color: AppColors.textHint),
             const SizedBox(height: 16),
             Text(context.tr('no_expense_claims'),
-                style: const TextStyle(color: AppColors.textSecondary, fontSize: 15)),
+                style: const TextStyle(
+                    color: AppColors.textSecondary, fontSize: 15)),
             const SizedBox(height: 6),
             Text(context.tr('submit_first_claim'),
-                style: const TextStyle(color: AppColors.textHint, fontSize: 12)),
+                style:
+                    const TextStyle(color: AppColors.textHint, fontSize: 12)),
           ],
         ),
       );

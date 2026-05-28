@@ -203,7 +203,8 @@ class BranchManagementScreen extends ConsumerWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(branch != null ? context.tr('edit') : context.tr('add_branch')),
+        title: Text(
+            branch != null ? context.tr('edit') : context.tr('add_branch')),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -250,7 +251,8 @@ class BranchManagementScreen extends ConsumerWidget {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx), child: Text(context.tr('cancel'))),
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(context.tr('cancel'))),
           ElevatedButton(
             onPressed: () async {
               final name = nameCtrl.text.trim();
@@ -303,6 +305,10 @@ class BranchManagementScreen extends ConsumerWidget {
                   branch != null ? 'Branch updated' : 'Branch added',
                 );
               } catch (_) {
+                ref.read(mockDataRevisionProvider.notifier).state++;
+                if (!context.mounted) {
+                  return;
+                }
                 AppUtils.showSnackBar(
                   context,
                   'Unable to save branch right now.',

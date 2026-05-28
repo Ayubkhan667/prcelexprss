@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
@@ -26,7 +25,6 @@ class SettingsScreen extends ConsumerWidget {
     final notifier = ref.read(hrSettingsProvider.notifier);
     final apiConfig = ref.watch(apiConfigProvider);
     final isAdmin = user?.role == AppConstants.roleAdmin;
-    final remoteModeLocked = AppConstants.canUseRemoteData;
     final locale = ref.watch(localeProvider);
     final localeNotifier = ref.read(localeProvider.notifier);
     final isArabic = locale.languageCode == 'ar';
@@ -87,7 +85,7 @@ class SettingsScreen extends ConsumerWidget {
             const SizedBox(height: 8),
 
             if (isAdmin)
-              _section('HR Configuration', [
+              _section(context.tr('hr_configuration'), [
                 _navTile(
                   icon: Icons.business,
                   title: context.tr('company_settings'),
@@ -99,7 +97,7 @@ class SettingsScreen extends ConsumerWidget {
                 _navTile(
                   icon: Icons.schedule,
                   title: context.tr('shift_management'),
-                  subtitle: 'Create & edit shifts',
+                  subtitle: context.tr('create_edit_shifts'),
                   onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -109,7 +107,7 @@ class SettingsScreen extends ConsumerWidget {
                 _navTile(
                   icon: Icons.location_on_outlined,
                   title: context.tr('branch_management'),
-                  subtitle: 'Manage branches & geofences',
+                  subtitle: context.tr('manage_branches_geofences'),
                   onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -119,7 +117,8 @@ class SettingsScreen extends ConsumerWidget {
                 _navTile(
                   icon: Icons.category_outlined,
                   title: context.tr('departments'),
-                  subtitle: '${settings.departments.length} departments',
+                  subtitle:
+                      '${settings.departments.length} ${context.tr('departments').toLowerCase()}',
                   onTap: () =>
                       _showDepartmentsSheet(context, settings, notifier),
                 ),
@@ -127,7 +126,7 @@ class SettingsScreen extends ConsumerWidget {
                 _navTile(
                   icon: Icons.admin_panel_settings_outlined,
                   title: context.tr('supervisor_permissions'),
-                  subtitle: 'Control supervisor module access',
+                  subtitle: context.tr('control_supervisor_access'),
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -138,16 +137,17 @@ class SettingsScreen extends ConsumerWidget {
               ]),
 
             if (isAdmin)
-              _section('Attendance Rules', [
+              _section(context.tr('attendance_rules'), [
                 _navTile(
                   icon: Icons.access_time,
-                  title: 'Grace Period',
-                  subtitle: '${settings.gracePeriodMinutes} minutes',
+                  title: context.tr('grace_period'),
+                  subtitle:
+                      '${settings.gracePeriodMinutes} ${context.tr('minutes_unit')}',
                   onTap: () => _showPickerSheet(
                     context: context,
-                    title: 'Grace Period',
+                    title: context.tr('grace_period'),
                     icon: Icons.access_time,
-                    unit: 'minutes',
+                    unit: context.tr('minutes_unit'),
                     options: [5, 10, 15, 20, 30, 45, 60],
                     current: settings.gracePeriodMinutes,
                     onSelect: (v) => notifier
@@ -157,14 +157,14 @@ class SettingsScreen extends ConsumerWidget {
                 _divider(),
                 _navTile(
                   icon: Icons.timer_outlined,
-                  title: 'Standard Hours',
+                  title: context.tr('standard_hours_title'),
                   subtitle:
-                      '${settings.standardHours.toStringAsFixed(0)} hours/day',
+                      '${settings.standardHours.toStringAsFixed(0)} ${context.tr('hours_per_day_unit')}',
                   onTap: () => _showPickerSheet(
                     context: context,
-                    title: 'Standard Working Hours',
+                    title: context.tr('standard_working_hours'),
                     icon: Icons.timer_outlined,
-                    unit: 'hours/day',
+                    unit: context.tr('hours_per_day_unit'),
                     options: [6, 7, 8, 9, 10, 12],
                     current: settings.standardHours.toInt(),
                     onSelect: (v) => notifier
@@ -174,18 +174,18 @@ class SettingsScreen extends ConsumerWidget {
                 _divider(),
                 _toggleTile(
                   icon: Icons.gps_fixed,
-                  title: 'GPS Enforcement',
-                  subtitle: 'Managed by backend security policy',
+                  title: context.tr('gps_enforcement'),
+                  subtitle: context.tr('managed_backend_security'),
                   value: settings.gpsEnforcement,
                   onChanged: null,
                 ),
                 _divider(),
                 _toggleTile(
                   icon: Icons.camera_alt_outlined,
-                  title: 'Selfie Requirement',
+                  title: context.tr('selfie_requirement'),
                   subtitle: settings.selfieRequired
-                      ? 'Required for check-in'
-                      : 'Selfie not required',
+                      ? context.tr('selfie_required_subtitle')
+                      : context.tr('selfie_not_required'),
                   value: settings.selfieRequired,
                   onChanged: (v) =>
                       notifier.update((s) => s.copyWith(selfieRequired: v)),
@@ -193,15 +193,15 @@ class SettingsScreen extends ConsumerWidget {
               ]),
 
             if (isAdmin)
-              _section('Salary & Payroll', [
+              _section(context.tr('salary_payroll'), [
                 _navTile(
                   icon: Icons.payments,
-                  title: 'Salary Cycle',
+                  title: context.tr('salary_cycle'),
                   subtitle:
                       '${_ordinal(settings.salaryCycleDay)} of every month',
                   onTap: () => _showPickerSheet(
                     context: context,
-                    title: 'Salary Cycle Day',
+                    title: context.tr('salary_cycle_day'),
                     icon: Icons.payments,
                     unit: 'of each month',
                     options: List.generate(28, (i) => i + 1),
@@ -213,14 +213,14 @@ class SettingsScreen extends ConsumerWidget {
                 _divider(),
                 _navTile(
                   icon: Icons.account_balance,
-                  title: 'Overtime Policy',
+                  title: context.tr('overtime_policy'),
                   subtitle:
-                      'After ${settings.overtimeAfterHours.toStringAsFixed(0)} hours',
+                      'After ${settings.overtimeAfterHours.toStringAsFixed(0)} ${context.tr('hours_unit')}',
                   onTap: () => _showPickerSheet(
                     context: context,
-                    title: 'Overtime Starts After',
+                    title: context.tr('overtime_starts_after'),
                     icon: Icons.account_balance,
-                    unit: 'hours',
+                    unit: context.tr('hours_unit'),
                     options: [6, 7, 8, 9, 10],
                     current: settings.overtimeAfterHours.toInt(),
                     onSelect: (v) => notifier.update(
@@ -230,14 +230,14 @@ class SettingsScreen extends ConsumerWidget {
                 _divider(),
                 _navTile(
                   icon: Icons.remove_circle_outline,
-                  title: 'Deduction Rules',
+                  title: context.tr('deduction_rules'),
                   subtitle:
-                      '${settings.absenceDeductionPercent.toStringAsFixed(0)}% per absent day',
+                      '${settings.absenceDeductionPercent.toStringAsFixed(0)}% ${context.tr('percent_per_absent')}',
                   onTap: () => _showPickerSheet(
                     context: context,
-                    title: 'Absence Deduction',
+                    title: context.tr('absence_deduction'),
                     icon: Icons.remove_circle_outline,
-                    unit: '% of daily salary',
+                    unit: context.tr('percent_per_absent'),
                     options: [25, 50, 75, 100],
                     current: settings.absenceDeductionPercent.toInt(),
                     onSelect: (v) => notifier.update((s) =>
@@ -250,31 +250,42 @@ class SettingsScreen extends ConsumerWidget {
             _section(context.tr('notifications'), [
               _toggleTile(
                 icon: Icons.notifications_outlined,
-                title: 'Push Notifications',
+                title: context.tr('push_notifications_title'),
                 subtitle: settings.pushNotifications
-                    ? 'App notifications enabled'
-                    : 'Notifications disabled',
+                    ? context.tr('notifications_enabled_subtitle')
+                    : context.tr('notifications_disabled_subtitle'),
                 value: settings.pushNotifications,
                 onChanged: (v) =>
                     notifier.update((s) => s.copyWith(pushNotifications: v)),
               ),
               _divider(),
               _toggleTile(
+                icon: Icons.volume_up_outlined,
+                title: context.tr('app_sounds'),
+                subtitle: settings.soundEnabled
+                    ? context.tr('sounds_on_subtitle')
+                    : context.tr('sounds_off_subtitle'),
+                value: settings.soundEnabled,
+                onChanged: (v) =>
+                    notifier.update((s) => s.copyWith(soundEnabled: v)),
+              ),
+              _divider(),
+              _toggleTile(
                 icon: Icons.sms_outlined,
-                title: 'SMS Alerts',
-                subtitle: 'Requires SMS gateway integration',
+                title: context.tr('sms_alerts'),
+                subtitle: context.tr('sms_gateway_required'),
                 value: settings.smsAlerts,
                 onChanged: null,
               ),
             ]),
 
             // ── Backend Configuration ─────────────────────────────────
-            _section('Backend Configuration', [
+            _section(context.tr('backend_configuration'), [
               _navTile(
                 icon: Icons.dns_outlined,
                 title: context.tr('api_server_url'),
                 subtitle: apiConfig.apiUrl.isEmpty
-                    ? 'Not configured'
+                    ? context.tr('api_url_required')
                     : apiConfig.apiUrl,
                 onTap: () => showModalBottomSheet(
                   context: context,
@@ -287,40 +298,24 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-              _divider(),
-              _toggleTile(
-                icon: Icons.cloud_outlined,
-                title: 'Remote Backend Mode',
-                subtitle: remoteModeLocked
-                    ? 'Managed by build configuration'
-                    : apiConfig.useRemote
-                        ? (apiConfig.isConfigured
-                            ? 'Using API backend'
-                            : 'API URL required before sign in')
-                        : 'Using local demo data',
-                value: apiConfig.useRemote,
-                onChanged: remoteModeLocked
-                    ? null
-                    : (value) => _confirmRemoteModeChange(context, ref, value),
-              ),
             ]),
 
             // ── Security ──────────────────────────────────────────────
-            _section('Security', [
+            _section(context.tr('security'), [
               _toggleTile(
                 icon: Icons.phone_android,
-                title: 'Device Binding',
-                subtitle: 'Enforced by backend at sign-in',
+                title: context.tr('device_binding'),
+                subtitle: context.tr('enforced_backend_signin'),
                 value: settings.deviceBinding,
                 onChanged: null,
               ),
               _divider(),
               _toggleTile(
                 icon: Icons.location_off,
-                title: 'Mock GPS Detection',
+                title: context.tr('mock_gps_detection'),
                 subtitle: settings.mockGpsDetection
-                    ? 'Fake location detected & blocked'
-                    : 'Mock GPS detection off',
+                    ? context.tr('fake_location_blocked')
+                    : context.tr('mock_gps_off'),
                 value: settings.mockGpsDetection,
                 onChanged: (v) =>
                     notifier.update((s) => s.copyWith(mockGpsDetection: v)),
@@ -328,15 +323,15 @@ class SettingsScreen extends ConsumerWidget {
               _divider(),
               _navTile(
                 icon: Icons.lock_outline,
-                title: 'Change Password',
-                subtitle: 'Update your password',
+                title: context.tr('change_password'),
+                subtitle: context.tr('update_password'),
                 onTap: () => showChangePasswordSheet(context),
               ),
               _divider(),
               _navTile(
                 icon: Icons.devices_outlined,
                 title: context.tr('logout_all_devices'),
-                subtitle: 'Sign out of all active sessions',
+                subtitle: context.tr('sign_out_all_sessions'),
                 onTap: () => _confirmLogoutAll(context, ref),
               ),
             ]),
@@ -349,34 +344,39 @@ class SettingsScreen extends ConsumerWidget {
                   decoration: BoxDecoration(
                       color: AppColors.primarySurface,
                       borderRadius: BorderRadius.circular(8)),
-                  child: const Icon(Icons.language, color: AppColors.primary, size: 18),
+                  child: const Icon(Icons.language,
+                      color: AppColors.primary, size: 18),
                 ),
                 title: Text(
                   context.tr('language'),
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.w600),
                 ),
                 subtitle: Text(
                   isArabic ? context.tr('arabic') : context.tr('english'),
-                  style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                  style: const TextStyle(
+                      fontSize: 11, color: AppColors.textSecondary),
                 ),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _langChip('EN', !isArabic, () => localeNotifier.setLocale(const Locale('en'))),
+                    _langChip('EN', !isArabic,
+                        () => localeNotifier.setLocale(const Locale('en'))),
                     const SizedBox(width: 8),
-                    _langChip('عر', isArabic, () => localeNotifier.setLocale(const Locale('ar'))),
+                    _langChip('عر', isArabic,
+                        () => localeNotifier.setLocale(const Locale('ar'))),
                   ],
                 ),
               ),
             ]),
 
             // ── Reports & Export ──────────────────────────────────────
-            _section('Reports & Export', [
+            _section(context.tr('reports_export'), [
               if (isAdmin) ...[
                 _navTile(
                   icon: Icons.backup_outlined,
                   title: context.tr('backup_export'),
-                  subtitle: 'Staff, attendance, tasks, KPI, leaves',
+                  subtitle: context.tr('staff_data_export_desc'),
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -429,7 +429,8 @@ class SettingsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 24),
             Text(context.tr('app_version'),
-                style: const TextStyle(fontSize: 12, color: AppColors.textHint)),
+                style:
+                    const TextStyle(fontSize: 12, color: AppColors.textHint)),
             const SizedBox(height: 24),
           ],
         ),
@@ -441,13 +442,12 @@ class SettingsScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Logout All Devices'),
-        content: const Text(
-            'This will sign you out of all active sessions on all devices.'),
+        title: Text(context.tr('logout_all_title_dialog')),
+        content: Text(context.tr('logout_all_content')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(context.tr('cancel')),
           ),
           TextButton(
             onPressed: () {
@@ -455,61 +455,11 @@ class SettingsScreen extends ConsumerWidget {
               ref.read(authControllerProvider.notifier).logoutAll();
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Logout All'),
+            child: Text(context.tr('logout_all_btn')),
           ),
         ],
       ),
     );
-  }
-
-  Future<void> _confirmRemoteModeChange(
-    BuildContext context,
-    WidgetRef ref,
-    bool useRemote,
-  ) async {
-    final currentUseRemote = ref.read(apiConfigProvider).useRemote;
-    if (currentUseRemote == useRemote) {
-      return;
-    }
-
-    final confirmed = await showDialog<bool>(
-          context: context,
-          builder: (dialogContext) => AlertDialog(
-            title: Text(
-              useRemote ? 'Enable Remote Backend' : 'Enable Demo Mode',
-            ),
-            content: const Text(
-              'Switching backend mode will sign you out and reload the app data source.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext, false),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(dialogContext, true),
-                child: const Text('Continue'),
-              ),
-            ],
-          ),
-        ) ??
-        false;
-
-    if (!confirmed) {
-      return;
-    }
-
-    await ref.read(authControllerProvider.notifier).logout();
-    await ref.read(apiConfigProvider.notifier).setUseRemote(useRemote);
-    if (!context.mounted) {
-      return;
-    }
-
-    AppUtils.showSnackBar(
-      context,
-      useRemote ? 'Remote backend mode enabled' : 'Demo mode enabled',
-    );
-    context.go('/login');
   }
 
   // ── Widget helpers ────────────────────────────────────────────────────

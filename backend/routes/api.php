@@ -73,11 +73,18 @@ Route::middleware(['auth:sanctum', 'active-user-session', 'track-token-metadata'
     Route::get('/notifications', [HrModuleController::class, 'notifications']);
     Route::patch('/notifications/{id}/read', [HrModuleController::class, 'markNotificationRead']);
     Route::patch('/notifications/read-all', [HrModuleController::class, 'markNotificationsRead']);
+    Route::post('/push-tokens', [HrModuleController::class, 'storePushToken']);
+    Route::delete('/push-tokens', [HrModuleController::class, 'deletePushToken']);
 
     Route::get('/expenses', [HrModuleController::class, 'expenses']);
     Route::post('/expenses', [HrModuleController::class, 'storeExpense']);
 
     Route::get('/holidays', [HrModuleController::class, 'holidays']);
+    Route::get('/shift-rosters', [HrModuleController::class, 'shiftRosters']);
+    Route::get('/shift-swap-requests', [HrModuleController::class, 'shiftSwapRequests']);
+    Route::post('/shift-swap-requests', [HrModuleController::class, 'storeShiftSwapRequest']);
+    Route::get('/helpdesk-tickets', [HrModuleController::class, 'helpdeskTickets']);
+    Route::post('/helpdesk-tickets', [HrModuleController::class, 'storeHelpdeskTicket']);
 
     Route::middleware('role:admin,supervisor')->group(function () {
         Route::get('/staff', [StaffController::class, 'index']);
@@ -89,6 +96,8 @@ Route::middleware(['auth:sanctum', 'active-user-session', 'track-token-metadata'
 
         Route::patch('/leaves/{id}/status', [HrModuleController::class, 'updateLeaveStatus']);
         Route::patch('/expenses/{id}/status', [HrModuleController::class, 'updateExpenseStatus']);
+        Route::patch('/shift-swap-requests/{id}/status', [HrModuleController::class, 'updateShiftSwapRequestStatus']);
+        Route::patch('/helpdesk-tickets/{id}/status', [HrModuleController::class, 'updateHelpdeskTicketStatus']);
 
         Route::get('/attendance-edit-logs', [HrModuleController::class, 'editLogs']);
         Route::post('/attendance-edit-logs', [HrModuleController::class, 'storeEditLog']);
@@ -120,5 +129,8 @@ Route::middleware(['auth:sanctum', 'active-user-session', 'track-token-metadata'
 
         Route::post('/holidays', [HrModuleController::class, 'storeHoliday']);
         Route::delete('/holidays/{id}', [HrModuleController::class, 'deleteHoliday']);
+        Route::post('/shift-rosters', [HrModuleController::class, 'storeShiftRoster']);
+        Route::put('/shift-rosters/{id}', [HrModuleController::class, 'updateShiftRoster']);
+        Route::post('/announcements', [HrModuleController::class, 'publishAnnouncement']);
     });
 });

@@ -58,9 +58,9 @@ class _AttendanceReportScreenState extends ConsumerState<AttendanceReportScreen>
           indicatorColor: Colors.white,
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white70,
-          tabs: const [
-            Tab(text: 'Daily'),
-            Tab(text: 'All Staff'),
+          tabs: [
+            Tab(text: context.tr('daily_tab')),
+            Tab(text: context.tr('all_staff_tab')),
           ],
         ),
       ),
@@ -107,9 +107,9 @@ class _AttendanceReportScreenState extends ConsumerState<AttendanceReportScreen>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _summaryItem('Total', records.length, AppColors.primary),
+              _summaryItem(context.tr('total_label'), records.length, AppColors.primary),
               _summaryItem(
-                  'Present',
+                  context.tr('present'),
                   records
                       .where((a) =>
                           a.status == 'Present' ||
@@ -118,15 +118,15 @@ class _AttendanceReportScreenState extends ConsumerState<AttendanceReportScreen>
                       .length,
                   AppColors.present),
               _summaryItem(
-                  'Absent',
+                  context.tr('absent'),
                   records.where((a) => a.status == 'Absent').length,
                   AppColors.absent),
               _summaryItem(
-                  'Late',
+                  context.tr('late'),
                   records.where((a) => a.status == 'Late').length,
                   AppColors.late),
               _summaryItem(
-                  'Leave',
+                  context.tr('leave'),
                   records.where((a) => a.status == 'On Leave').length,
                   AppColors.onLeave),
             ],
@@ -208,11 +208,11 @@ class _AttendanceReportScreenState extends ConsumerState<AttendanceReportScreen>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _miniStat('Total', totalDays, AppColors.primary),
-                  _miniStat('Present', presentDays, AppColors.present),
-                  _miniStat('Late', lateDays, AppColors.late),
+                  _miniStat(context.tr('total_label'), totalDays, AppColors.primary),
+                  _miniStat(context.tr('present'), presentDays, AppColors.present),
+                  _miniStat(context.tr('late'), lateDays, AppColors.late),
                   _miniStat(
-                      'OT hrs', totalOt.toStringAsFixed(1), AppColors.accent),
+                      context.tr('ot_hrs'), totalOt.toStringAsFixed(1), AppColors.accent),
                 ],
               ),
             ],
@@ -292,7 +292,7 @@ class _AttendanceReportScreenState extends ConsumerState<AttendanceReportScreen>
               ],
             ),
             if (att.lateMinutes > 0)
-              Text('Late by ${att.lateMinutes} min',
+              Text('${context.tr('late_by_label')} ${att.lateMinutes} ${context.tr('minutes_short')}',
                   style: const TextStyle(fontSize: 10, color: AppColors.late)),
             if (att.overtimeHours > 0)
               Text('OT: ${att.overtimeHours.toStringAsFixed(1)}h',
