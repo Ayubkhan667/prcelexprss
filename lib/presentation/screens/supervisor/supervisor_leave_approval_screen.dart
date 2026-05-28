@@ -7,6 +7,7 @@ import '../../../core/utils/app_utils.dart';
 import '../../../data/models/leave_model.dart';
 import '../../../data/providers/app_providers.dart';
 import '../../../data/providers/auth_provider.dart';
+import '../../../core/l10n/app_localizations.dart';
 
 class SupervisorLeaveApprovalScreen extends ConsumerStatefulWidget {
   const SupervisorLeaveApprovalScreen({super.key});
@@ -49,7 +50,7 @@ class _SupervisorLeaveApprovalScreenState
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Leave Approvals'),
+        title: Text(context.tr('leave_approvals')),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -78,9 +79,9 @@ class _SupervisorLeaveApprovalScreenState
 
   Widget _leaveList(List<LeaveModel> leaves, {bool showActions = false}) {
     if (leaves.isEmpty) {
-      return const Center(
-        child: Text('No leave requests',
-            style: TextStyle(color: AppColors.textSecondary)),
+      return Center(
+        child: Text(context.tr('no_leave_requests'),
+            style: const TextStyle(color: AppColors.textSecondary)),
       );
     }
     return ListView.builder(
@@ -196,7 +197,7 @@ class _SupervisorLeaveApprovalScreenState
                     child: OutlinedButton.icon(
                       onPressed: () => _showRejectDialog(leave),
                       icon: const Icon(Icons.close, size: 16),
-                      label: const Text('Reject'),
+                      label: Text(context.tr('reject')),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.error,
                         side: const BorderSide(color: AppColors.error),
@@ -208,7 +209,7 @@ class _SupervisorLeaveApprovalScreenState
                     child: ElevatedButton.icon(
                       onPressed: () => _approveLeave(leave),
                       icon: const Icon(Icons.check, size: 16),
-                      label: const Text('Approve'),
+                      label: Text(context.tr('approve')),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.success,
                         foregroundColor: Colors.white,
@@ -274,7 +275,7 @@ class _SupervisorLeaveApprovalScreenState
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Reject Leave'),
+        title: Text(context.tr('reject_leave')),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -293,7 +294,7 @@ class _SupervisorLeaveApprovalScreenState
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(context.tr('cancel')),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -340,7 +341,7 @@ class _SupervisorLeaveApprovalScreenState
             style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.error,
                 foregroundColor: Colors.white),
-            child: const Text('Reject'),
+            child: Text(context.tr('reject')),
           ),
         ],
       ),

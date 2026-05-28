@@ -12,6 +12,7 @@ import '../../../data/providers/auth_provider.dart';
 import '../../../data/services/audit_log_service.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/custom_text_field.dart';
+import '../../../core/l10n/app_localizations.dart';
 
 class AddEditStaffScreen extends ConsumerStatefulWidget {
   final String? staffId;
@@ -274,7 +275,7 @@ class _AddEditStaffScreenState extends ConsumerState<AddEditStaffScreen> {
 
     if (isEdit && existingStaff == null && allStaffAsync.isLoading) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Edit Staff')),
+        appBar: AppBar(title: Text(context.tr('edit_staff'))),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -501,7 +502,7 @@ class _AddEditStaffScreenState extends ConsumerState<AddEditStaffScreen> {
                         ? 'Create Admin Account'
                         : _role == AppConstants.roleSupervisor
                             ? 'Create Supervisor Account'
-                            : 'Add Staff'),
+                            : context.tr('add_staff')),
                 icon: isEdit ? Icons.save_outlined : Icons.person_add_outlined,
                 onPressed: _isLoading ? null : _save,
                 isLoading: _isLoading,

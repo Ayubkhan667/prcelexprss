@@ -7,6 +7,7 @@ import '../../../data/providers/app_providers.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../../data/models/leave_model.dart';
 import '../../widgets/common/status_badge.dart';
+import '../../../core/l10n/app_localizations.dart';
 
 class LeaveApprovalScreen extends ConsumerStatefulWidget {
   const LeaveApprovalScreen({super.key});
@@ -42,7 +43,7 @@ class _LeaveApprovalScreenState extends ConsumerState<LeaveApprovalScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Leave Management'),
+        title: Text(context.tr('leave_management')),
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: Colors.white,
@@ -68,14 +69,14 @@ class _LeaveApprovalScreenState extends ConsumerState<LeaveApprovalScreen>
 
   Widget _leaveList(List<LeaveModel> leaves, {bool showActions = false}) {
     if (leaves.isEmpty) {
-      return const Center(
+      return Center(
           child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.beach_access, size: 60, color: AppColors.textHint),
-          SizedBox(height: 12),
-          Text('No leave requests',
-              style: TextStyle(color: AppColors.textSecondary)),
+          const Icon(Icons.beach_access, size: 60, color: AppColors.textHint),
+          const SizedBox(height: 12),
+          Text(context.tr('no_leave_requests'),
+              style: const TextStyle(color: AppColors.textSecondary)),
         ],
       ));
     }
@@ -187,7 +188,7 @@ class _LeaveApprovalScreenState extends ConsumerState<LeaveApprovalScreen>
                       Expanded(
                         child: OutlinedButton.icon(
                           icon: const Icon(Icons.close, size: 16),
-                          label: const Text('Reject'),
+                          label: Text(context.tr('reject')),
                           onPressed: () => _rejectLeave(context, leave),
                           style: OutlinedButton.styleFrom(
                               foregroundColor: AppColors.error,
@@ -198,7 +199,7 @@ class _LeaveApprovalScreenState extends ConsumerState<LeaveApprovalScreen>
                       Expanded(
                         child: ElevatedButton.icon(
                           icon: const Icon(Icons.check, size: 16),
-                          label: const Text('Approve'),
+                          label: Text(context.tr('approve')),
                           onPressed: () => _approveLeave(context, leave),
                           style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.success),
@@ -269,7 +270,7 @@ class _LeaveApprovalScreenState extends ConsumerState<LeaveApprovalScreen>
         return AlertDialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text('Reject Leave'),
+          title: Text(context.tr('reject_leave')),
           content: TextField(
             controller: reasonCtrl,
             decoration: const InputDecoration(labelText: 'Rejection reason'),
@@ -278,7 +279,7 @@ class _LeaveApprovalScreenState extends ConsumerState<LeaveApprovalScreen>
           actions: [
             TextButton(
                 onPressed: () => Navigator.pop(ctx),
-                child: const Text('Cancel')),
+                child: Text(context.tr('cancel'))),
             ElevatedButton(
               onPressed: () async {
                 final reason = reasonCtrl.text.trim();
@@ -321,7 +322,7 @@ class _LeaveApprovalScreenState extends ConsumerState<LeaveApprovalScreen>
                 );
               },
               style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-              child: const Text('Reject'),
+              child: Text(context.tr('reject')),
             ),
           ],
         );

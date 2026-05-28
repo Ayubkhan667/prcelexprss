@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/l10n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/app_utils.dart';
 import '../../../data/providers/app_providers.dart';
@@ -91,7 +92,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                       _quickAction(
                           context,
                           Icons.people,
-                          "Salary",
+                          context.tr('salary'),
                           AppColors.primary,
                           () => _navigate(
                               context, const SalaryManagementScreen())),
@@ -99,7 +100,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                       _quickAction(
                           context,
                           Icons.account_balance_wallet,
-                          "Loans",
+                          context.tr('loan'),
                           AppColors.accent,
                           () =>
                               _navigate(context, const LoanManagementScreen())),
@@ -107,7 +108,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                       _quickAction(
                           context,
                           Icons.beach_access,
-                          "Leaves",
+                          context.tr('leave'),
                           AppColors.onLeave,
                           () =>
                               _navigate(context, const LeaveApprovalScreen())),
@@ -115,7 +116,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                       _quickAction(
                           context,
                           Icons.location_on,
-                          "Branches",
+                          context.tr('branch'),
                           AppColors.success,
                           () => _navigate(
                               context, const BranchManagementScreen())),
@@ -127,7 +128,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                       _quickAction(
                           context,
                           Icons.assignment_outlined,
-                          "Tasks",
+                          context.tr('task'),
                           AppColors.primaryDark,
                           () =>
                               _navigate(context, const TaskManagementScreen())),
@@ -135,7 +136,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                       _quickAction(
                           context,
                           Icons.more_time,
-                          "OT Approval",
+                          context.tr('overtime'),
                           AppColors.warning,
                           () => _navigate(
                               context, const OvertimeApprovalScreen())),
@@ -147,8 +148,8 @@ class AdminDashboardScreen extends ConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text("Today's Overview",
-                          style: TextStyle(
+                      Text(context.tr('todays_overview'),
+                          style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
                               color: AppColors.textPrimary)),

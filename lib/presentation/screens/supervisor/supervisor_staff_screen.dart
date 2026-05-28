@@ -4,6 +4,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../data/models/staff_model.dart';
 import '../../../data/providers/app_providers.dart';
 import '../../widgets/common/status_badge.dart';
+import '../../../core/l10n/app_localizations.dart';
 
 class SupervisorStaffScreen extends ConsumerStatefulWidget {
   const SupervisorStaffScreen({super.key});
@@ -48,9 +49,9 @@ class _SupervisorStaffScreenState extends ConsumerState<SupervisorStaffScreen> {
           _buildSearchAndFilter(),
           Expanded(
             child: staffList.isEmpty
-                ? const Center(
-                    child: Text('No staff found',
-                        style: TextStyle(color: AppColors.textSecondary)))
+                ? Center(
+                    child: Text(context.tr('no_staff_found'),
+                        style: const TextStyle(color: AppColors.textSecondary)))
                 : ListView.builder(
                     padding: const EdgeInsets.all(16),
                     itemCount: staffList.length,

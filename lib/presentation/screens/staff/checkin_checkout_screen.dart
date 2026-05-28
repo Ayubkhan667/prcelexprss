@@ -9,6 +9,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../../core/constants/app_constants.dart';
+import '../../../core/l10n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/app_utils.dart';
 import '../../../data/models/attendance_model.dart';
@@ -627,14 +628,14 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
               runSpacing: 12,
               children: [
                 _summaryItem(
-                  'Check In',
+                  context.tr('check_in'),
                   attendance.checkInTime != null
                       ? AppUtils.formatTime(attendance.checkInTime!)
                       : '--',
                   AppColors.success,
                 ),
                 _summaryItem(
-                  'Check Out',
+                  context.tr('check_out'),
                   attendance.checkOutTime != null
                       ? AppUtils.formatTime(attendance.checkOutTime!)
                       : '--',
@@ -1070,7 +1071,7 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Attendance'),
+        title: Text(context.tr('attendance')),
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -1309,7 +1310,7 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
             onPressed: _isSubmitting
                 ? null
                 : () => _syncOfflineQueue(showFeedback: true),
-            child: const Text('Sync'),
+            child: Text(context.tr('sync')),
           ),
         ],
       ),
@@ -1626,7 +1627,7 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
             runSpacing: 12,
             children: [
               _metricItem(
-                'Check In',
+                context.tr('check_in'),
                 attendance.checkInTime != null
                     ? AppUtils.formatTime(attendance.checkInTime!)
                     : '--',

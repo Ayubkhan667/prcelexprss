@@ -6,6 +6,7 @@ import '../../../core/utils/app_utils.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../../data/providers/app_providers.dart';
 import '../../../data/models/kpi_model.dart';
+import '../../../core/l10n/app_localizations.dart';
 
 class StaffKpiScreen extends ConsumerWidget {
   const StaffKpiScreen({super.key});
@@ -20,24 +21,24 @@ class StaffKpiScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('My KPI Report'),
+        title: Text(context.tr('my_kpi_report')),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
       body: kpiList.isEmpty
-          ? const Center(
+          ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.bar_chart, size: 72, color: AppColors.textHint),
-                  SizedBox(height: 16),
-                  Text('No KPI data available',
-                      style: TextStyle(
+                  const Icon(Icons.bar_chart, size: 72, color: AppColors.textHint),
+                  const SizedBox(height: 16),
+                  Text(context.tr('no_kpi_data'),
+                      style: const TextStyle(
                           color: AppColors.textSecondary, fontSize: 15)),
-                  SizedBox(height: 6),
-                  Text('KPI is calculated at end of each month',
+                  const SizedBox(height: 6),
+                  Text(context.tr('kpi_calculated_end_month'),
                       style:
-                          TextStyle(color: AppColors.textHint, fontSize: 12)),
+                          const TextStyle(color: AppColors.textHint, fontSize: 12)),
                 ],
               ),
             )
@@ -47,7 +48,7 @@ class StaffKpiScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (currentKpi != null) ...[
-                    _scoreHeader(currentKpi),
+                    _scoreHeader(context, currentKpi),
                     const SizedBox(height: 20),
                     _sectionTitle('Score Breakdown'),
                     const SizedBox(height: 12),
@@ -103,7 +104,7 @@ class StaffKpiScreen extends ConsumerWidget {
     );
   }
 
-  Widget _scoreHeader(KpiModel kpi) {
+  Widget _scoreHeader(BuildContext context, KpiModel kpi) {
     final color = AppUtils.getKpiColor(kpi.totalKpiScore);
     return Container(
       padding: const EdgeInsets.all(20),
@@ -140,7 +141,7 @@ class StaffKpiScreen extends ConsumerWidget {
                           fontSize: 48,
                           fontWeight: FontWeight.w800,
                           height: 1)),
-                  Text('out of 100',
+                  Text(context.tr('out_of_100'),
                       style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.7),
                           fontSize: 12)),

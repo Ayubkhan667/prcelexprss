@@ -6,6 +6,7 @@ import '../../../data/providers/auth_provider.dart';
 import '../../../data/providers/app_providers.dart';
 import '../../../data/models/attendance_model.dart';
 import '../../widgets/common/status_badge.dart';
+import '../../../core/l10n/app_localizations.dart';
 
 class AttendanceHistoryScreen extends ConsumerStatefulWidget {
   const AttendanceHistoryScreen({super.key});
@@ -68,7 +69,7 @@ class _AttendanceHistoryScreenState
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Attendance History'),
+        title: Text(context.tr('attendance_history')),
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: Colors.white,
@@ -140,7 +141,7 @@ class _AttendanceHistoryScreenState
         ),
         Expanded(
           child: records.isEmpty
-              ? const Center(child: Text('No records for this month'))
+              ? Center(child: Text(context.tr('no_records_for_month')))
               : ListView.builder(
                   padding: const EdgeInsets.all(12),
                   itemCount: records.length,
@@ -153,8 +154,8 @@ class _AttendanceHistoryScreenState
 
   Widget _dailyTab(List<AttendanceModel> records) {
     if (records.isEmpty) {
-      return const Center(
-        child: Text('No attendance records found'),
+      return Center(
+        child: Text(context.tr('no_attendance_records_found')),
       );
     }
 

@@ -11,6 +11,7 @@ import '../../../data/models/task_model.dart';
 import '../../../data/providers/app_providers.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../../data/services/audit_log_service.dart';
+import '../../../core/l10n/app_localizations.dart';
 
 class TaskManagementScreen extends ConsumerStatefulWidget {
   const TaskManagementScreen({super.key});
@@ -44,7 +45,7 @@ class _TaskManagementScreenState extends ConsumerState<TaskManagementScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Task Cards'),
+        title: Text(context.tr('task_cards')),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
@@ -53,7 +54,7 @@ class _TaskManagementScreenState extends ConsumerState<TaskManagementScreen> {
         backgroundColor: AppColors.accent,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add_task),
-        label: const Text('Assign Task'),
+        label: Text(context.tr('assign_task')),
       ),
       body: Column(
         children: [
@@ -155,9 +156,9 @@ class _TaskManagementScreenState extends ConsumerState<TaskManagementScreen> {
               ),
             ),
             items: [
-              const DropdownMenuItem<String>(
+              DropdownMenuItem<String>(
                 value: '',
-                child: Text('All Employees'),
+                child: Text(context.tr('all_employees')),
               ),
               ...staffList.map(
                 (staff) => DropdownMenuItem<String>(
@@ -364,7 +365,7 @@ class _TaskManagementScreenState extends ConsumerState<TaskManagementScreen> {
                   child: OutlinedButton.icon(
                     onPressed: () => _terminateTask(task),
                     icon: const Icon(Icons.block, size: 18),
-                    label: const Text('Terminate'),
+                    label: Text(context.tr('terminate')),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.error,
                       side: const BorderSide(color: AppColors.error),
@@ -512,9 +513,9 @@ class _TaskManagementScreenState extends ConsumerState<TaskManagementScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
-                      'Assign Task Card',
-                      style: TextStyle(
+                    Text(
+                      context.tr('assign_task'),
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
                         color: AppColors.textPrimary,
@@ -536,9 +537,9 @@ class _TaskManagementScreenState extends ConsumerState<TaskManagementScreen> {
                     SwitchListTile.adaptive(
                       value: assignToAll,
                       contentPadding: EdgeInsets.zero,
-                      title: const Text('Assign to all active employees'),
+                      title: Text(context.tr('assign_to_all_active')),
                       subtitle:
-                          const Text('Creates a task card for each employee'),
+                          Text(context.tr('creates_task_card_for_each')),
                       onChanged: (value) =>
                           setSheetState(() => assignToAll = value),
                     ),
@@ -563,7 +564,7 @@ class _TaskManagementScreenState extends ConsumerState<TaskManagementScreen> {
                     SwitchListTile.adaptive(
                       value: isDailyTask,
                       contentPadding: EdgeInsets.zero,
-                      title: const Text('Daily task'),
+                      title: Text(context.tr('daily_task')),
                       subtitle:
                           const Text('Can be closed on the same day by admin'),
                       onChanged: (value) =>
@@ -755,7 +756,7 @@ class _TaskManagementScreenState extends ConsumerState<TaskManagementScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
                         icon: const Icon(Icons.send),
-                        label: const Text('Send Task Card'),
+                        label: Text(context.tr('send_task_card')),
                       ),
                     ),
                   ],

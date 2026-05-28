@@ -7,6 +7,7 @@ import '../../../core/utils/app_utils.dart';
 import '../../../data/models/task_model.dart';
 import '../../../data/providers/app_providers.dart';
 import '../../../data/providers/auth_provider.dart';
+import '../../../core/l10n/app_localizations.dart';
 
 class StaffTaskScreen extends ConsumerStatefulWidget {
   const StaffTaskScreen({super.key});
@@ -40,7 +41,7 @@ class _StaffTaskScreenState extends ConsumerState<StaffTaskScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('My Tasks'),
+        title: Text(context.tr('my_tasks')),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
@@ -272,7 +273,7 @@ class _StaffTaskScreenState extends ConsumerState<StaffTaskScreen> {
                   foregroundColor: Colors.white,
                 ),
                 icon: const Icon(Icons.check_circle_outline),
-                label: const Text('Mark as Completed'),
+                label: Text(context.tr('mark_as_completed')),
               ),
             ),
           ],

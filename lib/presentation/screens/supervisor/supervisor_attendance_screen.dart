@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/attendance_model.dart';
 import '../../../data/providers/app_providers.dart';
+import '../../../core/l10n/app_localizations.dart';
 
 class SupervisorAttendanceScreen extends ConsumerStatefulWidget {
   const SupervisorAttendanceScreen({super.key});
@@ -50,9 +51,9 @@ class _SupervisorAttendanceScreenState
           _buildStatusFilters(),
           Expanded(
             child: records.isEmpty
-                ? const Center(
-                    child: Text('No records for this date',
-                        style: TextStyle(color: AppColors.textSecondary)))
+                ? Center(
+                    child: Text(context.tr('no_records_for_date'),
+                        style: const TextStyle(color: AppColors.textSecondary)))
                 : ListView.builder(
                     padding: const EdgeInsets.all(12),
                     itemCount: records.length,

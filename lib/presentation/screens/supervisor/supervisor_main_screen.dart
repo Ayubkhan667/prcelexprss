@@ -7,6 +7,7 @@ import 'supervisor_staff_screen.dart';
 import 'supervisor_attendance_screen.dart';
 import 'supervisor_leave_approval_screen.dart';
 import '../admin/settings_screen.dart';
+import '../../../core/l10n/app_localizations.dart';
 
 class SupervisorMainScreen extends ConsumerStatefulWidget {
   const SupervisorMainScreen({super.key});
@@ -24,47 +25,47 @@ class _SupervisorMainScreenState extends ConsumerState<SupervisorMainScreen> {
     final settings = ref.watch(hrSettingsProvider);
     final entries = <_SupervisorNavEntry>[
       if (settings.supervisorDashboardAccess)
-        const _SupervisorNavEntry(
-          screen: SupervisorDashboardScreen(),
+        _SupervisorNavEntry(
+          screen: const SupervisorDashboardScreen(),
           item: BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard_outlined),
-            activeIcon: Icon(Icons.dashboard),
-            label: 'Dashboard',
+            icon: const Icon(Icons.dashboard_outlined),
+            activeIcon: const Icon(Icons.dashboard),
+            label: context.tr('dashboard'),
           ),
         ),
       if (settings.supervisorStaffAccess)
-        const _SupervisorNavEntry(
-          screen: SupervisorStaffScreen(),
+        _SupervisorNavEntry(
+          screen: const SupervisorStaffScreen(),
           item: BottomNavigationBarItem(
-            icon: Icon(Icons.people_outline),
-            activeIcon: Icon(Icons.people),
-            label: 'Team',
+            icon: const Icon(Icons.people_outline),
+            activeIcon: const Icon(Icons.people),
+            label: context.tr('my_team'),
           ),
         ),
       if (settings.supervisorAttendanceAccess)
-        const _SupervisorNavEntry(
-          screen: SupervisorAttendanceScreen(),
+        _SupervisorNavEntry(
+          screen: const SupervisorAttendanceScreen(),
           item: BottomNavigationBarItem(
-            icon: Icon(Icons.event_note_outlined),
-            activeIcon: Icon(Icons.event_note),
-            label: 'Attendance',
+            icon: const Icon(Icons.event_note_outlined),
+            activeIcon: const Icon(Icons.event_note),
+            label: context.tr('attendance'),
           ),
         ),
       if (settings.supervisorLeaveAccess)
-        const _SupervisorNavEntry(
-          screen: SupervisorLeaveApprovalScreen(),
+        _SupervisorNavEntry(
+          screen: const SupervisorLeaveApprovalScreen(),
           item: BottomNavigationBarItem(
-            icon: Icon(Icons.approval_outlined),
-            activeIcon: Icon(Icons.approval),
-            label: 'Leaves',
+            icon: const Icon(Icons.approval_outlined),
+            activeIcon: const Icon(Icons.approval),
+            label: context.tr('leave_approvals'),
           ),
         ),
-      const _SupervisorNavEntry(
-        screen: SettingsScreen(),
+      _SupervisorNavEntry(
+        screen: const SettingsScreen(),
         item: BottomNavigationBarItem(
-          icon: Icon(Icons.settings_outlined),
-          activeIcon: Icon(Icons.settings),
-          label: 'Settings',
+          icon: const Icon(Icons.settings_outlined),
+          activeIcon: const Icon(Icons.settings),
+          label: context.tr('settings'),
         ),
       ),
     ];
@@ -107,7 +108,7 @@ class _SupervisorNavEntry {
   final Widget screen;
   final BottomNavigationBarItem item;
 
-  const _SupervisorNavEntry({
+  _SupervisorNavEntry({
     required this.screen,
     required this.item,
   });

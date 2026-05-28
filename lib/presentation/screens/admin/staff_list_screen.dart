@@ -8,6 +8,7 @@ import '../../../data/models/staff_model.dart';
 import '../../widgets/common/status_badge.dart';
 import 'add_edit_staff_screen.dart';
 import 'staff_detail_screen.dart';
+import '../../../core/l10n/app_localizations.dart';
 
 class StaffListScreen extends ConsumerStatefulWidget {
   const StaffListScreen({super.key});
@@ -34,7 +35,7 @@ class _StaffListScreenState extends ConsumerState<StaffListScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Staff Directory'),
+        title: Text(context.tr('staff_directory')),
         actions: [
           IconButton(
             icon: const Icon(Icons.person_add_outlined),
@@ -295,7 +296,7 @@ class _StaffListScreenState extends ConsumerState<StaffListScreen> {
         isDense: true,
         style: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
         items: [
-          const DropdownMenuItem(value: '', child: Text('All Categories')),
+          DropdownMenuItem(value: '', child: Text(context.tr('all_categories'))),
           ...AppConstants.staffCategories
               .map((c) => DropdownMenuItem(value: c, child: Text(c))),
         ],
@@ -308,14 +309,14 @@ class _StaffListScreenState extends ConsumerState<StaffListScreen> {
   }
 
   Widget _emptyState() {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.people_outline, size: 64, color: AppColors.textHint),
-          SizedBox(height: 16),
-          Text('No staff found',
-              style: TextStyle(fontSize: 16, color: AppColors.textSecondary)),
+          const Icon(Icons.people_outline, size: 64, color: AppColors.textHint),
+          const SizedBox(height: 16),
+          Text(context.tr('no_staff_found'),
+              style: const TextStyle(fontSize: 16, color: AppColors.textSecondary)),
         ],
       ),
     );

@@ -6,6 +6,7 @@ import '../../../data/providers/app_providers.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../../data/models/kpi_model.dart';
 import '../../widgets/common/stat_card.dart';
+import '../../../core/l10n/app_localizations.dart';
 
 class SupervisorDashboardScreen extends ConsumerWidget {
   const SupervisorDashboardScreen({super.key});
@@ -118,7 +119,7 @@ class SupervisorDashboardScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _sectionTitle('Today Overview'),
+                  _sectionTitle(context.tr('team_attendance')),
                   const SizedBox(height: 12),
                   GridView.count(
                     crossAxisCount: 2,
@@ -167,11 +168,11 @@ class SupervisorDashboardScreen extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 20),
-                  _sectionTitle('KPI Overview'),
+                  _sectionTitle(context.tr('kpi')),
                   const SizedBox(height: 12),
                   _kpiSummaryCard(avgKpi, bestKpi, worstKpi),
                   const SizedBox(height: 20),
-                  _sectionTitle("Today's Staff Status"),
+                  _sectionTitle(context.tr('staff')),
                   const SizedBox(height: 12),
                   ...allStaff.map(
                     (s) => _staffStatusTile(

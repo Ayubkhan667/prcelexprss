@@ -15,6 +15,7 @@ import 'overtime_approval_screen.dart';
 import 'task_management_screen.dart';
 import 'holiday_calendar_screen.dart';
 import '../shared/notification_screen.dart';
+import '../../../core/l10n/app_localizations.dart';
 
 class AdminMainScreen extends ConsumerStatefulWidget {
   const AdminMainScreen({super.key});
@@ -61,22 +62,22 @@ class _AdminMainScreenState extends ConsumerState<AdminMainScreen> {
           selectedItemColor: AppColors.primary,
           unselectedItemColor: AppColors.textSecondary,
           items: [
-            const BottomNavigationBarItem(
-                icon: Icon(Icons.dashboard_outlined),
-                activeIcon: Icon(Icons.dashboard),
-                label: 'Dashboard'),
-            const BottomNavigationBarItem(
-                icon: Icon(Icons.people_outline),
-                activeIcon: Icon(Icons.people),
-                label: 'Staff'),
-            const BottomNavigationBarItem(
-                icon: Icon(Icons.event_note_outlined),
-                activeIcon: Icon(Icons.event_note),
-                label: 'Attendance'),
-            const BottomNavigationBarItem(
-                icon: Icon(Icons.bar_chart_outlined),
-                activeIcon: Icon(Icons.bar_chart),
-                label: 'KPI'),
+            BottomNavigationBarItem(
+                icon: const Icon(Icons.dashboard_outlined),
+                activeIcon: const Icon(Icons.dashboard),
+                label: context.tr('dashboard')),
+            BottomNavigationBarItem(
+                icon: const Icon(Icons.people_outline),
+                activeIcon: const Icon(Icons.people),
+                label: context.tr('staff')),
+            BottomNavigationBarItem(
+                icon: const Icon(Icons.event_note_outlined),
+                activeIcon: const Icon(Icons.event_note),
+                label: context.tr('attendance')),
+            BottomNavigationBarItem(
+                icon: const Icon(Icons.bar_chart_outlined),
+                activeIcon: const Icon(Icons.bar_chart),
+                label: context.tr('kpi')),
             BottomNavigationBarItem(
               icon: Stack(
                 clipBehavior: Clip.none,
@@ -106,7 +107,7 @@ class _AdminMainScreenState extends ConsumerState<AdminMainScreen> {
                     ),
                 ],
               ),
-              label: 'More',
+              label: context.tr('more'),
             ),
           ],
         ),
@@ -138,8 +139,8 @@ class _AdminMainScreenState extends ConsumerState<AdminMainScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            const Text('More Options',
-                style: TextStyle(
+            Text(context.tr('more_options'),
+                style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                     color: AppColors.textPrimary)),
@@ -147,7 +148,7 @@ class _AdminMainScreenState extends ConsumerState<AdminMainScreen> {
             _menuTile(
               context,
               icon: Icons.notifications_outlined,
-              label: 'Notifications',
+              label: context.tr('notifications'),
               badge: unreadCount,
               color: AppColors.primary,
               onTap: () {
@@ -161,7 +162,7 @@ class _AdminMainScreenState extends ConsumerState<AdminMainScreen> {
             _menuTile(
               context,
               icon: Icons.edit_calendar_outlined,
-              label: 'Manual Attendance Entry',
+              label: context.tr('manual_attendance_entry'),
               color: AppColors.accent,
               onTap: () {
                 Navigator.pop(context);
@@ -174,7 +175,7 @@ class _AdminMainScreenState extends ConsumerState<AdminMainScreen> {
             _menuTile(
               context,
               icon: Icons.history_edu_outlined,
-              label: 'Attendance Edit Logs',
+              label: context.tr('attendance_edit_logs'),
               color: AppColors.warning,
               onTap: () {
                 Navigator.pop(context);
@@ -187,7 +188,7 @@ class _AdminMainScreenState extends ConsumerState<AdminMainScreen> {
             _menuTile(
               context,
               icon: Icons.assignment_outlined,
-              label: 'Task Cards',
+              label: context.tr('task_cards'),
               color: AppColors.primary,
               onTap: () {
                 Navigator.pop(context);
@@ -200,7 +201,7 @@ class _AdminMainScreenState extends ConsumerState<AdminMainScreen> {
             _menuTile(
               context,
               icon: Icons.more_time_outlined,
-              label: 'Overtime Approval',
+              label: context.tr('overtime_approval'),
               color: AppColors.success,
               onTap: () {
                 Navigator.pop(context);
@@ -213,7 +214,7 @@ class _AdminMainScreenState extends ConsumerState<AdminMainScreen> {
             _menuTile(
               context,
               icon: Icons.calendar_month_outlined,
-              label: 'Holiday Calendar',
+              label: context.tr('holiday_calendar'),
               color: const Color(0xFF6A1B9A),
               onTap: () {
                 Navigator.pop(context);
@@ -226,7 +227,7 @@ class _AdminMainScreenState extends ConsumerState<AdminMainScreen> {
             _menuTile(
               context,
               icon: Icons.settings_outlined,
-              label: 'Settings',
+              label: context.tr('settings'),
               color: AppColors.textSecondary,
               onTap: () {
                 Navigator.pop(context);

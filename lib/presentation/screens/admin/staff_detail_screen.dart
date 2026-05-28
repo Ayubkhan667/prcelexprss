@@ -5,6 +5,7 @@ import '../../../core/utils/app_utils.dart';
 import '../../../data/providers/app_providers.dart';
 import '../../widgets/common/status_badge.dart';
 import 'add_edit_staff_screen.dart';
+import '../../../core/l10n/app_localizations.dart';
 
 class StaffDetailScreen extends ConsumerWidget {
   final String staffId;
@@ -15,7 +16,7 @@ class StaffDetailScreen extends ConsumerWidget {
     final service = ref.read(mockDataServiceProvider);
     final staff = service.getStaffById(staffId);
     if (staff == null) {
-      return const Scaffold(body: Center(child: Text('Staff not found')));
+      return Scaffold(body: Center(child: Text(context.tr('staff_not_found'))));
     }
     final attendance = ref.read(attendanceListProvider(staffId));
     final kpi = ref.read(kpiListProvider(staffId));

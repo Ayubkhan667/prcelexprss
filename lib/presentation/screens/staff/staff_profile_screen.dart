@@ -9,6 +9,7 @@ import '../../../data/providers/app_providers.dart';
 import '../../../data/services/biometric_service.dart';
 import '../../widgets/common/status_badge.dart';
 import '../../widgets/common/account_actions.dart';
+import '../../../core/l10n/app_localizations.dart';
 
 class StaffProfileScreen extends ConsumerStatefulWidget {
   const StaffProfileScreen({super.key});
@@ -124,7 +125,7 @@ class _StaffProfileScreenState extends ConsumerState<StaffProfileScreen> {
             expandedHeight: 220,
             pinned: true,
             backgroundColor: AppColors.primary,
-            title: const Text('My Profile'),
+            title: Text(context.tr('my_profile')),
             actions: [
               IconButton(
                   icon: const Icon(Icons.edit_outlined), onPressed: () {}),
@@ -527,16 +528,16 @@ class _StaffProfileScreenState extends ConsumerState<StaffProfileScreen> {
                                 ? null
                                 : (v) => _toggleBiometric(v, user?.email),
                           )
-                        : const ListTile(
-                            contentPadding: EdgeInsets.symmetric(
+                        : ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 4),
-                            leading: Icon(Icons.fingerprint,
+                            leading: const Icon(Icons.fingerprint,
                                 color: AppColors.textHint),
-                            title: Text('Biometric Login',
-                                style: TextStyle(
+                            title: Text(context.tr('biometric_login'),
+                                style: const TextStyle(
                                     fontSize: 14, color: AppColors.textHint)),
-                            subtitle: Text('Not available on this device',
-                                style: TextStyle(fontSize: 12)),
+                            subtitle: Text(context.tr('not_available_on_device'),
+                                style: const TextStyle(fontSize: 12)),
                           ),
                   ),
                   const SizedBox(height: 24),

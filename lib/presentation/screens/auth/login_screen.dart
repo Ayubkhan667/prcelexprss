@@ -9,6 +9,7 @@ import '../../../core/utils/app_utils.dart';
 import '../../../data/providers/api_config_provider.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../../data/services/biometric_service.dart';
+import '../../../core/l10n/app_localizations.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -129,11 +130,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       context: context,
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.fingerprint, color: AppColors.primary),
-            SizedBox(width: 8),
-            Text('Set Up Biometrics'),
+            const Icon(Icons.fingerprint, color: AppColors.primary),
+            const SizedBox(width: 8),
+            Text(context.tr('set_up_biometrics')),
           ],
         ),
         content: const Text(
@@ -142,7 +143,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+            child: Text(context.tr('ok')),
           ),
         ],
       ),
@@ -212,11 +213,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       context: context,
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.phonelink_lock, color: AppColors.error),
-            SizedBox(width: 8),
-            Text('Device Not Allowed'),
+            const Icon(Icons.phonelink_lock, color: AppColors.error),
+            const SizedBox(width: 8),
+            Text(context.tr('device_not_allowed')),
           ],
         ),
         content: Text(message),
@@ -228,7 +229,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10))),
-            child: const Text('OK'),
+            child: Text(context.tr('ok')),
           ),
         ],
       ),

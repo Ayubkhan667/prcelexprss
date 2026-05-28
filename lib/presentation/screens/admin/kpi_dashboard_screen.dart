@@ -6,6 +6,7 @@ import '../../../data/providers/app_providers.dart';
 import '../../../data/models/kpi_model.dart';
 import '../../widgets/common/status_badge.dart';
 import '../../widgets/charts/attendance_pie_chart.dart';
+import '../../../core/l10n/app_localizations.dart';
 
 class KpiDashboardScreen extends ConsumerWidget {
   const KpiDashboardScreen({super.key});
@@ -14,7 +15,7 @@ class KpiDashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final kpiList = ref.watch(allKpiProvider);
     if (kpiList.isEmpty) {
-      return const Scaffold(body: Center(child: Text('No KPI data available')));
+      return Scaffold(body: Center(child: Text(context.tr('no_kpi_data'))));
     }
 
     kpiList.sort((a, b) => b.totalKpiScore.compareTo(a.totalKpiScore));
@@ -25,7 +26,7 @@ class KpiDashboardScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('KPI Dashboard'),
+        title: Text(context.tr('kpi_dashboard')),
         actions: [
           IconButton(icon: const Icon(Icons.filter_list), onPressed: () {}),
         ],

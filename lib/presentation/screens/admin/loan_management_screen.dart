@@ -6,6 +6,7 @@ import '../../../data/providers/app_providers.dart';
 import '../../../data/models/loan_model.dart';
 import '../../widgets/common/status_badge.dart';
 import '../../widgets/common/custom_text_field.dart';
+import '../../../core/l10n/app_localizations.dart';
 
 class LoanManagementScreen extends ConsumerWidget {
   const LoanManagementScreen({super.key});
@@ -21,7 +22,7 @@ class LoanManagementScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Loan Management'),
+        title: Text(context.tr('loan_management')),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -51,7 +52,7 @@ class LoanManagementScreen extends ConsumerWidget {
           ),
           Expanded(
             child: loans.isEmpty
-                ? const Center(child: Text('No loans found'))
+                ? Center(child: Text(context.tr('no_loans_found')))
                 : ListView.builder(
                     padding: const EdgeInsets.all(12),
                     itemCount: loans.length,
@@ -195,7 +196,7 @@ class LoanManagementScreen extends ConsumerWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Add New Loan'),
+        title: Text(context.tr('add_new_loan')),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -230,7 +231,7 @@ class LoanManagementScreen extends ConsumerWidget {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+              onPressed: () => Navigator.pop(ctx), child: Text(context.tr('cancel'))),
           ElevatedButton(
             onPressed: () async {
               dynamic selectedStaff;
@@ -292,7 +293,7 @@ class LoanManagementScreen extends ConsumerWidget {
               Navigator.pop(ctx);
               AppUtils.showSnackBar(context, 'Loan added successfully');
             },
-            child: const Text('Add Loan'),
+            child: Text(context.tr('add_loan')),
           ),
         ],
       ),

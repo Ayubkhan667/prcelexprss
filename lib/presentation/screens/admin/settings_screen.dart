@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_constants.dart';
+import '../../../core/l10n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/providers/api_config_provider.dart';
 import '../../../data/providers/auth_provider.dart';
+import '../../../data/providers/locale_provider.dart';
 import '../../../core/utils/app_utils.dart';
 import '../../../data/providers/settings_provider.dart';
 import '../../widgets/common/account_actions.dart';
@@ -25,10 +27,13 @@ class SettingsScreen extends ConsumerWidget {
     final apiConfig = ref.watch(apiConfigProvider);
     final isAdmin = user?.role == AppConstants.roleAdmin;
     final remoteModeLocked = AppConstants.canUseRemoteData;
+    final locale = ref.watch(localeProvider);
+    final localeNotifier = ref.read(localeProvider.notifier);
+    final isArabic = locale.languageCode == 'ar';
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(title: Text(context.tr('settings'))),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -85,7 +90,7 @@ class SettingsScreen extends ConsumerWidget {
               _section('HR Configuration', [
                 _navTile(
                   icon: Icons.business,
-                  title: 'Company Settings',
+                  title: context.tr('company_settings'),
                   subtitle: settings.companyName,
                   onTap: () =>
                       _showCompanySheet(context, ref, settings, notifier),
@@ -93,7 +98,7 @@ class SettingsScreen extends ConsumerWidget {
                 _divider(),
                 _navTile(
                   icon: Icons.schedule,
-                  title: 'Shift Management',
+                  title: context.tr('shift_management'),
                   subtitle: 'Create & edit shifts',
                   onTap: () => Navigator.push(
                       context,
@@ -103,7 +108,7 @@ class SettingsScreen extends ConsumerWidget {
                 _divider(),
                 _navTile(
                   icon: Icons.location_on_outlined,
-                  title: 'Branch Settings',
+                  title: context.tr('branch_management'),
                   subtitle: 'Manage branches & geofences',
                   onTap: () => Navigator.push(
                       context,
@@ -113,7 +118,7 @@ class SettingsScreen extends ConsumerWidget {
                 _divider(),
                 _navTile(
                   icon: Icons.category_outlined,
-                  title: 'Departments',
+                  title: context.tr('departments'),
                   subtitle: '${settings.departments.length} departments',
                   onTap: () =>
                       _showDepartmentsSheet(context, settings, notifier),
@@ -121,7 +126,7 @@ class SettingsScreen extends ConsumerWidget {
                 _divider(),
                 _navTile(
                   icon: Icons.admin_panel_settings_outlined,
-                  title: 'Supervisor Permissions',
+                  title: context.tr('supervisor_permissions'),
                   subtitle: 'Control supervisor module access',
                   onTap: () => Navigator.push(
                     context,
@@ -242,7 +247,7 @@ class SettingsScreen extends ConsumerWidget {
               ]),
 
             // ── Notifications ─────────────────────────────────────────
-            _section('Notifications', [
+            _section(context.tr('notifications'), [
               _toggleTile(
                 icon: Icons.notifications_outlined,
                 title: 'Push Notifications',
@@ -267,7 +272,7 @@ class SettingsScreen extends ConsumerWidget {
             _section('Backend Configuration', [
               _navTile(
                 icon: Icons.dns_outlined,
-                title: 'API Server URL',
+                title: context.tr('api_server_url'),
                 subtitle: apiConfig.apiUrl.isEmpty
                     ? 'Not configured'
                     : apiConfig.apiUrl,
@@ -330,9 +335,38 @@ class SettingsScreen extends ConsumerWidget {
               _divider(),
               _navTile(
                 icon: Icons.devices_outlined,
-                title: 'Logout All Devices',
+                title: context.tr('logout_all_devices'),
                 subtitle: 'Sign out of all active sessions',
                 onTap: () => _confirmLogoutAll(context, ref),
+              ),
+            ]),
+
+            // ── Language ──────────────────────────────────────────────
+            _section(context.tr('language'), [
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                      color: AppColors.primarySurface,
+                      borderRadius: BorderRadius.circular(8)),
+                  child: const Icon(Icons.language, color: AppColors.primary, size: 18),
+                ),
+                title: Text(
+                  context.tr('language'),
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(
+                  isArabic ? context.tr('arabic') : context.tr('english'),
+                  style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _langChip('EN', !isArabic, () => localeNotifier.setLocale(const Locale('en'))),
+                    const SizedBox(width: 8),
+                    _langChip('عر', isArabic, () => localeNotifier.setLocale(const Locale('ar'))),
+                  ],
+                ),
               ),
             ]),
 
@@ -341,7 +375,7 @@ class SettingsScreen extends ConsumerWidget {
               if (isAdmin) ...[
                 _navTile(
                   icon: Icons.backup_outlined,
-                  title: 'Backup & Export',
+                  title: context.tr('backup_export'),
                   subtitle: 'Staff, attendance, tasks, KPI, leaves',
                   onTap: () => Navigator.push(
                     context,
@@ -354,7 +388,7 @@ class SettingsScreen extends ConsumerWidget {
               ],
               _navTile(
                 icon: Icons.file_download_outlined,
-                title: 'Export Formats',
+                title: context.tr('export_formats'),
                 subtitle:
                     '${settings.exportPdf ? 'PDF' : ''}${settings.exportPdf && settings.exportExcel ? ' & ' : ''}${settings.exportExcel ? 'Excel' : ''} enabled',
                 onTap: () =>
@@ -363,7 +397,7 @@ class SettingsScreen extends ConsumerWidget {
               _divider(),
               _navTile(
                 icon: Icons.history,
-                title: 'Audit Logs',
+                title: context.tr('admin_audit_logs'),
                 subtitle: isAdmin
                     ? 'Staff edits, range changes, tasks, overtime, reads'
                     : 'View local audit trail',
@@ -382,8 +416,8 @@ class SettingsScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Account Actions',
-                      style: TextStyle(
+                  Text(context.tr('account_actions'),
+                      style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                           color: AppColors.primary,
@@ -394,8 +428,8 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 24),
-            const Text('Parcel Express HR v1.0.0',
-                style: TextStyle(fontSize: 12, color: AppColors.textHint)),
+            Text(context.tr('app_version'),
+                style: const TextStyle(fontSize: 12, color: AppColors.textHint)),
             const SizedBox(height: 24),
           ],
         ),
@@ -528,6 +562,32 @@ class SettingsScreen extends ConsumerWidget {
           style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
       trailing:
           const Icon(Icons.chevron_right, color: AppColors.textHint, size: 18),
+    );
+  }
+
+  Widget _langChip(String label, bool selected, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        decoration: BoxDecoration(
+          gradient: selected ? AppColors.primaryGradient : null,
+          color: selected ? null : AppColors.primarySurface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: selected ? AppColors.primary : Colors.transparent,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: selected ? Colors.white : AppColors.primary,
+          ),
+        ),
+      ),
     );
   }
 

@@ -6,6 +6,7 @@ import '../../../data/providers/app_providers.dart';
 import '../../../data/models/salary_model.dart';
 import '../../../data/services/export_service.dart';
 import '../../widgets/common/status_badge.dart';
+import '../../../core/l10n/app_localizations.dart';
 
 class SalaryManagementScreen extends ConsumerWidget {
   const SalaryManagementScreen({super.key});
@@ -21,7 +22,7 @@ class SalaryManagementScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Salary Management'),
+        title: Text(context.tr('salary_management')),
         actions: [
           IconButton(
               icon: const Icon(Icons.add),
@@ -151,8 +152,8 @@ class SalaryManagementScreen extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Net Salary',
-                        style: TextStyle(
+                    Text(context.tr('net_salary'),
+                        style: const TextStyle(
                             fontSize: 15, fontWeight: FontWeight.w700)),
                     Text('OMR ${salary.netSalary.toStringAsFixed(0)}',
                         style: const TextStyle(
@@ -178,7 +179,7 @@ class SalaryManagementScreen extends ConsumerWidget {
                               _markSalaryPaid(context, ref, salary),
                           style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.success),
-                          child: const Text('Mark Paid'),
+                          child: Text(context.tr('mark_paid')),
                         ),
                       ),
                   ],
@@ -251,9 +252,9 @@ class SalaryManagementScreen extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('NET SALARY',
+                Text(ctx.tr('net_salary_caps'),
                     style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                        const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
                 Text('OMR ${salary.netSalary.toStringAsFixed(0)}',
                     style: const TextStyle(
                         fontSize: 18,
@@ -294,12 +295,12 @@ class SalaryManagementScreen extends ConsumerWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Generate Salary'),
+        title: Text(context.tr('generate_salary')),
         content: const Text(
             'Generate salary for all active staff for the current month?'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+              onPressed: () => Navigator.pop(ctx), child: Text(context.tr('cancel'))),
           ElevatedButton(
             onPressed: () async {
               int generated = 0;
@@ -330,7 +331,7 @@ class SalaryManagementScreen extends ConsumerWidget {
                     : 'Generated $generated salary record${generated == 1 ? '' : 's'}.',
               );
             },
-            child: const Text('Generate'),
+            child: Text(context.tr('generate')),
           ),
         ],
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/utils/app_utils.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/l10n/app_localizations.dart';
 import '../../../data/models/shift_model.dart';
 import '../../../data/providers/app_providers.dart';
 
@@ -13,15 +14,15 @@ class ShiftManagementScreen extends ConsumerWidget {
     final shifts = ref.watch(shiftListProvider);
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Shift Management')),
+      appBar: AppBar(title: Text(context.tr('shift_management'))),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showShiftSheet(context, ref, null),
         icon: const Icon(Icons.add),
-        label: const Text('Add Shift'),
+        label: Text(context.tr('add_shift')),
         backgroundColor: AppColors.primary,
       ),
       body: shifts.isEmpty
-          ? const Center(child: Text('No shifts found'))
+          ? Center(child: Text(context.tr('no_shifts_found')))
           : ListView.builder(
               padding: const EdgeInsets.all(12),
               itemCount: shifts.length,
@@ -247,7 +248,7 @@ class _ShiftSheetState extends ConsumerState<_ShiftSheet> {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  widget.existing == null ? 'Add Shift' : 'Edit Shift',
+                  widget.existing == null ? context.tr('add_shift') : context.tr('edit'),
                   style: const TextStyle(
                       fontSize: 18, fontWeight: FontWeight.w800),
                 ),
@@ -333,7 +334,7 @@ class _ShiftSheetState extends ConsumerState<_ShiftSheet> {
                     : Text(
                         widget.existing == null
                             ? 'Create Shift'
-                            : 'Save Changes',
+                            : context.tr('save_changes'),
                         style: const TextStyle(
                             fontSize: 15, fontWeight: FontWeight.w700)),
               ),

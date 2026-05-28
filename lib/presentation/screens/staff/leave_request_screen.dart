@@ -9,6 +9,7 @@ import '../../../data/providers/app_providers.dart';
 import '../../../data/models/leave_model.dart';
 import '../../widgets/common/status_badge.dart';
 import '../../widgets/common/custom_text_field.dart';
+import '../../../core/l10n/app_localizations.dart';
 
 class LeaveRequestScreen extends ConsumerStatefulWidget {
   const LeaveRequestScreen({super.key});
@@ -42,7 +43,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Leave Requests'),
+        title: Text(context.tr('leave_requests')),
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: Colors.white,
@@ -89,8 +90,8 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen>
               ),
               const SizedBox(height: 20),
 
-              const Text('Apply for Leave',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+              Text(ctx.tr('apply_for_leave'),
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
               const SizedBox(height: 12),
 
               CustomDropdown<String>(
@@ -237,7 +238,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen>
                 height: 52,
                 child: ElevatedButton.icon(
                   icon: const Icon(Icons.send_outlined),
-                  label: const Text('Submit Leave Request'),
+                  label: Text(ctx.tr('submit_leave_request')),
                   onPressed: () async {
                     if (!formKey.currentState!.validate()) return;
                     final staff = ref.read(currentStaffProvider);
@@ -293,14 +294,14 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen>
 
   Widget _myLeavesTab(List<LeaveModel> leaves) {
     if (leaves.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.beach_access, size: 64, color: AppColors.textHint),
-            SizedBox(height: 16),
-            Text('No leave requests yet',
-                style: TextStyle(color: AppColors.textSecondary)),
+            const Icon(Icons.beach_access, size: 64, color: AppColors.textHint),
+            const SizedBox(height: 16),
+            Text(context.tr('no_leave_requests_yet'),
+                style: const TextStyle(color: AppColors.textSecondary)),
           ],
         ),
       );

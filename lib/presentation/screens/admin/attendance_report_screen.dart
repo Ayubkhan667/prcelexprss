@@ -5,6 +5,7 @@ import '../../../core/utils/app_utils.dart';
 import '../../../data/providers/app_providers.dart';
 import '../../../data/models/attendance_model.dart';
 import '../../widgets/common/status_badge.dart';
+import '../../../core/l10n/app_localizations.dart';
 
 class AttendanceReportScreen extends ConsumerStatefulWidget {
   const AttendanceReportScreen({super.key});
@@ -44,7 +45,7 @@ class _AttendanceReportScreenState extends ConsumerState<AttendanceReportScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Attendance Reports'),
+        title: Text(context.tr('attendance_reports')),
         actions: [
           IconButton(
             icon: const Icon(Icons.file_download_outlined),
@@ -90,7 +91,7 @@ class _AttendanceReportScreenState extends ConsumerState<AttendanceReportScreen>
               const Spacer(),
               OutlinedButton.icon(
                 icon: const Icon(Icons.date_range, size: 16),
-                label: const Text('Pick Date'),
+                label: Text(context.tr('pick_date')),
                 onPressed: _pickDate,
                 style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
@@ -133,7 +134,7 @@ class _AttendanceReportScreenState extends ConsumerState<AttendanceReportScreen>
         ),
         Expanded(
           child: records.isEmpty
-              ? const Center(child: Text('No attendance records for this date'))
+              ? Center(child: Text(context.tr('no_attendance_for_date')))
               : ListView.builder(
                   padding: const EdgeInsets.all(12),
                   itemCount: records.length,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/l10n/app_localizations.dart';
 import '../../../data/models/holiday_model.dart';
 import '../../../data/providers/app_providers.dart';
 
@@ -24,7 +25,7 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Holiday Calendar'),
+        title: Text(context.tr('holiday_calendar')),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -32,7 +33,7 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () => _showAddDialog(context),
-            tooltip: 'Add Holiday',
+            tooltip: context.tr('add_holiday'),
           ),
         ],
       ),
@@ -132,8 +133,8 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Every Friday — Weekly Rest Day',
-                    style: TextStyle(
+                Text(context.tr('every_friday_weekly_rest'),
+                    style: const TextStyle(
                         fontWeight: FontWeight.w600,
                         color: AppColors.success,
                         fontSize: 13)),
@@ -166,7 +167,7 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
           TextButton.icon(
             onPressed: () => _showAddDialog(context),
             icon: const Icon(Icons.add),
-            label: const Text('Add Holiday'),
+            label: Text(context.tr('add_holiday')),
           ),
         ],
       ),
@@ -315,20 +316,20 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Remove Holiday?'),
+        title: Text(context.tr('remove_holiday')),
         content: Text(
             'Remove "${holiday.name}" on ${DateFormat('d MMM yyyy').format(holiday.date)}?'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel')),
+              child: Text(context.tr('cancel'))),
           TextButton(
             onPressed: () {
               ref.read(holidayNotifierProvider.notifier).remove(holiday.id);
               Navigator.pop(context);
             },
             child:
-                const Text('Remove', style: TextStyle(color: AppColors.error)),
+                Text(context.tr('remove'), style: const TextStyle(color: AppColors.error)),
           ),
         ],
       ),
@@ -345,7 +346,7 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDlgState) => AlertDialog(
-          title: const Text('Add Holiday'),
+          title: Text(context.tr('add_holiday')),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -434,7 +435,7 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel'),
+              child: Text(ctx.tr('cancel')),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -455,7 +456,7 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
                     );
                 Navigator.pop(ctx);
               },
-              child: const Text('Add'),
+              child: Text(ctx.tr('add')),
             ),
           ],
         ),

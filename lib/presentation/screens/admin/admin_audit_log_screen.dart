@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/app_utils.dart';
+import '../../../core/l10n/app_localizations.dart';
 import '../../../data/local/audit_log_storage.dart';
 import '../../../data/models/audit_log_model.dart';
 
@@ -28,7 +29,7 @@ class _AdminAuditLogScreenState extends State<AdminAuditLogScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Admin Audit Logs'),
+        title: Text(context.tr('admin_audit_logs')),
         actions: [
           IconButton(
             tooltip: 'Clear logs',

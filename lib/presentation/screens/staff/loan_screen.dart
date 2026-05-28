@@ -6,6 +6,7 @@ import '../../../data/providers/auth_provider.dart';
 import '../../../data/providers/app_providers.dart';
 import '../../../data/models/loan_model.dart';
 import '../../widgets/common/status_badge.dart';
+import '../../../core/l10n/app_localizations.dart';
 
 class LoanScreen extends ConsumerWidget {
   const LoanScreen({super.key});
@@ -25,7 +26,7 @@ class LoanScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('My Loans')),
+      appBar: AppBar(title: Text(context.tr('my_loans'))),
       body: Column(
         children: [
           if (loans.isNotEmpty)
@@ -71,15 +72,15 @@ class LoanScreen extends ConsumerWidget {
             ),
           Expanded(
             child: loans.isEmpty
-                ? const Center(
+                ? Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.account_balance_wallet_outlined,
+                        const Icon(Icons.account_balance_wallet_outlined,
                             size: 64, color: AppColors.textHint),
-                        SizedBox(height: 16),
-                        Text('No active loans',
-                            style: TextStyle(
+                        const SizedBox(height: 16),
+                        Text(context.tr('no_active_loans'),
+                            style: const TextStyle(
                                 fontSize: 16, color: AppColors.textSecondary)),
                       ],
                     ),

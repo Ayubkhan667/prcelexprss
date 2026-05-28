@@ -6,6 +6,7 @@ import '../../../data/providers/auth_provider.dart';
 import '../../../data/providers/app_providers.dart';
 import '../../../data/models/salary_model.dart';
 import '../../widgets/common/status_badge.dart';
+import '../../../core/l10n/app_localizations.dart';
 
 class SalaryScreen extends ConsumerWidget {
   const SalaryScreen({super.key});
@@ -67,8 +68,8 @@ class SalaryScreen extends ConsumerWidget {
                                   fontSize: 28,
                                   fontWeight: FontWeight.w700,
                                   color: Colors.white)),
-                          const Text('Net Salary',
-                              style: TextStyle(
+                          Text(context.tr('net_salary'),
+                              style: const TextStyle(
                                   fontSize: 12, color: Colors.white70)),
                         ],
                       ),
@@ -93,7 +94,7 @@ class SalaryScreen extends ConsumerWidget {
           // History list
           Expanded(
             child: salaries.isEmpty
-                ? const Center(child: Text('No salary records found'))
+                ? Center(child: Text(context.tr('no_salary_records')))
                 : ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     itemCount: salaries.length,
@@ -183,8 +184,8 @@ class SalaryScreen extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Net Salary',
-                        style: TextStyle(
+                    Text(context.tr('net_salary'),
+                        style: const TextStyle(
                             fontSize: 14, fontWeight: FontWeight.w700)),
                     Text('OMR ${salary.netSalary.toStringAsFixed(0)}',
                         style: const TextStyle(

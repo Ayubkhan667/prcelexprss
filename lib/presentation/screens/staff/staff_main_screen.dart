@@ -7,6 +7,7 @@ import 'checkin_checkout_screen.dart';
 import 'attendance_history_screen.dart';
 import 'staff_profile_screen.dart';
 import '../shared/notification_screen.dart';
+import '../../../core/l10n/app_localizations.dart';
 
 class StaffMainScreen extends ConsumerStatefulWidget {
   const StaffMainScreen({super.key});
@@ -74,31 +75,28 @@ class _FloatingNavBar extends StatelessWidget {
     required this.onTap,
   });
 
-  static const _items = [
+  static const _icons = [
+    _NavItem(icon: Icons.home_outlined, activeIcon: Icons.home_rounded),
+    _NavItem(icon: Icons.fingerprint, activeIcon: Icons.fingerprint),
     _NavItem(
-        icon: Icons.home_outlined,
-        activeIcon: Icons.home_rounded,
-        label: 'Home'),
-    _NavItem(
-        icon: Icons.fingerprint,
-        activeIcon: Icons.fingerprint,
-        label: 'Attend.'),
-    _NavItem(
-        icon: Icons.history_outlined,
-        activeIcon: Icons.history_rounded,
-        label: 'History'),
+        icon: Icons.history_outlined, activeIcon: Icons.history_rounded),
     _NavItem(
         icon: Icons.notifications_outlined,
-        activeIcon: Icons.notifications_rounded,
-        label: 'Alerts'),
+        activeIcon: Icons.notifications_rounded),
     _NavItem(
         icon: Icons.person_outline_rounded,
-        activeIcon: Icons.person_rounded,
-        label: 'Profile'),
+        activeIcon: Icons.person_rounded),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final labels = [
+      context.tr('dashboard'),
+      context.tr('attendance'),
+      context.tr('attendance_history'),
+      context.tr('notifications'),
+      context.tr('my_profile'),
+    ];
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -115,8 +113,8 @@ class _FloatingNavBar extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           child: Row(
-            children: List.generate(_items.length, (i) {
-              final item = _items[i];
+            children: List.generate(_icons.length, (i) {
+              final item = _icons[i];
               final isActive = currentIndex == i;
               final isNotification = i == 3;
 
@@ -178,7 +176,7 @@ class _FloatingNavBar extends StatelessWidget {
                         ),
                         const SizedBox(height: 3),
                         Text(
-                          item.label,
+                          labels[i],
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight:
@@ -204,10 +202,8 @@ class _FloatingNavBar extends StatelessWidget {
 class _NavItem {
   final IconData icon;
   final IconData activeIcon;
-  final String label;
   const _NavItem({
     required this.icon,
     required this.activeIcon,
-    required this.label,
   });
 }

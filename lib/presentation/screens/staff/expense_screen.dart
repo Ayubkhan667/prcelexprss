@@ -9,6 +9,7 @@ import '../../../data/providers/app_providers.dart';
 import '../../../data/models/expense_model.dart';
 import '../../widgets/common/status_badge.dart';
 import '../../widgets/common/custom_text_field.dart';
+import '../../../core/l10n/app_localizations.dart';
 
 const _expenseTypes = [
   'Fuel',
@@ -61,7 +62,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Work Expenses'),
+        title: Text(context.tr('work_expenses')),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         bottom: TabBar(
@@ -197,7 +198,7 @@ class _SubmitExpenseTabState extends ConsumerState<_SubmitExpenseTab> {
             ListTile(
               leading: const Icon(Icons.camera_alt_outlined,
                   color: AppColors.primary),
-              title: const Text('Take Photo'),
+              title: Text(context.tr('take_photo')),
               onTap: () {
                 Navigator.pop(context);
                 _pickImage(ImageSource.camera);
@@ -206,7 +207,7 @@ class _SubmitExpenseTabState extends ConsumerState<_SubmitExpenseTab> {
             ListTile(
               leading: const Icon(Icons.photo_library_outlined,
                   color: AppColors.accent),
-              title: const Text('Choose from Gallery'),
+              title: Text(context.tr('choose_from_gallery')),
               onTap: () {
                 Navigator.pop(context);
                 _pickImage(ImageSource.gallery);
@@ -402,17 +403,17 @@ class _SubmitExpenseTabState extends ConsumerState<_SubmitExpenseTab> {
                     border: Border.all(
                         color: AppColors.divider, style: BorderStyle.solid),
                   ),
-                  child: const Column(
+                  child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.add_photo_alternate_outlined,
+                      const Icon(Icons.add_photo_alternate_outlined,
                           size: 32, color: AppColors.textHint),
-                      SizedBox(height: 6),
-                      Text('Tap to add receipt photos',
-                          style: TextStyle(
+                      const SizedBox(height: 6),
+                      Text(context.tr('tap_to_add_receipt'),
+                          style: const TextStyle(
                               fontSize: 12, color: AppColors.textSecondary)),
-                      Text('Camera or Gallery • Max 5 images',
-                          style: TextStyle(
+                      Text(context.tr('camera_or_gallery_max_5'),
+                          style: const TextStyle(
                               fontSize: 10, color: AppColors.textHint)),
                     ],
                   ),
@@ -459,14 +460,14 @@ class _SubmitExpenseTabState extends ConsumerState<_SubmitExpenseTab> {
             borderRadius: BorderRadius.circular(10),
             border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
           ),
-          child: const Column(
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.add_circle_outline,
+              const Icon(Icons.add_circle_outline,
                   color: AppColors.primary, size: 28),
-              SizedBox(height: 4),
-              Text('Add More',
-                  style: TextStyle(fontSize: 10, color: AppColors.primary)),
+              const SizedBox(height: 4),
+              Text(context.tr('add_more'),
+                  style: const TextStyle(fontSize: 10, color: AppColors.primary)),
             ],
           ),
         ),
@@ -505,17 +506,17 @@ class _MyExpensesTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (expenses.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.receipt_long, size: 72, color: AppColors.textHint),
-            SizedBox(height: 16),
-            Text('No expense claims yet',
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 15)),
-            SizedBox(height: 6),
-            Text('Submit your first claim from the other tab',
-                style: TextStyle(color: AppColors.textHint, fontSize: 12)),
+            const Icon(Icons.receipt_long, size: 72, color: AppColors.textHint),
+            const SizedBox(height: 16),
+            Text(context.tr('no_expense_claims'),
+                style: const TextStyle(color: AppColors.textSecondary, fontSize: 15)),
+            const SizedBox(height: 6),
+            Text(context.tr('submit_first_claim'),
+                style: const TextStyle(color: AppColors.textHint, fontSize: 12)),
           ],
         ),
       );
@@ -678,7 +679,7 @@ class _ExpenseCard extends StatelessWidget {
           appBar: AppBar(
             backgroundColor: Colors.black,
             foregroundColor: Colors.white,
-            title: const Text('Receipt'),
+            title: Text(context.tr('receipt')),
           ),
           body: Center(
             child: InteractiveViewer(child: _fullScreenReceipt(path)),

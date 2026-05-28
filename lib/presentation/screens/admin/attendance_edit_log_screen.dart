@@ -6,6 +6,7 @@ import '../../../core/utils/app_utils.dart';
 import '../../../data/providers/app_providers.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../../data/models/attendance_edit_log_model.dart';
+import '../../../core/l10n/app_localizations.dart';
 
 class AttendanceEditLogScreen extends ConsumerStatefulWidget {
   const AttendanceEditLogScreen({super.key});
@@ -47,7 +48,7 @@ class _AttendanceEditLogScreenState
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Attendance Edit Logs'),
+        title: Text(context.tr('attendance_edit_logs')),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -65,9 +66,9 @@ class _AttendanceEditLogScreenState
           _buildStats(allLogs),
           Expanded(
             child: logs.isEmpty
-                ? const Center(
-                    child: Text('No edit logs found',
-                        style: TextStyle(color: AppColors.textSecondary)))
+                ? Center(
+                    child: Text(context.tr('no_edit_logs_found'),
+                        style: const TextStyle(color: AppColors.textSecondary)))
                 : ListView.builder(
                     padding: const EdgeInsets.all(12),
                     itemCount: logs.length,
@@ -342,7 +343,7 @@ class _AttendanceEditLogScreenState
                         side: const BorderSide(color: AppColors.error),
                         padding: const EdgeInsets.symmetric(vertical: 8),
                       ),
-                      child: const Text('Reject'),
+                      child: Text(context.tr('reject')),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -354,7 +355,7 @@ class _AttendanceEditLogScreenState
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 8),
                       ),
-                      child: const Text('Approve'),
+                      child: Text(context.tr('approve')),
                     ),
                   ),
                 ],
@@ -458,8 +459,8 @@ class _AttendanceEditLogScreenState
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Filter by Approval Status',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            Text(context.tr('filter_by_approval_status'),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             const SizedBox(height: 16),
             ...['All', 'Pending', 'Approved', 'Rejected'].map((s) {
               final value = s == 'All' ? '' : s;

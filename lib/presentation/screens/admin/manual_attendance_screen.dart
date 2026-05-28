@@ -7,6 +7,7 @@ import '../../../core/utils/app_utils.dart';
 import '../../../data/models/attendance_model.dart';
 import '../../../data/models/staff_model.dart';
 import '../../../data/providers/app_providers.dart';
+import '../../../core/l10n/app_localizations.dart';
 
 class ManualAttendanceScreen extends ConsumerStatefulWidget {
   const ManualAttendanceScreen({super.key});
@@ -50,7 +51,7 @@ class _ManualAttendanceScreenState
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Manual Attendance Entry'),
+        title: Text(context.tr('manual_attendance_entry')),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 0,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/app_utils.dart';
+import '../../../core/l10n/app_localizations.dart';
 import '../../../data/providers/app_providers.dart';
 import '../../../data/models/branch_model.dart';
 import '../../widgets/common/status_badge.dart';
@@ -16,11 +17,11 @@ class BranchManagementScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Branch Management')),
+      appBar: AppBar(title: Text(context.tr('branch_management'))),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showBranchDialog(context, ref),
         icon: const Icon(Icons.add_location_alt_outlined),
-        label: const Text('Add Branch'),
+        label: Text(context.tr('add_branch')),
         backgroundColor: AppColors.primary,
       ),
       body: ListView.builder(
@@ -140,7 +141,7 @@ class BranchManagementScreen extends ConsumerWidget {
                     Expanded(
                       child: OutlinedButton.icon(
                         icon: const Icon(Icons.edit_outlined, size: 16),
-                        label: const Text('Edit'),
+                        label: Text(context.tr('edit')),
                         onPressed: () => _showBranchDialog(
                           context,
                           ref,
@@ -152,7 +153,7 @@ class BranchManagementScreen extends ConsumerWidget {
                     Expanded(
                       child: ElevatedButton.icon(
                         icon: const Icon(Icons.map_outlined, size: 16),
-                        label: const Text('View Map'),
+                        label: Text(context.tr('view_map')),
                         onPressed: () => _showBranchLocation(context, branch),
                       ),
                     ),
@@ -202,7 +203,7 @@ class BranchManagementScreen extends ConsumerWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(branch != null ? 'Edit Branch' : 'Add Branch'),
+        title: Text(branch != null ? context.tr('edit') : context.tr('add_branch')),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -249,7 +250,7 @@ class BranchManagementScreen extends ConsumerWidget {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+              onPressed: () => Navigator.pop(ctx), child: Text(context.tr('cancel'))),
           ElevatedButton(
             onPressed: () async {
               final name = nameCtrl.text.trim();
@@ -309,7 +310,7 @@ class BranchManagementScreen extends ConsumerWidget {
                 );
               }
             },
-            child: Text(branch != null ? 'Update' : 'Add'),
+            child: Text(branch != null ? 'Update' : context.tr('add')),
           ),
         ],
       ),

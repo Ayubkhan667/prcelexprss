@@ -11,6 +11,7 @@ import '../../../data/models/holiday_model.dart';
 import '../../../data/providers/app_providers.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../../data/services/audit_log_service.dart';
+import '../../../core/l10n/app_localizations.dart';
 
 class OvertimeApprovalScreen extends ConsumerStatefulWidget {
   const OvertimeApprovalScreen({super.key});
@@ -55,7 +56,7 @@ class _OvertimeApprovalScreenState extends ConsumerState<OvertimeApprovalScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Overtime Approval'),
+        title: Text(context.tr('overtime_approval')),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -359,7 +360,7 @@ class _OvertimeApprovalScreenState extends ConsumerState<OvertimeApprovalScreen>
                       onPressed: () => _updateOvertime(
                           record, AppConstants.overtimeStatusRejected),
                       icon: const Icon(Icons.close, size: 16),
-                      label: const Text('Reject'),
+                      label: Text(context.tr('reject')),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.error,
                         side: const BorderSide(color: AppColors.error),

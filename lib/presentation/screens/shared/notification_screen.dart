@@ -9,6 +9,7 @@ import '../../../data/providers/app_providers.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../../data/models/notification_model.dart';
 import '../../../data/services/audit_log_service.dart';
+import '../../../core/l10n/app_localizations.dart';
 
 class NotificationScreen extends ConsumerStatefulWidget {
   const NotificationScreen({super.key});
@@ -42,7 +43,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
       appBar: AppBar(
         title: Row(
           children: [
-            const Text('Notifications'),
+            Text(context.tr('notifications')),
             if (unreadCount > 0) ...[
               const SizedBox(width: 8),
               Container(
@@ -108,8 +109,8 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                       );
                     }
                   },
-            child: const Text('Mark All Read',
-                style: TextStyle(color: Colors.white70, fontSize: 12)),
+            child: Text(context.tr('mark_all_read'),
+                style: const TextStyle(color: Colors.white70, fontSize: 12)),
           ),
         ],
       ),
@@ -322,8 +323,8 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
         children: [
           Icon(Icons.notifications_none, size: 64, color: AppColors.textHint),
           const SizedBox(height: 12),
-          const Text('No notifications',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 16)),
+          Text(context.tr('no_notifications'),
+              style: const TextStyle(color: AppColors.textSecondary, fontSize: 16)),
           const SizedBox(height: 4),
           const Text('You\'re all caught up!',
               style: TextStyle(color: AppColors.textHint, fontSize: 13)),
