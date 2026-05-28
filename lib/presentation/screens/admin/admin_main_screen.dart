@@ -59,10 +59,8 @@ class _AdminMainScreenState extends ConsumerState<AdminMainScreen> {
           ),
         ],
       ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Padding(
+          padding: EdgeInsets.fromLTRB(12, 8, 12, MediaQuery.of(context).padding.bottom + 6),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -176,7 +174,6 @@ class _AdminMainScreenState extends ConsumerState<AdminMainScreen> {
               ),
             ],
           ),
-        ),
       ),
     );
   }
