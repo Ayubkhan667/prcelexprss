@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(echo \"Flutter launch started with PID $!\")",
+      "Bash(grep -E --line-buffered \"Xcode build done|Error|error:|Failed|Synced|flutter: |flutter:$\")",
+      "Bash(flutter run *)",
+      "Bash(echo \"PID: $!\")",
+      "Bash(open /Users/apple/AndroidStudioProjects/smart_attendance_hr_app/ios/Runner.xcworkspace)",
+      "Bash(firebase --version)",
+      "Bash(dart analyze *)",
+      "Bash(pkill -f \"flutter_tools.snapshot run\")",
+      "Bash(flutter run -d 6855CF06-79B3-473E-861D-64960D3E27D2 --no-pub > /tmp/flutter_run.log 2>&1 & *)",
+      "Bash(osascript)",
+      "Bash(curl -s http://127.0.0.1:8000/api/health)",
+      "Bash(python3)",
+      "Bash(cliclick --version)",
+      "Bash(cliclick dd:1262,600 m:1262,350 du:1262,350)",
+      "Bash(curl -s http://127.0.0.1:8000/api/auth/login -H 'Content-Type: application/json' -d '{\"identifier\":\"admin@smarthr.com\",\"password\":\"password123\"}')",
+      "Bash(python3 -m json.tool)",
+      "Bash(curl -s http://127.0.0.1:8000/api/admin/dashboard -H 'Authorization: Bearer 6|XSwkyRH3DpzzxCW0FMsWya8RazY5h1hvy64ZSqwVd5ef4665')",
+      "Bash(python3 -c ' *)"
+    ],
+    "additionalDirectories": [
+      "/private/tmp"
+    ]
+  }
+}

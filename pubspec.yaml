@@ -1,0 +1,80 @@
+name: pe_attendance
+description: PE-Attendance HR Management App
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # State Management
+  flutter_riverpod: ^2.4.9
+
+  # Navigation
+  go_router: ^13.2.0
+
+  # Charts
+  fl_chart: ^0.67.0
+
+  # Location
+  geolocator: ^11.0.0
+
+  # Camera / Image
+  image_picker: ^1.0.7
+  cached_network_image: ^3.3.1
+
+  # Permissions
+  permission_handler: ^11.3.0
+
+  # Device Info
+  device_info_plus: ^10.1.0
+
+  # Local Storage
+  shared_preferences: ^2.2.2
+
+  # Date/Time
+  intl: ^0.19.0
+
+  # Network
+  dio: ^5.4.1
+  connectivity_plus: ^6.1.5
+  network_info_plus: ^6.1.4
+
+  # UI Components
+  shimmer: ^3.0.0
+  audioplayers: ^6.0.0
+
+  # PDF Export
+  pdf: ^3.10.8
+  printing: ^5.12.0
+
+  # Excel Export
+  excel: ^4.0.2
+
+  # File Utils
+  path_provider: ^2.1.2
+  open_filex: ^4.3.4
+  file_picker: ^8.1.2
+
+  # Notifications
+  flutter_local_notifications: ^17.1.2
+
+  # Biometric Authentication
+  local_auth: ^2.3.0
+  flutter_secure_storage: ^10.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/

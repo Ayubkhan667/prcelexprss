@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs ls -lh)",
+      "Bash(tmutil deletelocalsnapshots *)",
+      "Bash(rm -rf ~/.gradle/caches/)",
+      "Bash(rm -rf ~/Library/Developer/Xcode/DerivedData/)",
+      "Bash(ls ~/.gradle/wrapper/dists/)",
+      "Read(//Users/apple/.gradle/wrapper/dists/**)",
+      "Bash(ls ~/.gradle/caches/8.9/kotlin-dsl/accessors/ 2>/dev/null && echo \"---\" && flutter build apk --release 2>&1 | tail -8)",
+      "Read(//Users/apple/.gradle/caches/8.9/kotlin-dsl/**)",
+      "Bash(export JAVA_HOME)",
+      "Bash(./gradlew help *)",
+      "Bash(export JAVA_HOME=\"/Applications/Android Studio.app/Contents/jbr/Contents/Home\")"
+    ]
+  }
+}

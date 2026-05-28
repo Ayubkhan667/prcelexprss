@@ -1,0 +1,113 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: smart-attendance-hr-api:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      APP_RUN_MIGRATIONS: "true"
+      APP_RUN_OPTIMIZE: "true"
+      APP_RUN_STORAGE_LINK: "true"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    expose:
+      - "9000"
+    volumes:
+      - app-storage:/var/www/html/storage
+
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: smart-attendance-hr-api:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      APP_RUN_MIGRATIONS: "false"
+      APP_RUN_OPTIMIZE: "false"
+      APP_RUN_STORAGE_LINK: "false"
+    command: ["php", "artisan", "queue:work", "--sleep=3", "--tries=3", "--timeout=120"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - app-storage:/var/www/html/storage
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: smart-attendance-hr-api:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      APP_RUN_MIGRATIONS: "false"
+      APP_RUN_OPTIMIZE: "false"
+      APP_RUN_STORAGE_LINK: "false"
+    command:
+      - /bin/sh
+      - -lc
+      - while true; do php artisan schedule:run --verbose --no-interaction; sleep 60; done
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - app-storage:/var/www/html/storage
+
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    image: smart-attendance-hr-nginx:latest
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_started
+    ports:
+      - "${APP_HTTP_PORT:-80}:80"
+    volumes:
+      - app-storage:/var/www/html/storage:ro
+
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    command:
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${DB_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+
+volumes:
+  app-storage:
+  mysql-data:
+  redis-data:
