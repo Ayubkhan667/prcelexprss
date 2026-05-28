@@ -200,12 +200,12 @@ class _ShiftSheetState extends ConsumerState<_ShiftSheet> {
     }
     if (mounted) {
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(widget.existing == null
+      AppUtils.showSnackBar(
+        context,
+        widget.existing == null
             ? 'Shift created successfully'
-            : 'Shift updated'),
-        backgroundColor: AppColors.success,
-      ));
+            : 'Shift updated',
+      );
     }
   }
 

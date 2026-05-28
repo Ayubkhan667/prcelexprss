@@ -187,6 +187,8 @@ Supervisor-scoped routes are also enforced on the server. Demo supervisor `super
 
 ## Main Routes
 
+See the root [API reference](../docs/API.md) for Flutter-facing payload examples, including staff range and break fields.
+
 Public:
 
 - `GET /api/health`

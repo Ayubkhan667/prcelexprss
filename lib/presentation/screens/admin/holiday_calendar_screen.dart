@@ -110,7 +110,8 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
         ),
         const SizedBox(width: 4),
         Text(label,
-            style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+            style:
+                const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
       ],
     );
   }
@@ -173,8 +174,7 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
   }
 
   Widget _buildMonthSection(int month, List<HolidayModel> items) {
-    final monthName =
-        DateFormat('MMMM').format(DateTime(_selectedYear, month));
+    final monthName = DateFormat('MMMM').format(DateTime(_selectedYear, month));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -220,8 +220,8 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
             ),
             Text(
               DateFormat('EEE').format(holiday.date),
-              style: const TextStyle(
-                  fontSize: 11, color: AppColors.textSecondary),
+              style:
+                  const TextStyle(fontSize: 11, color: AppColors.textSecondary),
             ),
           ],
         ),
@@ -242,8 +242,7 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
           children: [
             if (isUpcoming)
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: AppColors.infoLight,
                   borderRadius: BorderRadius.circular(6),
@@ -328,8 +327,8 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
               ref.read(holidayNotifierProvider.notifier).remove(holiday.id);
               Navigator.pop(context);
             },
-            child: const Text('Remove',
-                style: TextStyle(color: AppColors.error)),
+            child:
+                const Text('Remove', style: TextStyle(color: AppColors.error)),
           ),
         ],
       ),
@@ -422,8 +421,8 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
                         EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   ),
                   items: [1.5, 2.0]
-                      .map((m) => DropdownMenuItem(
-                          value: m, child: Text('${m}x pay')))
+                      .map((m) =>
+                          DropdownMenuItem(value: m, child: Text('${m}x pay')))
                       .toList(),
                   onChanged: (v) {
                     if (v != null) setDlgState(() => selectedMultiplier = v);
@@ -444,8 +443,7 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
               onPressed: () {
                 final name = nameCtrl.text.trim();
                 if (name.isEmpty) return;
-                final id =
-                    'h${DateTime.now().millisecondsSinceEpoch}';
+                final id = 'h${DateTime.now().millisecondsSinceEpoch}';
                 ref.read(holidayNotifierProvider.notifier).add(
                       HolidayModel(
                         id: id,

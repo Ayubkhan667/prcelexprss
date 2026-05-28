@@ -58,7 +58,8 @@ class StatCard extends StatelessWidget {
                   child: Icon(icon, color: color, size: isSmall ? 16 : 18),
                 ),
                 if (!isSmall)
-                  Icon(Icons.arrow_forward_ios, size: 12, color: AppColors.textHint),
+                  Icon(Icons.arrow_forward_ios,
+                      size: 12, color: AppColors.textHint),
               ],
             ),
             SizedBox(height: isSmall ? 6 : 8),
@@ -83,7 +84,9 @@ class StatCard extends StatelessWidget {
             ),
             if (subtitle != null) ...[
               const SizedBox(height: 2),
-              Text(subtitle!, style: const TextStyle(fontSize: 10, color: AppColors.textHint)),
+              Text(subtitle!,
+                  style:
+                      const TextStyle(fontSize: 10, color: AppColors.textHint)),
             ],
           ],
         ),
@@ -116,48 +119,60 @@ class DashboardStatCard extends StatelessWidget {
       onTap: onTap,
       borderRadius: 14,
       child: Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [color, color.withValues(alpha: 0.8)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [color, color.withValues(alpha: 0.8)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: color.withValues(alpha: 0.3),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: color.withValues(alpha: 0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Icon(icon, color: Colors.white.withValues(alpha: 0.9), size: 24),
-              if (trend != null)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(20),
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Icon(icon,
+                    color: Colors.white.withValues(alpha: 0.9), size: 24),
+                if (trend != null)
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(trend!,
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600)),
                   ),
-                  child: Text(trend!, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600)),
-                ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: Colors.white)),
-          const SizedBox(height: 2),
-          Text(title, style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.85))),
-        ],
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(value,
+                style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white)),
+            const SizedBox(height: 2),
+            Text(title,
+                style: TextStyle(
+                    fontSize: 12, color: Colors.white.withValues(alpha: 0.85))),
+          ],
+        ),
       ),
-    ),
     );
   }
 }

@@ -6,14 +6,15 @@ use App\Http\Controllers\Api\Concerns\ResolvesCurrentStaff;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\Staff;
+use App\Support\AuditLogger;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -57,9 +58,9 @@ class HrModuleController extends Controller
 
         $salary = DB::table('salaries')->where('id', $id)->firstOrFail();
         $this->createNotification([
-            'id' => 'notif_salary_' . $salary->id,
+            'id' => 'notif_salary_'.$salary->id,
             'title' => 'Salary Paid',
-            'body' => 'Your ' . $salary->month . ' salary of OMR ' . number_format((float) $salary->net_salary, 0) . ' has been marked as paid.',
+            'body' => 'Your '.$salary->month.' salary of OMR '.number_format((float) $salary->net_salary, 0).' has been marked as paid.',
             'type' => 'salary',
             'staff_id' => $salary->staff_id,
             'staff_name' => $salary->staff_name,
@@ -102,7 +103,7 @@ class HrModuleController extends Controller
             $netSalary = round(((float) $staff->basic_salary) + $overtimeAmount + $allowance - $loanDeduction, 2);
 
             DB::table('salaries')->insert([
-                'id' => 'sal_' . $staff->id . '_' . $date->format('Ym'),
+                'id' => 'sal_'.$staff->id.'_'.$date->format('Ym'),
                 'staff_id' => $staff->id,
                 'staff_name' => $staff->name,
                 'staff_code' => $staff->staff_code,
@@ -317,11 +318,11 @@ class HrModuleController extends Controller
         $leave = DB::table('leaves')->where('id', $id)->firstOrFail();
         $status = (string) $leave->status;
         $this->createNotification([
-            'id' => 'notif_leave_' . $leave->id . '_' . $status,
+            'id' => 'notif_leave_'.$leave->id.'_'.$status,
             'title' => $status === 'Approved' ? 'Leave Approved' : 'Leave Rejected',
             'body' => $status === 'Approved'
-                ? 'Your ' . $leave->leave_type . ' request has been approved.'
-                : 'Your ' . $leave->leave_type . ' request was rejected' . ($leave->rejection_reason ? ': ' . $leave->rejection_reason : '.'),
+                ? 'Your '.$leave->leave_type.' request has been approved.'
+                : 'Your '.$leave->leave_type.' request was rejected'.($leave->rejection_reason ? ': '.$leave->rejection_reason : '.'),
             'type' => 'leave',
             'staff_id' => $leave->staff_id,
             'staff_name' => $leave->staff_name,
@@ -412,9 +413,9 @@ class HrModuleController extends Controller
             $created[] = $this->taskPayload((object) $task);
 
             $this->createNotification([
-                'id' => 'notif_task_' . $task['id'],
+                'id' => 'notif_task_'.$task['id'],
                 'title' => 'New Task Assigned',
-                'body' => $payload['title'] . ' has been assigned.',
+                'body' => $payload['title'].' has been assigned.',
                 'type' => 'task',
                 'staff_id' => $assignee->id,
                 'staff_name' => $assignee->name,
@@ -445,9 +446,9 @@ class HrModuleController extends Controller
 
         $task = DB::table('tasks')->where('id', $id)->firstOrFail();
         $this->createNotification([
-            'id' => 'notif_complete_' . $task->id,
+            'id' => 'notif_complete_'.$task->id,
             'title' => 'Task Completed',
-            'body' => $task->staff_name . ' completed "' . $task->title . '".',
+            'body' => $task->staff_name.' completed "'.$task->title.'".',
             'type' => 'task',
             'staff_id' => $task->staff_id,
             'staff_name' => $task->staff_name,
@@ -458,7 +459,7 @@ class HrModuleController extends Controller
         return response()->json($this->taskPayload($task));
     }
 
-    public function terminateTask(string $id)
+    public function terminateTask(string $id, Request $request)
     {
         DB::table('tasks')->where('id', $id)->update([
             'status' => 'Terminated',
@@ -468,9 +469,9 @@ class HrModuleController extends Controller
 
         $task = DB::table('tasks')->where('id', $id)->firstOrFail();
         $this->createNotification([
-            'id' => 'notif_terminate_' . $task->id,
+            'id' => 'notif_terminate_'.$task->id,
             'title' => 'Task Closed',
-            'body' => $task->title . ' was closed by admin.',
+            'body' => $task->title.' was closed by admin.',
             'type' => 'task',
             'staff_id' => $task->staff_id,
             'staff_name' => $task->staff_name,
@@ -478,7 +479,38 @@ class HrModuleController extends Controller
             'is_read' => false,
         ]);
 
+        AuditLogger::record($request, [
+            'action' => 'task_terminate',
+            'title' => 'Task terminated',
+            'description' => $task->title.' was closed for '.$task->staff_name.'.',
+            'target_type' => 'task',
+            'target_id' => $task->id,
+            'target_name' => $task->title,
+            'metadata' => [
+                'staff_id' => $task->staff_id,
+                'staff_code' => $task->staff_code,
+                'is_daily_task' => (bool) $task->is_daily_task,
+            ],
+        ]);
+
         return response()->json($this->taskPayload($task));
+    }
+
+    public function auditLogs(Request $request)
+    {
+        $query = DB::table('audit_logs')->orderByDesc('created_at');
+
+        if ($request->filled('action')) {
+            $query->where('action', $request->string('action'));
+        }
+
+        if ($request->filled('target_type')) {
+            $query->where('target_type', $request->string('target_type'));
+        }
+
+        return response()->json(
+            $query->limit(500)->get()->map(fn ($row) => AuditLogger::payload($row))->all()
+        );
     }
 
     public function notifications(Request $request)
@@ -517,6 +549,19 @@ class HrModuleController extends Controller
             'updated_at' => now(),
         ]);
 
+        AuditLogger::record($request, [
+            'action' => 'notification_read',
+            'title' => 'Notification read',
+            'description' => $notification->title,
+            'target_type' => 'notification',
+            'target_id' => $notification->id,
+            'target_name' => $notification->type,
+            'metadata' => [
+                'staff_id' => $notification->staff_id,
+                'target_role' => $notification->target_role,
+            ],
+        ]);
+
         return response()->json(['success' => true]);
     }
 
@@ -531,9 +576,23 @@ class HrModuleController extends Controller
         if ($request->filled('type')) {
             $query->where('type', $request->string('type'));
         }
-        $query->update([
+        $updated = $query->update([
             'is_read' => true,
             'updated_at' => now(),
+        ]);
+
+        AuditLogger::record($request, [
+            'action' => 'notification_read_all',
+            'title' => 'Notifications marked read',
+            'description' => $updated.' notifications were marked as read.',
+            'target_type' => 'notification',
+            'target_name' => $request->input('type', 'all'),
+            'metadata' => [
+                'updated_count' => $updated,
+                'target_role' => $request->input('target_role'),
+                'staff_id' => $request->input('staff_id'),
+                'type' => $request->input('type'),
+            ],
         ]);
 
         return response()->json(['success' => true]);
@@ -873,8 +932,8 @@ class HrModuleController extends Controller
         $highestOvertime = $staff->sortByDesc('overtime_hours')->first();
 
         $mPresent = $monthlyAttendance->whereIn('status', ['Present', 'Late', 'Overtime', 'Missing Checkout'])->count();
-        $mAbsent  = $monthlyAttendance->where('status', 'Absent')->count();
-        $mLate    = $monthlyAttendance->where('status', 'Late')->count();
+        $mAbsent = $monthlyAttendance->where('status', 'Absent')->count();
+        $mLate = $monthlyAttendance->where('status', 'Late')->count();
         $mOnLeave = $monthlyAttendance->where('status', 'On Leave')->count();
         $mOvertime = $monthlyAttendance->where('status', 'Overtime')->count();
 

@@ -10,8 +10,7 @@ class ApiConfig {
   bool get isConfigured => apiUrl.isNotEmpty;
   bool get canUseRemote => useRemote && isConfigured;
 
-  String get effectiveBaseUrl =>
-      canUseRemote ? apiUrl : '';
+  String get effectiveBaseUrl => canUseRemote ? apiUrl : '';
 
   ApiConfig copyWith({String? apiUrl, bool? useRemote}) => ApiConfig(
         apiUrl: apiUrl ?? this.apiUrl,

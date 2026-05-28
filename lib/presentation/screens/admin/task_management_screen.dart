@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -8,6 +10,7 @@ import '../../../data/models/staff_model.dart';
 import '../../../data/models/task_model.dart';
 import '../../../data/providers/app_providers.dart';
 import '../../../data/providers/auth_provider.dart';
+import '../../../data/services/audit_log_service.dart';
 
 class TaskManagementScreen extends ConsumerStatefulWidget {
   const TaskManagementScreen({super.key});
@@ -436,6 +439,23 @@ class _TaskManagementScreenState extends ConsumerState<TaskManagementScreen> {
     try {
       await ref.read(hrOperationsRepositoryProvider).terminateTask(task.id);
       ref.read(mockDataRevisionProvider.notifier).state++;
+      unawaited(
+        AuditLogService.record(
+          action: 'task_terminate',
+          title: 'Task terminated',
+          description: '"${task.title}" closed for ${task.staffName}.',
+          targetType: 'task',
+          targetId: task.id,
+          targetName: task.title,
+          actor: ref.read(currentUserProvider),
+          metadata: {
+            'staff_id': task.staffId,
+            'staff_name': task.staffName,
+            'staff_code': task.staffCode,
+            'is_daily_task': task.isDailyTask,
+          },
+        ),
+      );
     } catch (_) {
       if (!mounted) {
         return;
@@ -675,7 +695,9 @@ class _TaskManagementScreenState extends ConsumerState<TaskManagementScreen> {
                           }
 
                           try {
-                            await ref.read(hrOperationsRepositoryProvider).assignTask(
+                            await ref
+                                .read(hrOperationsRepositoryProvider)
+                                .assignTask(
                                   title: title,
                                   description: description,
                                   assignedBy: user?.name ?? 'Admin',
@@ -686,6 +708,24 @@ class _TaskManagementScreenState extends ConsumerState<TaskManagementScreen> {
                                   dueDate: dueDate,
                                 );
                             ref.read(mockDataRevisionProvider.notifier).state++;
+                            unawaited(
+                              AuditLogService.record(
+                                action: 'task_assign',
+                                title: 'Task assigned',
+                                description: assignToAll
+                                    ? '"$title" assigned to all active employees.'
+                                    : '"$title" assigned to ${assignees.first.name}.',
+                                targetType: 'task',
+                                targetName: title,
+                                actor: ref.read(currentUserProvider),
+                                metadata: {
+                                  'assign_to_all': assignToAll,
+                                  'assignee_count': assignees.length,
+                                  'is_daily_task': isDailyTask,
+                                  'due_date': dueDate.toIso8601String(),
+                                },
+                              ),
+                            );
                           } catch (_) {
                             if (!mounted || !context.mounted) {
                               return;

@@ -99,7 +99,8 @@ class ApiHrOperationsRemoteDataSource implements HrOperationsRemoteDataSource {
   final Dio client;
 
   @override
-  Future<List<SalaryModel>> fetchSalaries({String? staffId, String? month}) async {
+  Future<List<SalaryModel>> fetchSalaries(
+      {String? staffId, String? month}) async {
     final response = await client.get(
       '/salaries',
       queryParameters: {
@@ -160,7 +161,8 @@ class ApiHrOperationsRemoteDataSource implements HrOperationsRemoteDataSource {
   }
 
   @override
-  Future<List<LeaveModel>> fetchLeaves({String? staffId, String? status}) async {
+  Future<List<LeaveModel>> fetchLeaves(
+      {String? staffId, String? status}) async {
     final response = await client.get(
       '/leaves',
       queryParameters: {
@@ -300,7 +302,8 @@ class ApiHrOperationsRemoteDataSource implements HrOperationsRemoteDataSource {
     final response = await client.get(
       '/notifications',
       queryParameters: {
-        if (targetRole != null && targetRole.isNotEmpty) 'target_role': targetRole,
+        if (targetRole != null && targetRole.isNotEmpty)
+          'target_role': targetRole,
         if (staffId != null && staffId.isNotEmpty) 'staff_id': staffId,
         if (type != null && type.isNotEmpty) 'type': type,
       },
@@ -333,7 +336,8 @@ class ApiHrOperationsRemoteDataSource implements HrOperationsRemoteDataSource {
   }
 
   @override
-  Future<List<ExpenseModel>> fetchExpenses({String? staffId, String? status}) async {
+  Future<List<ExpenseModel>> fetchExpenses(
+      {String? staffId, String? status}) async {
     final response = await client.get(
       '/expenses',
       queryParameters: {

@@ -73,6 +73,10 @@ class SmartHrPayloads
             'branch_name' => $staff->branch_name,
             'shift_id' => $staff->shift_id,
             'shift_name' => $staff->shift_name,
+            'allowed_location_radius_meters' => $staff->allowed_location_radius_meters !== null
+                ? (float) $staff->allowed_location_radius_meters
+                : null,
+            'daily_break_minutes' => (int) ($staff->daily_break_minutes ?? 60),
             'joining_date' => self::iso($staff->joining_date),
             'basic_salary' => (float) $staff->basic_salary,
             'overtime_rate' => (float) $staff->overtime_rate,

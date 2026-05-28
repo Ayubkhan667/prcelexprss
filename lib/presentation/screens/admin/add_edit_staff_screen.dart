@@ -1,10 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
+import '../../../core/utils/app_utils.dart';
 import '../../../data/models/staff_model.dart';
 import '../../../data/models/user_model.dart';
 import '../../../data/providers/app_providers.dart';
+import '../../../data/providers/auth_provider.dart';
+import '../../../data/services/audit_log_service.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/custom_text_field.dart';
 
@@ -23,6 +28,8 @@ class _AddEditStaffScreenState extends ConsumerState<AddEditStaffScreen> {
   final _mobileCtrl = TextEditingController();
   final _idCardCtrl = TextEditingController();
   final _jobTitleCtrl = TextEditingController();
+  final _rangeCtrl = TextEditingController();
+  final _breakMinutesCtrl = TextEditingController();
   final _salaryCtrl = TextEditingController();
   final _otRateCtrl = TextEditingController();
   String _role = AppConstants.roleStaff;
@@ -42,6 +49,8 @@ class _AddEditStaffScreenState extends ConsumerState<AddEditStaffScreen> {
     _mobileCtrl.dispose();
     _idCardCtrl.dispose();
     _jobTitleCtrl.dispose();
+    _rangeCtrl.dispose();
+    _breakMinutesCtrl.dispose();
     _salaryCtrl.dispose();
     _otRateCtrl.dispose();
     super.dispose();
@@ -63,6 +72,10 @@ class _AddEditStaffScreenState extends ConsumerState<AddEditStaffScreen> {
     final staffCount = ref.read(allStaffListProvider).length;
     final staffCode = existingStaff?.staffCode ??
         (useRemote ? '' : 'SHR-${(staffCount + 1).toString().padLeft(3, '0')}');
+    final rangeText = _rangeCtrl.text.trim();
+    final breakText = _breakMinutesCtrl.text.trim();
+    final allowedRange = double.tryParse(rangeText);
+    final dailyBreakMinutes = int.tryParse(breakText);
 
     try {
       final result = await ref.read(staffRepositoryProvider).saveStaff(
@@ -83,6 +96,17 @@ class _AddEditStaffScreenState extends ConsumerState<AddEditStaffScreen> {
               branchName: branch?.branchName ?? existingStaff?.branchName ?? '',
               shiftId: _shiftId,
               shiftName: shift?.shiftName ?? existingStaff?.shiftName ?? '',
+              allowedLocationRadiusMeters: rangeText.isEmpty
+                  ? null
+                  : allowedRange != null && allowedRange > 0
+                      ? allowedRange
+                      : existingStaff?.allowedLocationRadiusMeters,
+              dailyBreakMinutes: breakText.isEmpty
+                  ? AppConstants.defaultDailyBreakMinutes
+                  : dailyBreakMinutes != null && dailyBreakMinutes >= 0
+                      ? dailyBreakMinutes
+                      : existingStaff?.dailyBreakMinutes ??
+                          AppConstants.defaultDailyBreakMinutes,
               joiningDate: existingStaff?.joiningDate ?? now,
               basicSalary: double.tryParse(_salaryCtrl.text.trim()) ??
                   existingStaff?.basicSalary ??
@@ -148,6 +172,25 @@ class _AddEditStaffScreenState extends ConsumerState<AddEditStaffScreen> {
             isEdit: existingStaff != null,
           );
       ref.read(mockDataRevisionProvider.notifier).state++;
+      unawaited(
+        AuditLogService.record(
+          action: existingStaff != null ? 'staff_edit' : 'staff_create',
+          title: existingStaff != null ? 'Staff updated' : 'Staff created',
+          description:
+              '${_nameCtrl.text.trim()} account saved. Range: ${rangeText.isEmpty ? 'branch default' : '${rangeText}m'}, break: ${breakText.isEmpty ? AppConstants.defaultDailyBreakMinutes : breakText} min.',
+          targetType: 'staff',
+          targetId: existingStaff?.id ?? staffId,
+          targetName: _nameCtrl.text.trim(),
+          actor: ref.read(currentUserProvider),
+          metadata: {
+            'branch_id': _branchId,
+            'shift_id': _shiftId,
+            'range_meters': rangeText,
+            'daily_break_minutes': breakText,
+            'status': _status,
+          },
+        ),
+      );
       setState(() => _isLoading = false);
       if (mounted) {
         if (widget.staffId == null && result.temporaryPassword != null) {
@@ -161,13 +204,12 @@ class _AddEditStaffScreenState extends ConsumerState<AddEditStaffScreen> {
             : _role == AppConstants.roleSupervisor
                 ? 'Supervisor'
                 : 'Staff';
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(widget.staffId != null
+        AppUtils.showSnackBar(
+          context,
+          widget.staffId != null
               ? '$roleLabel account updated successfully'
-              : '$roleLabel account created successfully'),
-          backgroundColor: AppColors.success,
-          behavior: SnackBarBehavior.floating,
-        ));
+              : '$roleLabel account created successfully',
+        );
         Navigator.pop(context);
       }
     } catch (e, st) {
@@ -175,12 +217,11 @@ class _AddEditStaffScreenState extends ConsumerState<AddEditStaffScreen> {
       setState(() => _isLoading = false);
       if (mounted) {
         final msg = e.toString().replaceFirst('Exception: ', '');
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content:
-              Text(msg.length > 120 ? 'Unable to save staff right now' : msg),
-          backgroundColor: AppColors.error,
-          behavior: SnackBarBehavior.floating,
-        ));
+        AppUtils.showSnackBar(
+          context,
+          msg.length > 120 ? 'Unable to save staff right now' : msg,
+          isError: true,
+        );
       }
     }
   }
@@ -359,6 +400,38 @@ class _AddEditStaffScreenState extends ConsumerState<AddEditStaffScreen> {
                   onChanged: (v) => setState(() => _branchId = v ?? _branchId),
                 ),
                 const SizedBox(height: 12),
+                CustomTextField(
+                  controller: _rangeCtrl,
+                  label: 'Employee Range (meters)',
+                  prefixIcon: Icons.radar_outlined,
+                  keyboardType: TextInputType.number,
+                  validator: (v) {
+                    final text = v?.trim() ?? '';
+                    if (text.isEmpty) return null;
+                    final value = double.tryParse(text);
+                    if (value == null || value <= 0) {
+                      return 'Enter a valid range';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                CustomTextField(
+                  controller: _breakMinutesCtrl,
+                  label: 'Daily Break Limit (minutes)',
+                  prefixIcon: Icons.free_breakfast_outlined,
+                  keyboardType: TextInputType.number,
+                  validator: (v) {
+                    final text = v?.trim() ?? '';
+                    if (text.isEmpty) return null;
+                    final value = int.tryParse(text);
+                    if (value == null || value < 0) {
+                      return 'Enter valid minutes';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
                 CustomDropdown<String>(
                   value: _shiftId,
                   label: 'Shift',
@@ -456,6 +529,9 @@ class _AddEditStaffScreenState extends ConsumerState<AddEditStaffScreen> {
     _weeklyOff = staff.weeklyOffDay;
     _branchId = staff.branchId;
     _shiftId = staff.shiftId;
+    _rangeCtrl.text =
+        staff.allowedLocationRadiusMeters?.toStringAsFixed(0) ?? '';
+    _breakMinutesCtrl.text = staff.dailyBreakMinutes.toString();
   }
 
   Widget _roleChip({

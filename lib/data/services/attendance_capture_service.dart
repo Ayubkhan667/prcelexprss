@@ -216,7 +216,7 @@ class AttendanceCaptureService {
           ? 'Suspicious GPS signal detected. Please turn off mock location tools.'
           : isInsideGeofence
               ? 'Inside ${branch.branchName} geofence (${distance.toStringAsFixed(0)}m away).'
-              : 'Outside allowed radius for ${branch.branchName}.';
+              : 'Outside assigned range for ${branch.branchName}. Check In/Out is blocked; use Visit or Break.';
 
       return AttendanceLocationResult(
         serviceEnabled: true,

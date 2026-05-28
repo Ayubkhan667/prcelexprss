@@ -173,8 +173,10 @@ class AdminDashboardScreen extends ConsumerWidget {
                           value: stats['total_staff'].toString(),
                           icon: Icons.people_alt,
                           color: AppColors.primary,
-                          onTap: () => _navigate(context,
-                              const TodayAttendanceListScreen(title: 'All Staff'))),
+                          onTap: () => _navigate(
+                              context,
+                              const TodayAttendanceListScreen(
+                                  title: 'All Staff'))),
                       DashboardStatCard(
                           title: 'Present Today',
                           value: stats['present_today'].toString(),
@@ -184,7 +186,12 @@ class AdminDashboardScreen extends ConsumerWidget {
                               context,
                               const TodayAttendanceListScreen(
                                   title: 'Present Today',
-                                  statuses: ['Present', 'Late', 'Overtime', 'Missing Checkout']))),
+                                  statuses: [
+                                    'Present',
+                                    'Late',
+                                    'Overtime',
+                                    'Missing Checkout'
+                                  ]))),
                       DashboardStatCard(
                           title: 'Absent Today',
                           value: stats['absent_today'].toString(),
@@ -203,8 +210,7 @@ class AdminDashboardScreen extends ConsumerWidget {
                           onTap: () => _navigate(
                               context,
                               const TodayAttendanceListScreen(
-                                  title: 'Late Today',
-                                  statuses: ['Late']))),
+                                  title: 'Late Today', statuses: ['Late']))),
                     ],
                   ),
                   const SizedBox(height: 12),

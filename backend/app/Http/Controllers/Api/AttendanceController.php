@@ -8,11 +8,12 @@ use App\Models\Attendance;
 use App\Models\Branch;
 use App\Models\Shift;
 use App\Models\Staff;
+use App\Support\AuditLogger;
 use App\Support\SmartHrPayloads;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -412,6 +413,26 @@ class AttendanceController extends Controller
 
         $attendance->approval_status = $request->string('status');
         $attendance->save();
+        $auditAction = match ($attendance->approval_status) {
+            'Approved' => 'overtime_approve',
+            'Rejected' => 'overtime_reject',
+            default => 'overtime_pending',
+        };
+
+        AuditLogger::record($request, [
+            'action' => $auditAction,
+            'title' => 'Overtime '.$attendance->approval_status,
+            'description' => $attendance->overtime_hours.'h overtime '.$attendance->approval_status.' for '.$attendance->staff_name.'.',
+            'target_type' => 'attendance',
+            'target_id' => $attendance->id,
+            'target_name' => $attendance->staff_name,
+            'metadata' => [
+                'staff_id' => $attendance->staff_id,
+                'date' => $attendance->date,
+                'overtime_hours' => $attendance->overtime_hours,
+                'approval_status' => $attendance->approval_status,
+            ],
+        ]);
 
         return response()->json(SmartHrPayloads::attendance($attendance));
     }

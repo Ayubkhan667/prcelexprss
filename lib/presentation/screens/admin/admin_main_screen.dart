@@ -251,34 +251,34 @@ class _AdminMainScreenState extends ConsumerState<AdminMainScreen> {
       onTap: onTap,
       borderRadius: 10,
       child: ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 2),
-      leading: Container(
-        width: 42,
-        height: 42,
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(10),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 2),
+        leading: Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: color, size: 22),
         ),
-        child: Icon(icon, color: color, size: 22),
+        title: Text(label,
+            style: const TextStyle(
+                fontWeight: FontWeight.w500, color: AppColors.textPrimary)),
+        trailing: badge > 0
+            ? Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: AppColors.accent,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text('$badge',
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold)),
+              )
+            : const Icon(Icons.chevron_right, color: AppColors.textSecondary),
       ),
-      title: Text(label,
-          style: const TextStyle(
-              fontWeight: FontWeight.w500, color: AppColors.textPrimary)),
-      trailing: badge > 0
-          ? Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: AppColors.accent,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text('$badge',
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold)),
-            )
-          : const Icon(Icons.chevron_right, color: AppColors.textSecondary),
-    ),
     );
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-const _peBlue   = Color(0xFF1B3F6B);
+const _peBlue = Color(0xFF1B3F6B);
 const _peOrange = Color(0xFFE87722);
 
 class SplashScreen extends ConsumerStatefulWidget {
@@ -34,8 +34,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       duration: const Duration(milliseconds: 1800),
     )..repeat(reverse: true);
 
-    _fadeAnim = CurvedAnimation(
-        parent: _entryController, curve: Curves.easeOut);
+    _fadeAnim =
+        CurvedAnimation(parent: _entryController, curve: Curves.easeOut);
     _scaleAnim = Tween<double>(begin: 0.55, end: 1.0).animate(
         CurvedAnimation(parent: _entryController, curve: Curves.elasticOut));
     _slideAnim = Tween<double>(begin: 30.0, end: 0.0).animate(
@@ -63,7 +63,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
         children: [
           // ── Blue header wave ──────────────────────────────────────
           Positioned(
-            top: 0, left: 0, right: 0,
+            top: 0,
+            left: 0,
+            right: 0,
             child: Container(
               height: size.height * 0.32,
               decoration: const BoxDecoration(
@@ -82,9 +84,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
           // ── Decorative circles ────────────────────────────────────
           Positioned(
-            top: -50, right: -40,
+            top: -50,
+            right: -40,
             child: Container(
-              width: 160, height: 160,
+              width: 160,
+              height: 160,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: Colors.white.withValues(alpha: 0.07),
@@ -92,9 +96,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
             ),
           ),
           Positioned(
-            top: 30, left: -35,
+            top: 30,
+            left: -35,
             child: Container(
-              width: 110, height: 110,
+              width: 110,
+              height: 110,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: _peOrange.withValues(alpha: 0.18),
@@ -188,7 +194,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(
-                              width: 56, height: 3,
+                              width: 56,
+                              height: 3,
                               decoration: BoxDecoration(
                                 color: _peBlue,
                                 borderRadius: BorderRadius.circular(2),
@@ -196,7 +203,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                             ),
                             const SizedBox(width: 4),
                             Container(
-                              width: 56, height: 3,
+                              width: 56,
+                              height: 3,
                               decoration: BoxDecoration(
                                 color: _peOrange,
                                 borderRadius: BorderRadius.circular(2),
@@ -261,14 +269,17 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
           // ── Bottom tagline ────────────────────────────────────────
           Positioned(
-            bottom: 36, left: 0, right: 0,
+            bottom: 36,
+            left: 0,
+            right: 0,
             child: FadeTransition(
               opacity: _fadeAnim,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    width: 6, height: 6,
+                    width: 6,
+                    height: 6,
                     decoration: const BoxDecoration(
                         color: _peOrange, shape: BoxShape.circle),
                   ),
@@ -284,7 +295,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                   ),
                   const SizedBox(width: 8),
                   Container(
-                    width: 6, height: 6,
+                    width: 6,
+                    height: 6,
                     decoration: const BoxDecoration(
                         color: _peBlue, shape: BoxShape.circle),
                   ),
@@ -345,7 +357,8 @@ class _DotsLoaderState extends State<_DotsLoader>
               child: Transform.scale(
                 scale: scale.clamp(0.5, 1.2),
                 child: Container(
-                  width: 9, height: 9,
+                  width: 9,
+                  height: 9,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: color.withValues(alpha: opacity.clamp(0.3, 1.0)),

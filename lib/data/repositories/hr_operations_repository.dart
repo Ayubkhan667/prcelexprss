@@ -97,7 +97,8 @@ class MockHrOperationsRepository implements HrOperationsRepository {
   final MockDataService _dataService;
 
   @override
-  Future<List<SalaryModel>> getSalaries({String? staffId, String? month}) async {
+  Future<List<SalaryModel>> getSalaries(
+      {String? staffId, String? month}) async {
     return _dataService.getSalaries(staffId: staffId, month: month);
   }
 
@@ -112,7 +113,9 @@ class MockHrOperationsRepository implements HrOperationsRepository {
       paidDate: paidDate,
       notes: notes,
     );
-    return _dataService.getSalaries().firstWhere((salary) => salary.id == salaryId);
+    return _dataService
+        .getSalaries()
+        .firstWhere((salary) => salary.id == salaryId);
   }
 
   @override
@@ -205,7 +208,8 @@ class MockHrOperationsRepository implements HrOperationsRepository {
     String? staffId,
     String? type,
   }) async {
-    var list = _dataService.getNotifications(targetRole: targetRole, staffId: staffId);
+    var list =
+        _dataService.getNotifications(targetRole: targetRole, staffId: staffId);
     if (type != null && type.isNotEmpty) {
       list = list.where((notification) => notification.type == type).toList();
     }
@@ -231,7 +235,8 @@ class MockHrOperationsRepository implements HrOperationsRepository {
   }
 
   @override
-  Future<List<ExpenseModel>> getExpenses({String? staffId, String? status}) async {
+  Future<List<ExpenseModel>> getExpenses(
+      {String? staffId, String? status}) async {
     return _dataService.getExpenses(staffId: staffId, status: status);
   }
 
@@ -256,7 +261,9 @@ class MockHrOperationsRepository implements HrOperationsRepository {
       approvedBy: approvedBy,
       rejectionReason: rejectionReason,
     );
-    return _dataService.getExpenses().firstWhere((expense) => expense.id == expenseId);
+    return _dataService
+        .getExpenses()
+        .firstWhere((expense) => expense.id == expenseId);
   }
 
   @override

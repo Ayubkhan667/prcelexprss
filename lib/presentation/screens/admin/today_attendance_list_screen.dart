@@ -28,7 +28,8 @@ class TodayAttendanceListScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         title: Text(title,
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+            style: const TextStyle(
+                color: Colors.white, fontWeight: FontWeight.w700)),
         iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,
       ),
@@ -40,9 +41,8 @@ class TodayAttendanceListScreen extends ConsumerWidget {
             // Total Staff — show all staff
             return _buildStaffList(context, allStaff, attendance);
           }
-          final filtered = attendance
-              .where((a) => statuses!.contains(a.status))
-              .toList();
+          final filtered =
+              attendance.where((a) => statuses!.contains(a.status)).toList();
           if (filtered.isEmpty) {
             return const Center(
               child: Text('No records found',
@@ -55,8 +55,8 @@ class TodayAttendanceListScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildAttendanceList(
-      BuildContext context, List<AttendanceModel> records, List<StaffModel> allStaff) {
+  Widget _buildAttendanceList(BuildContext context,
+      List<AttendanceModel> records, List<StaffModel> allStaff) {
     return ListView.separated(
       padding: const EdgeInsets.all(16),
       itemCount: records.length,
@@ -69,11 +69,12 @@ class TodayAttendanceListScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStaffList(
-      BuildContext context, List<StaffModel> allStaff, List<AttendanceModel> attendance) {
+  Widget _buildStaffList(BuildContext context, List<StaffModel> allStaff,
+      List<AttendanceModel> attendance) {
     if (allStaff.isEmpty) {
       return const Center(
-        child: Text('No staff found', style: TextStyle(color: AppColors.textSecondary)),
+        child: Text('No staff found',
+            style: TextStyle(color: AppColors.textSecondary)),
       );
     }
     return ListView.separated(
@@ -104,7 +105,8 @@ class _AttendanceTile extends ConsumerWidget {
           ? null
           : () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => StaffDetailScreen(staffId: staff!.id)),
+                MaterialPageRoute(
+                    builder: (_) => StaffDetailScreen(staffId: staff!.id)),
               ),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -112,7 +114,8 @@ class _AttendanceTile extends ConsumerWidget {
           color: AppColors.cardBg,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
-            BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 6)
+            BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04), blurRadius: 6)
           ],
         ),
         child: Row(
@@ -213,7 +216,8 @@ class _StaffTile extends ConsumerWidget {
           color: AppColors.cardBg,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
-            BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 6)
+            BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04), blurRadius: 6)
           ],
         ),
         child: Row(

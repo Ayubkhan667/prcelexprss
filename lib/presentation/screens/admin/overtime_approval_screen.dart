@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -7,6 +9,8 @@ import '../../../core/utils/app_utils.dart';
 import '../../../data/models/attendance_model.dart';
 import '../../../data/models/holiday_model.dart';
 import '../../../data/providers/app_providers.dart';
+import '../../../data/providers/auth_provider.dart';
+import '../../../data/services/audit_log_service.dart';
 
 class OvertimeApprovalScreen extends ConsumerStatefulWidget {
   const OvertimeApprovalScreen({super.key});
@@ -437,6 +441,24 @@ class _OvertimeApprovalScreenState extends ConsumerState<OvertimeApprovalScreen>
             status: status,
           );
       ref.read(mockDataRevisionProvider.notifier).state++;
+      unawaited(
+        AuditLogService.record(
+          action: approve ? 'overtime_approve' : 'overtime_reject',
+          title: approve ? 'Overtime approved' : 'Overtime rejected',
+          description:
+              '${record.overtimeHours.toStringAsFixed(1)}h overtime ${approve ? 'approved' : 'rejected'} for ${record.staffName}.',
+          targetType: 'attendance',
+          targetId: record.id,
+          targetName: record.staffName,
+          actor: ref.read(currentUserProvider),
+          metadata: {
+            'staff_id': record.staffId,
+            'date': record.date.toIso8601String(),
+            'overtime_hours': record.overtimeHours,
+            'status': status,
+          },
+        ),
+      );
     } catch (_) {
       if (!mounted) {
         return;

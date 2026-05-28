@@ -23,6 +23,13 @@ class HrSettings {
   final String companyPhone;
   final String companyEmail;
   final List<String> departments;
+  final bool supervisorDashboardAccess;
+  final bool supervisorStaffAccess;
+  final bool supervisorAttendanceAccess;
+  final bool supervisorLeaveAccess;
+  final bool supervisorTaskAccess;
+  final bool supervisorReportsAccess;
+  final bool supervisorNotificationsAccess;
 
   const HrSettings({
     this.gracePeriodMinutes = 15,
@@ -42,6 +49,13 @@ class HrSettings {
     this.companyAddress = 'Al Khuwair, Muscat, Oman',
     this.companyPhone = '+968 2412 3456',
     this.companyEmail = 'hr@parcelexpress.com',
+    this.supervisorDashboardAccess = true,
+    this.supervisorStaffAccess = true,
+    this.supervisorAttendanceAccess = true,
+    this.supervisorLeaveAccess = true,
+    this.supervisorTaskAccess = false,
+    this.supervisorReportsAccess = true,
+    this.supervisorNotificationsAccess = true,
     this.departments = const [
       'Operations',
       'HR & Admin',
@@ -71,6 +85,13 @@ class HrSettings {
     String? companyPhone,
     String? companyEmail,
     List<String>? departments,
+    bool? supervisorDashboardAccess,
+    bool? supervisorStaffAccess,
+    bool? supervisorAttendanceAccess,
+    bool? supervisorLeaveAccess,
+    bool? supervisorTaskAccess,
+    bool? supervisorReportsAccess,
+    bool? supervisorNotificationsAccess,
   }) =>
       HrSettings(
         gracePeriodMinutes: gracePeriodMinutes ?? this.gracePeriodMinutes,
@@ -91,6 +112,19 @@ class HrSettings {
         companyAddress: companyAddress ?? this.companyAddress,
         companyPhone: companyPhone ?? this.companyPhone,
         companyEmail: companyEmail ?? this.companyEmail,
+        supervisorDashboardAccess:
+            supervisorDashboardAccess ?? this.supervisorDashboardAccess,
+        supervisorStaffAccess:
+            supervisorStaffAccess ?? this.supervisorStaffAccess,
+        supervisorAttendanceAccess:
+            supervisorAttendanceAccess ?? this.supervisorAttendanceAccess,
+        supervisorLeaveAccess:
+            supervisorLeaveAccess ?? this.supervisorLeaveAccess,
+        supervisorTaskAccess: supervisorTaskAccess ?? this.supervisorTaskAccess,
+        supervisorReportsAccess:
+            supervisorReportsAccess ?? this.supervisorReportsAccess,
+        supervisorNotificationsAccess:
+            supervisorNotificationsAccess ?? this.supervisorNotificationsAccess,
         departments: departments ?? this.departments,
       );
 
@@ -114,6 +148,14 @@ class HrSettings {
       companyAddress: map['company_address'] ?? 'Al Khuwair, Muscat, Oman',
       companyPhone: map['company_phone'] ?? '+968 2412 3456',
       companyEmail: map['company_email'] ?? 'hr@parcelexpress.com',
+      supervisorDashboardAccess: map['supervisor_dashboard_access'] ?? true,
+      supervisorStaffAccess: map['supervisor_staff_access'] ?? true,
+      supervisorAttendanceAccess: map['supervisor_attendance_access'] ?? true,
+      supervisorLeaveAccess: map['supervisor_leave_access'] ?? true,
+      supervisorTaskAccess: map['supervisor_task_access'] ?? false,
+      supervisorReportsAccess: map['supervisor_reports_access'] ?? true,
+      supervisorNotificationsAccess:
+          map['supervisor_notifications_access'] ?? true,
       departments: ((map['departments'] as List<dynamic>?)?.isNotEmpty ?? false)
           ? (map['departments'] as List<dynamic>)
               .map((department) => department.toString())
@@ -147,6 +189,13 @@ class HrSettings {
         'company_address': companyAddress,
         'company_phone': companyPhone,
         'company_email': companyEmail,
+        'supervisor_dashboard_access': supervisorDashboardAccess,
+        'supervisor_staff_access': supervisorStaffAccess,
+        'supervisor_attendance_access': supervisorAttendanceAccess,
+        'supervisor_leave_access': supervisorLeaveAccess,
+        'supervisor_task_access': supervisorTaskAccess,
+        'supervisor_reports_access': supervisorReportsAccess,
+        'supervisor_notifications_access': supervisorNotificationsAccess,
         'departments': departments,
       };
 }
@@ -166,7 +215,6 @@ class HrSettingsNotifier extends Notifier<HrSettings> {
   }
 }
 
-final hrSettingsProvider =
-    NotifierProvider<HrSettingsNotifier, HrSettings>(() {
+final hrSettingsProvider = NotifierProvider<HrSettingsNotifier, HrSettings>(() {
   return HrSettingsNotifier(initial: const HrSettings());
 });

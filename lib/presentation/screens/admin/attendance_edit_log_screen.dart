@@ -393,7 +393,9 @@ class _AttendanceEditLogScreenState
   Future<void> _approveLog(AttendanceEditLogModel log) async {
     final approver = ref.read(currentUserProvider)?.name ?? 'Admin';
     try {
-      await ref.read(hrOperationsRepositoryProvider).updateEditLogApprovalStatus(
+      await ref
+          .read(hrOperationsRepositoryProvider)
+          .updateEditLogApprovalStatus(
             logId: log.id,
             status: 'Approved',
             approvedBy: approver,
@@ -419,7 +421,9 @@ class _AttendanceEditLogScreenState
   Future<void> _rejectLog(AttendanceEditLogModel log) async {
     final approver = ref.read(currentUserProvider)?.name ?? 'Admin';
     try {
-      await ref.read(hrOperationsRepositoryProvider).updateEditLogApprovalStatus(
+      await ref
+          .read(hrOperationsRepositoryProvider)
+          .updateEditLogApprovalStatus(
             logId: log.id,
             status: 'Rejected',
             approvedBy: approver,

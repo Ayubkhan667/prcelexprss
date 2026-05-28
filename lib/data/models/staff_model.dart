@@ -13,6 +13,8 @@ class StaffModel {
   final String branchName;
   final String shiftId;
   final String shiftName;
+  final double? allowedLocationRadiusMeters;
+  final int dailyBreakMinutes;
   final DateTime joiningDate;
   final double basicSalary;
   final double overtimeRate;
@@ -89,6 +91,8 @@ class StaffModel {
     required this.branchName,
     required this.shiftId,
     required this.shiftName,
+    this.allowedLocationRadiusMeters,
+    this.dailyBreakMinutes = 60,
     required this.joiningDate,
     required this.basicSalary,
     required this.overtimeRate,
@@ -155,7 +159,14 @@ class StaffModel {
       branchName: map['branch_name'] ?? '',
       shiftId: map['shift_id'] ?? '',
       shiftName: map['shift_name'] ?? '',
-      joiningDate: DateTime.tryParse(map['joining_date'] ?? '') ?? DateTime.now(),
+      allowedLocationRadiusMeters: _optionalDouble(
+        map['allowed_location_radius_meters'] ??
+            map['allowed_radius_meters'] ??
+            map['geofence_radius_meters'],
+      ),
+      dailyBreakMinutes: _optionalInt(map['daily_break_minutes']) ?? 60,
+      joiningDate:
+          DateTime.tryParse(map['joining_date'] ?? '') ?? DateTime.now(),
       basicSalary: (map['basic_salary'] ?? 0).toDouble(),
       overtimeRate: (map['overtime_rate'] ?? 0).toDouble(),
       weeklyOffDay: map['weekly_off_day'] ?? 'Friday',
@@ -237,6 +248,8 @@ class StaffModel {
         'branch_name': branchName,
         'shift_id': shiftId,
         'shift_name': shiftName,
+        'allowed_location_radius_meters': allowedLocationRadiusMeters,
+        'daily_break_minutes': dailyBreakMinutes,
         'joining_date': joiningDate.toIso8601String(),
         'basic_salary': basicSalary,
         'overtime_rate': overtimeRate,
@@ -296,6 +309,8 @@ class StaffModel {
     String? department,
     String? branchId,
     String? branchName,
+    double? allowedLocationRadiusMeters,
+    int? dailyBreakMinutes,
     String? status,
     double? basicSalary,
     double? kpiScore,
@@ -320,6 +335,9 @@ class StaffModel {
       branchName: branchName ?? this.branchName,
       shiftId: shiftId,
       shiftName: shiftName,
+      allowedLocationRadiusMeters:
+          allowedLocationRadiusMeters ?? this.allowedLocationRadiusMeters,
+      dailyBreakMinutes: dailyBreakMinutes ?? this.dailyBreakMinutes,
       joiningDate: joiningDate,
       basicSalary: basicSalary ?? this.basicSalary,
       overtimeRate: overtimeRate,
@@ -370,4 +388,16 @@ class StaffModel {
       passportCollectionStatus: passportCollectionStatus,
     );
   }
+}
+
+double? _optionalDouble(Object? value) {
+  if (value is num) return value.toDouble();
+  if (value is String) return double.tryParse(value);
+  return null;
+}
+
+int? _optionalInt(Object? value) {
+  if (value is num) return value.toInt();
+  if (value is String) return int.tryParse(value);
+  return null;
 }

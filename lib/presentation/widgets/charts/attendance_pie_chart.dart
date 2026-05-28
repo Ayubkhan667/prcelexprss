@@ -35,7 +35,8 @@ class _AttendancePieChartState extends State<AttendancePieChart>
       vsync: this,
       duration: const Duration(milliseconds: 1600),
     );
-    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic);
+    _animation =
+        CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic);
     _controller.forward();
   }
 
@@ -53,7 +54,11 @@ class _AttendancePieChartState extends State<AttendancePieChart>
 
   @override
   Widget build(BuildContext context) {
-    final total = widget.present + widget.absent + widget.late + widget.onLeave + widget.overtime;
+    final total = widget.present +
+        widget.absent +
+        widget.late +
+        widget.onLeave +
+        widget.overtime;
     if (total == 0) {
       return const Center(child: Text('No data available'));
     }
@@ -73,7 +78,8 @@ class _AttendancePieChartState extends State<AttendancePieChart>
           builder: (context, _) {
             return CustomPaint(
               size: const Size(double.infinity, 200),
-              painter: _SemiArcPainter(items: items, progress: _animation.value),
+              painter:
+                  _SemiArcPainter(items: items, progress: _animation.value),
             );
           },
         ),
@@ -82,9 +88,7 @@ class _AttendancePieChartState extends State<AttendancePieChart>
           spacing: 16,
           runSpacing: 8,
           alignment: WrapAlignment.center,
-          children: items
-              .map((item) => _LegendTile(item: item))
-              .toList(),
+          children: items.map((item) => _LegendTile(item: item)).toList(),
         ),
       ],
     );
@@ -238,7 +242,8 @@ class KpiBarChart extends StatelessWidget {
                 toY: e.value.score,
                 color: color,
                 width: 18,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(4)),
               ),
             ],
           );
@@ -254,7 +259,8 @@ class KpiBarChart extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 4),
                   child: Text(
                     data[i].name.split(' ').first,
-                    style: const TextStyle(fontSize: 9, color: AppColors.textSecondary),
+                    style: const TextStyle(
+                        fontSize: 9, color: AppColors.textSecondary),
                   ),
                 );
               },
@@ -266,13 +272,16 @@ class KpiBarChart extends StatelessWidget {
               interval: 25,
               getTitlesWidget: (value, _) => Text(
                 '${value.toInt()}',
-                style: const TextStyle(fontSize: 9, color: AppColors.textSecondary),
+                style: const TextStyle(
+                    fontSize: 9, color: AppColors.textSecondary),
               ),
               reservedSize: 28,
             ),
           ),
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         ),
         gridData: FlGridData(
           show: true,

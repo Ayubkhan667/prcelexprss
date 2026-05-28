@@ -36,7 +36,8 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen>
   @override
   Widget build(BuildContext context) {
     final staff = ref.watch(currentStaffProvider);
-    final leaves = staff != null ? ref.watch(leaveListProvider(staff.id)) : <LeaveModel>[];
+    final leaves =
+        staff != null ? ref.watch(leaveListProvider(staff.id)) : <LeaveModel>[];
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -88,14 +89,17 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen>
               ),
               const SizedBox(height: 20),
 
-              const Text('Apply for Leave', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+              const Text('Apply for Leave',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
               const SizedBox(height: 12),
 
               CustomDropdown<String>(
                 value: leaveType,
                 label: 'Leave Type',
                 prefixIcon: Icons.category_outlined,
-                items: AppConstants.leaveTypes.map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
+                items: AppConstants.leaveTypes
+                    .map((t) => DropdownMenuItem(value: t, child: Text(t)))
+                    .toList(),
                 onChanged: (v) => setS(() => leaveType = v ?? leaveType),
               ),
               const SizedBox(height: 12),
@@ -109,7 +113,8 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen>
                           context: ctx,
                           initialDate: fromDate,
                           firstDate: DateTime.now(),
-                          lastDate: DateTime.now().add(const Duration(days: 365)),
+                          lastDate:
+                              DateTime.now().add(const Duration(days: 365)),
                         );
                         if (picked != null) setS(() => fromDate = picked);
                       },
@@ -119,7 +124,8 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen>
                           prefixIcon: Icon(Icons.calendar_today, size: 18),
                           border: OutlineInputBorder(),
                         ),
-                        child: Text(AppUtils.formatDate(fromDate), style: const TextStyle(fontSize: 14)),
+                        child: Text(AppUtils.formatDate(fromDate),
+                            style: const TextStyle(fontSize: 14)),
                       ),
                     ),
                   ),
@@ -131,7 +137,8 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen>
                           context: ctx,
                           initialDate: toDate,
                           firstDate: fromDate,
-                          lastDate: DateTime.now().add(const Duration(days: 365)),
+                          lastDate:
+                              DateTime.now().add(const Duration(days: 365)),
                         );
                         if (picked != null) setS(() => toDate = picked);
                       },
@@ -141,7 +148,8 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen>
                           prefixIcon: Icon(Icons.calendar_today, size: 18),
                           border: OutlineInputBorder(),
                         ),
-                        child: Text(AppUtils.formatDate(toDate), style: const TextStyle(fontSize: 14)),
+                        child: Text(AppUtils.formatDate(toDate),
+                            style: const TextStyle(fontSize: 14)),
                       ),
                     ),
                   ),
@@ -150,14 +158,22 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen>
               const SizedBox(height: 12),
 
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(color: AppColors.primarySurface, borderRadius: BorderRadius.circular(8)),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                    color: AppColors.primarySurface,
+                    borderRadius: BorderRadius.circular(8)),
                 child: Row(
                   children: [
-                    const Icon(Icons.date_range, size: 16, color: AppColors.primary),
+                    const Icon(Icons.date_range,
+                        size: 16, color: AppColors.primary),
                     const SizedBox(width: 6),
-                    Text('Duration: ${toDate.difference(fromDate).inDays + 1} day(s)',
-                        style: const TextStyle(fontSize: 13, color: AppColors.primary, fontWeight: FontWeight.w600)),
+                    Text(
+                        'Duration: ${toDate.difference(fromDate).inDays + 1} day(s)',
+                        style: const TextStyle(
+                            fontSize: 13,
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),
@@ -168,7 +184,8 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen>
                 label: 'Reason for Leave',
                 prefixIcon: Icons.notes_outlined,
                 maxLines: 3,
-                validator: (v) => v?.isEmpty == true ? 'Please provide a reason' : null,
+                validator: (v) =>
+                    v?.isEmpty == true ? 'Please provide a reason' : null,
               ),
               const SizedBox(height: 12),
 
@@ -191,18 +208,21 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen>
                   decoration: BoxDecoration(
                     color: AppColors.cardBg,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.divider, style: BorderStyle.solid),
+                    border: Border.all(
+                        color: AppColors.divider, style: BorderStyle.solid),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.attach_file, color: AppColors.textSecondary),
+                      const Icon(Icons.attach_file,
+                          color: AppColors.textSecondary),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
                           attachment == null
                               ? 'Attach Document (Optional)'
                               : attachment!.name,
-                          style: const TextStyle(color: AppColors.textSecondary),
+                          style:
+                              const TextStyle(color: AppColors.textSecondary),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -258,7 +278,8 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen>
                     }
                     reasonCtrl.clear();
                     setS(() => attachment = null);
-                    AppUtils.showSnackBar(ctx, 'Leave request submitted — pending approval');
+                    AppUtils.showSnackBar(
+                        ctx, 'Leave request submitted — pending approval');
                     _tabController.animateTo(1);
                   },
                 ),
@@ -278,7 +299,8 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen>
           children: [
             Icon(Icons.beach_access, size: 64, color: AppColors.textHint),
             SizedBox(height: 16),
-            Text('No leave requests yet', style: TextStyle(color: AppColors.textSecondary)),
+            Text('No leave requests yet',
+                style: TextStyle(color: AppColors.textSecondary)),
           ],
         ),
       );
@@ -296,7 +318,9 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen>
       decoration: BoxDecoration(
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 6)],
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 6)
+        ],
       ),
       padding: const EdgeInsets.all(14),
       child: Column(
@@ -307,9 +331,11 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen>
             children: [
               Row(
                 children: [
-                  const Icon(Icons.beach_access_outlined, size: 16, color: AppColors.primary),
+                  const Icon(Icons.beach_access_outlined,
+                      size: 16, color: AppColors.primary),
                   const SizedBox(width: 6),
-                  Text(leave.leaveType, style: const TextStyle(fontWeight: FontWeight.w700)),
+                  Text(leave.leaveType,
+                      style: const TextStyle(fontWeight: FontWeight.w700)),
                 ],
               ),
               StatusBadge(status: leave.status),
@@ -318,29 +344,46 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen>
           const SizedBox(height: 8),
           Row(
             children: [
-              const Icon(Icons.date_range_outlined, size: 14, color: AppColors.textSecondary),
+              const Icon(Icons.date_range_outlined,
+                  size: 14, color: AppColors.textSecondary),
               const SizedBox(width: 4),
-              Text('${AppUtils.formatDate(leave.fromDate)} - ${AppUtils.formatDate(leave.toDate)}',
-                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+              Text(
+                  '${AppUtils.formatDate(leave.fromDate)} - ${AppUtils.formatDate(leave.toDate)}',
+                  style: const TextStyle(
+                      fontSize: 12, color: AppColors.textSecondary)),
               const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(color: AppColors.primarySurface, borderRadius: BorderRadius.circular(8)),
-                child: Text('${leave.totalDays}d', style: const TextStyle(fontSize: 11, color: AppColors.primary, fontWeight: FontWeight.w600)),
+                decoration: BoxDecoration(
+                    color: AppColors.primarySurface,
+                    borderRadius: BorderRadius.circular(8)),
+                child: Text('${leave.totalDays}d',
+                    style: const TextStyle(
+                        fontSize: 11,
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w600)),
               ),
             ],
           ),
           const SizedBox(height: 6),
-          Text(leave.reason, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+          Text(leave.reason,
+              style: const TextStyle(
+                  fontSize: 12, color: AppColors.textSecondary)),
           if (leave.approvedBy != null) ...[
             const SizedBox(height: 6),
             Text('Approved by: ${leave.approvedBy}',
-                style: const TextStyle(fontSize: 11, color: AppColors.success, fontWeight: FontWeight.w500)),
+                style: const TextStyle(
+                    fontSize: 11,
+                    color: AppColors.success,
+                    fontWeight: FontWeight.w500)),
           ],
           if (leave.rejectionReason != null) ...[
             const SizedBox(height: 6),
             Text('Rejected: ${leave.rejectionReason}',
-                style: const TextStyle(fontSize: 11, color: AppColors.error, fontWeight: FontWeight.w500)),
+                style: const TextStyle(
+                    fontSize: 11,
+                    color: AppColors.error,
+                    fontWeight: FontWeight.w500)),
           ],
           const SizedBox(height: 4),
           Text('Applied: ${AppUtils.formatDate(leave.createdAt)}',
@@ -361,9 +404,16 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen>
         ),
         child: Column(
           children: [
-            Text('$remaining', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: color)),
-            Text('/$total', style: TextStyle(fontSize: 11, color: color.withValues(alpha: 0.7))),
-            Text(type.split(' ').first, style: const TextStyle(fontSize: 10, color: AppColors.textSecondary), textAlign: TextAlign.center),
+            Text('$remaining',
+                style: TextStyle(
+                    fontSize: 20, fontWeight: FontWeight.w700, color: color)),
+            Text('/$total',
+                style: TextStyle(
+                    fontSize: 11, color: color.withValues(alpha: 0.7))),
+            Text(type.split(' ').first,
+                style: const TextStyle(
+                    fontSize: 10, color: AppColors.textSecondary),
+                textAlign: TextAlign.center),
           ],
         ),
       ),

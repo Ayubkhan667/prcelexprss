@@ -48,8 +48,9 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen>
   @override
   Widget build(BuildContext context) {
     final staff = ref.watch(currentStaffProvider);
-    final expenses =
-        staff != null ? ref.watch(expenseListProvider(staff.id)) : <ExpenseModel>[];
+    final expenses = staff != null
+        ? ref.watch(expenseListProvider(staff.id))
+        : <ExpenseModel>[];
 
     final pending = expenses.where((e) => e.status == 'Pending').length;
     final approved = expenses.where((e) => e.status == 'Approved').length;
@@ -84,7 +85,8 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen>
               children: [
                 _summaryChip('Pending', pending.toString(), AppColors.warning),
                 const SizedBox(width: 10),
-                _summaryChip('Approved', approved.toString(), AppColors.success),
+                _summaryChip(
+                    'Approved', approved.toString(), AppColors.success),
                 const Spacer(),
                 Text(
                   'Reimbursed: OMR ${totalApproved.toStringAsFixed(3)}',
@@ -266,7 +268,8 @@ class _SubmitExpenseTabState extends ConsumerState<_SubmitExpenseTab> {
     });
 
     if (!mounted) return;
-    AppUtils.showSnackBar(context, 'Expense claim submitted — pending approval');
+    AppUtils.showSnackBar(
+        context, 'Expense claim submitted — pending approval');
     widget.onSubmitted();
   }
 
@@ -311,7 +314,8 @@ class _SubmitExpenseTabState extends ConsumerState<_SubmitExpenseTab> {
               controller: _amountCtrl,
               label: 'e.g. 12.500',
               prefixIcon: Icons.payments_outlined,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
               validator: (v) {
                 if (v == null || v.trim().isEmpty) return 'Enter amount';
                 final n = double.tryParse(v.trim());
@@ -458,7 +462,8 @@ class _SubmitExpenseTabState extends ConsumerState<_SubmitExpenseTab> {
           child: const Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.add_circle_outline, color: AppColors.primary, size: 28),
+              Icon(Icons.add_circle_outline,
+                  color: AppColors.primary, size: 28),
               SizedBox(height: 4),
               Text('Add More',
                   style: TextStyle(fontSize: 10, color: AppColors.primary)),
@@ -507,8 +512,7 @@ class _MyExpensesTab extends StatelessWidget {
             Icon(Icons.receipt_long, size: 72, color: AppColors.textHint),
             SizedBox(height: 16),
             Text('No expense claims yet',
-                style:
-                    TextStyle(color: AppColors.textSecondary, fontSize: 15)),
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 15)),
             SizedBox(height: 6),
             Text('Submit your first claim from the other tab',
                 style: TextStyle(color: AppColors.textHint, fontSize: 12)),
@@ -548,11 +552,9 @@ class _ExpenseCard extends StatelessWidget {
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
-          BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05), blurRadius: 6)
+          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 6)
         ],
-        border: Border(
-            left: BorderSide(color: _statusColor, width: 4)),
+        border: Border(left: BorderSide(color: _statusColor, width: 4)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(14),
@@ -659,8 +661,8 @@ class _ExpenseCard extends StatelessWidget {
             ],
             const SizedBox(height: 4),
             Text('Submitted: ${AppUtils.formatDate(expense.createdAt)}',
-                style: const TextStyle(
-                    fontSize: 10, color: AppColors.textHint)),
+                style:
+                    const TextStyle(fontSize: 10, color: AppColors.textHint)),
           ],
         ),
       ),

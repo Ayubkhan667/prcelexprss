@@ -73,6 +73,7 @@ class AppConstants {
   static const String attendanceMissingCheckout = 'Missing Checkout';
   static const String attendanceOvertime = 'Overtime';
   static const String attendanceDutyPaused = 'Duty Paused';
+  static const String attendanceVisit = 'Visit';
 
   static const String dutyStatusActive = 'Active';
   static const String dutyStatusPaused = 'Paused';
@@ -121,6 +122,7 @@ class AppConstants {
 
   // Default geofence radius in meters
   static const double defaultGeofenceRadius = 100.0;
+  static const int defaultDailyBreakMinutes = 60;
 
   // Standard shift hours
   static const double standardShiftHours = 8.0;

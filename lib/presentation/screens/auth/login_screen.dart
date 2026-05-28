@@ -609,69 +609,72 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                       child: child,
                                     ),
                                     child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 200),
-                                    width: double.infinity,
-                                    height: 56,
-                                    decoration: BoxDecoration(
-                                      gradient: authState.isLoading
-                                          ? null
-                                          : const LinearGradient(
-                                              colors: [
-                                                Color(0xFF1565C0),
-                                                Color(0xFF42A5F5),
-                                              ],
-                                              begin: Alignment.centerLeft,
-                                              end: Alignment.centerRight,
-                                            ),
-                                      color: authState.isLoading
-                                          ? AppColors.primaryLight
-                                              .withValues(alpha: 0.6)
-                                          : null,
-                                      borderRadius: BorderRadius.circular(16),
-                                      boxShadow: authState.isLoading
-                                          ? []
-                                          : [
-                                              BoxShadow(
-                                                color: const Color(0xFF1565C0)
-                                                    .withValues(alpha: 0.45),
-                                                blurRadius: 16,
-                                                offset: const Offset(0, 7),
+                                      duration:
+                                          const Duration(milliseconds: 200),
+                                      width: double.infinity,
+                                      height: 56,
+                                      decoration: BoxDecoration(
+                                        gradient: authState.isLoading
+                                            ? null
+                                            : const LinearGradient(
+                                                colors: [
+                                                  Color(0xFF1565C0),
+                                                  Color(0xFF42A5F5),
+                                                ],
+                                                begin: Alignment.centerLeft,
+                                                end: Alignment.centerRight,
                                               ),
-                                            ],
-                                    ),
-                                    child: Center(
-                                      child: authState.isLoading
-                                          ? const SizedBox(
-                                              width: 22,
-                                              height: 22,
-                                              child: CircularProgressIndicator(
-                                                color: Colors.white,
-                                                strokeWidth: 2.5,
-                                              ),
-                                            )
-                                          : const Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                  'Sign In',
-                                                  style: TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w700,
-                                                    color: Colors.white,
-                                                    letterSpacing: 0.5,
-                                                  ),
+                                        color: authState.isLoading
+                                            ? AppColors.primaryLight
+                                                .withValues(alpha: 0.6)
+                                            : null,
+                                        borderRadius: BorderRadius.circular(16),
+                                        boxShadow: authState.isLoading
+                                            ? []
+                                            : [
+                                                BoxShadow(
+                                                  color: const Color(0xFF1565C0)
+                                                      .withValues(alpha: 0.45),
+                                                  blurRadius: 16,
+                                                  offset: const Offset(0, 7),
                                                 ),
-                                                SizedBox(width: 10),
-                                                Icon(
-                                                  Icons.arrow_forward_rounded,
+                                              ],
+                                      ),
+                                      child: Center(
+                                        child: authState.isLoading
+                                            ? const SizedBox(
+                                                width: 22,
+                                                height: 22,
+                                                child:
+                                                    CircularProgressIndicator(
                                                   color: Colors.white,
-                                                  size: 20,
+                                                  strokeWidth: 2.5,
                                                 ),
-                                              ],
-                                            ),
+                                              )
+                                            : const Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Text(
+                                                    'Sign In',
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                      color: Colors.white,
+                                                      letterSpacing: 0.5,
+                                                    ),
+                                                  ),
+                                                  SizedBox(width: 10),
+                                                  Icon(
+                                                    Icons.arrow_forward_rounded,
+                                                    color: Colors.white,
+                                                    size: 20,
+                                                  ),
+                                                ],
+                                              ),
+                                      ),
                                     ),
-                                  ),
                                   ),
                                 ),
 

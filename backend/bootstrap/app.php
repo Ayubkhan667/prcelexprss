@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Middleware\EnsureUserHasRole;
 use App\Http\Middleware\EnsureActiveUserSession;
+use App\Http\Middleware\EnsureUserHasRole;
 use App\Http\Middleware\SyncCurrentTokenMetadata;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;

@@ -19,6 +19,7 @@ import '../../../data/providers/app_providers.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../../data/services/attendance_capture_service.dart';
 import '../../../data/services/device_binding_service.dart';
+import '../../../data/services/offline_attendance_queue_service.dart';
 
 class CheckinCheckoutScreen extends ConsumerStatefulWidget {
   const CheckinCheckoutScreen({super.key});
@@ -45,6 +46,7 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
   String? _monitorAttendanceId;
   String? _dutyOverrideAttendanceId;
   String? _dutyOverrideStatus;
+  int _pendingQueueCount = 0;
 
   @override
   void initState() {
@@ -66,6 +68,7 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       unawaited(_restoreLostSelfie());
       unawaited(_refreshAccessStatus());
+      unawaited(_refreshOfflineQueueCount());
     });
   }
 
@@ -101,6 +104,7 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
   Future<void> _handleConnectivityChanged() async {
     await _refreshAccessStatus(silent: true);
     await _enforceDutyRules(showFeedback: true);
+    await _syncOfflineQueue(showFeedback: true);
   }
 
   Future<void> _refreshAccessStatus({bool silent = false}) async {
@@ -137,6 +141,11 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
     }
 
     setState(() => _isSubmitting = true);
+    AttendanceAccessResult? queueAccess;
+    DateTime? queueTime;
+    String? queueDeviceId;
+    String? queueSelfiePath;
+    String? queueNotes;
 
     try {
       final access = await _captureService.verifyAttendanceAccess(
@@ -165,6 +174,13 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
 
       final deviceId = await DeviceBindingService.getDeviceId();
       final now = DateTime.now();
+      final notes =
+          'Check-in verified with office Wi-Fi ${access.wifi.currentWifiSsid ?? _manualWifiSsid}.';
+      queueAccess = access;
+      queueTime = now;
+      queueDeviceId = deviceId;
+      queueSelfiePath = _uploadableSelfiePath(selfie.file!.path);
+      queueNotes = notes;
       final attendance =
           await ref.read(attendanceRepositoryProvider).recordCheckIn(
                 staff: staff,
@@ -177,9 +193,8 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
                 isLocationValid: true,
                 isMockGps: false,
                 wifiSsid: access.wifi.currentWifiSsid ?? _manualWifiSsid,
-                selfiePath: _uploadableSelfiePath(selfie.file!.path),
-                notes:
-                    'Check-in verified with office Wi-Fi ${access.wifi.currentWifiSsid ?? _manualWifiSsid}.',
+                selfiePath: queueSelfiePath,
+                notes: notes,
               );
 
       _bumpRevision();
@@ -198,7 +213,27 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
         'Check-in successful at ${AppUtils.formatTime(now)}',
       );
     } on DioException catch (error) {
-      _showError(_remoteErrorMessage(error));
+      if (await _queueAttendanceIfOffline(
+        error: error,
+        eventType: OfflineAttendanceQueueService.checkIn,
+        staff: staff,
+        branch: branch,
+        shift: shift,
+        access: queueAccess,
+        eventTime: queueTime,
+        deviceId: queueDeviceId,
+        selfiePath: queueSelfiePath,
+        notes: queueNotes,
+      )) {
+        if (mounted) {
+          AppUtils.showSnackBar(
+            context,
+            'Internet issue: check-in saved offline and will sync later.',
+          );
+        }
+      } else {
+        _showError(_remoteErrorMessage(error));
+      }
     } catch (_) {
       _showError('Unable to check in right now. Please try again.');
     } finally {
@@ -218,6 +253,11 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
     }
 
     setState(() => _isSubmitting = true);
+    AttendanceAccessResult? queueAccess;
+    DateTime? queueTime;
+    String? queueDeviceId;
+    String? queueSelfiePath;
+    String? queueNotes;
 
     try {
       final access = await _captureService.verifyAttendanceAccess(
@@ -246,6 +286,13 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
 
       final deviceId = await DeviceBindingService.getDeviceId();
       final checkOutTime = DateTime.now();
+      final notes =
+          'Check-out verified with office Wi-Fi ${access.wifi.currentWifiSsid ?? _manualWifiSsid}.';
+      queueAccess = access;
+      queueTime = checkOutTime;
+      queueDeviceId = deviceId;
+      queueSelfiePath = _uploadableSelfiePath(selfie.file!.path);
+      queueNotes = notes;
       final attendance =
           await ref.read(attendanceRepositoryProvider).recordCheckOut(
                 staff: staff,
@@ -258,9 +305,8 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
                 isLocationValid: true,
                 isMockGps: false,
                 wifiSsid: access.wifi.currentWifiSsid ?? _manualWifiSsid,
-                selfiePath: _uploadableSelfiePath(selfie.file!.path),
-                notes:
-                    'Check-out verified with office Wi-Fi ${access.wifi.currentWifiSsid ?? _manualWifiSsid}.',
+                selfiePath: queueSelfiePath,
+                notes: notes,
               );
 
       if (attendance == null) {
@@ -283,7 +329,27 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
 
       _showCheckoutSummary(attendance);
     } on DioException catch (error) {
-      _showError(_remoteErrorMessage(error));
+      if (await _queueAttendanceIfOffline(
+        error: error,
+        eventType: OfflineAttendanceQueueService.checkOut,
+        staff: staff,
+        branch: branch,
+        shift: shift,
+        access: queueAccess,
+        eventTime: queueTime,
+        deviceId: queueDeviceId,
+        selfiePath: queueSelfiePath,
+        notes: queueNotes,
+      )) {
+        if (mounted) {
+          AppUtils.showSnackBar(
+            context,
+            'Internet issue: check-out saved offline and will sync later.',
+          );
+        }
+      } else {
+        _showError(_remoteErrorMessage(error));
+      }
     } catch (_) {
       _showError('Unable to check out right now. Please try again.');
     } finally {
@@ -367,6 +433,132 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
     } catch (_) {
       if (showFeedback && mounted) {
         _showError('Unable to sync duty status right now.');
+      }
+    }
+  }
+
+  Future<void> _startBreak(AttendanceModel attendance, StaffModel staff) async {
+    if (_effectiveDutyStatus(attendance) == AppConstants.dutyStatusPaused) {
+      AppUtils.showSnackBar(context, 'Break is already running.');
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+    try {
+      final pausedAttendance =
+          await ref.read(attendanceRepositoryProvider).pauseDuty(
+                attendanceId: attendance.id,
+                pausedAt: DateTime.now(),
+                reason:
+                    'Break started outside assigned range. Daily break limit: ${staff.dailyBreakMinutes} minutes.',
+              );
+      if (pausedAttendance == null) {
+        _showError('Unable to start break for this attendance record.');
+        return;
+      }
+
+      _bumpRevision();
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _dutyOverrideAttendanceId = attendance.id;
+        _dutyOverrideStatus = AppConstants.dutyStatusPaused;
+      });
+      AppUtils.showSnackBar(
+        context,
+        'Break started. Remaining break: ${_remainingBreakMinutes(staff, pausedAttendance)} min',
+      );
+    } on DioException catch (error) {
+      _showError(_remoteErrorMessage(error));
+    } catch (_) {
+      _showError('Unable to start break right now.');
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
+    }
+  }
+
+  Future<void> _markVisit({
+    required StaffModel staff,
+    required BranchModel branch,
+  }) async {
+    setState(() => _isSubmitting = true);
+    try {
+      final access = _accessResult ??
+          await _captureService.verifyAttendanceAccess(
+            branch: branch,
+            manualWifiSsid: _manualWifiSsid,
+          );
+      if (!mounted) {
+        return;
+      }
+      setState(() => _accessResult = access);
+
+      final location = access.location;
+      if (!location.permissionGranted || location.position == null) {
+        _showError(location.message);
+        return;
+      }
+      if (location.isMockGps) {
+        _showError(location.message);
+        return;
+      }
+      if (location.isInsideGeofence) {
+        AppUtils.showSnackBar(
+          context,
+          'You are inside assigned range. Use normal Check In/Out.',
+        );
+        return;
+      }
+
+      final now = DateTime.now();
+      final distance = location.distanceMeters?.toStringAsFixed(0) ?? '--';
+      final visitNote =
+          'Visit recorded outside assigned range at ${AppUtils.formatDateTime(now)}. Distance: ${distance}m from ${branch.branchName}.';
+      final existing = _resolveTodayAttendance();
+      final attendance = existing == null
+          ? AttendanceModel(
+              id: 'visit_${staff.id}_${now.millisecondsSinceEpoch}',
+              staffId: staff.id,
+              staffName: staff.name,
+              staffCode: staff.staffCode,
+              date: DateTime(now.year, now.month, now.day),
+              workingHours: 0,
+              overtimeHours: 0,
+              lateMinutes: 0,
+              earlyCheckoutMinutes: 0,
+              status: AppConstants.attendanceVisit,
+              isLocationValid: true,
+              isMockGps: false,
+              approvalStatus: 'Auto',
+              notes: visitNote,
+              createdAt: now,
+            )
+          : existing.copyWith(
+              status: existing.checkInTime == null
+                  ? AppConstants.attendanceVisit
+                  : existing.status,
+              notes: _appendNotes(existing.notes, visitNote),
+            );
+
+      await ref.read(attendanceRepositoryProvider).saveAttendance(
+            attendance: attendance,
+            isEdit: existing != null,
+          );
+      _bumpRevision();
+      if (!mounted) {
+        return;
+      }
+      AppUtils.showSnackBar(context, 'Visit marked outside assigned range.');
+    } on DioException catch (error) {
+      _showError(_remoteErrorMessage(error));
+    } catch (_) {
+      _showError('Unable to mark visit right now.');
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
       }
     }
   }
@@ -535,7 +727,21 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
       return null;
     }
 
-    return ref.read(branchByIdProvider(staff.branchId));
+    return _effectiveBranchForStaff(
+      staff,
+      ref.read(branchByIdProvider(staff.branchId)),
+    );
+  }
+
+  BranchModel? _effectiveBranchForStaff(StaffModel staff, BranchModel? branch) {
+    if (branch == null) {
+      return null;
+    }
+    final range = staff.allowedLocationRadiusMeters;
+    if (range == null || range <= 0 || range == branch.allowedRadius) {
+      return branch;
+    }
+    return branch.copyWith(allowedRadius: range);
   }
 
   ShiftModel? _resolveShift() {
@@ -616,6 +822,20 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
     return attendance.pausedMinutes + livePauseMinutes;
   }
 
+  int _remainingBreakMinutes(StaffModel staff, AttendanceModel attendance) {
+    final remaining =
+        staff.dailyBreakMinutes - _effectivePausedMinutes(attendance, _now);
+    return remaining < 0 ? 0 : remaining;
+  }
+
+  String _appendNotes(String? current, String note) {
+    final trimmed = current?.trim();
+    if (trimmed == null || trimmed.isEmpty) {
+      return note;
+    }
+    return '$trimmed\n$note';
+  }
+
   void _bumpRevision() {
     ref.read(mockDataRevisionProvider.notifier).state++;
   }
@@ -666,6 +886,106 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
     return path;
   }
 
+  Future<void> _refreshOfflineQueueCount() async {
+    final count = (await OfflineAttendanceQueueService().pendingItems()).length;
+    if (!mounted) {
+      return;
+    }
+    setState(() => _pendingQueueCount = count);
+  }
+
+  Future<bool> _queueAttendanceIfOffline({
+    required DioException error,
+    required String eventType,
+    required StaffModel staff,
+    required BranchModel branch,
+    required ShiftModel shift,
+    required AttendanceAccessResult? access,
+    required DateTime? eventTime,
+    required String? deviceId,
+    required String? selfiePath,
+    required String? notes,
+  }) async {
+    final position = access?.location.position;
+    if (!_isOfflineFailure(error) ||
+        position == null ||
+        eventTime == null ||
+        deviceId == null ||
+        deviceId.isEmpty) {
+      return false;
+    }
+
+    await OfflineAttendanceQueueService().queue(
+      eventType: eventType,
+      staff: staff,
+      branch: branch,
+      shift: shift,
+      eventTime: eventTime,
+      latitude: position.latitude,
+      longitude: position.longitude,
+      deviceId: deviceId,
+      isLocationValid: true,
+      isMockGps: false,
+      wifiSsid: access?.wifi.currentWifiSsid ?? _manualWifiSsid,
+      selfiePath: selfiePath,
+      notes: notes,
+    );
+    await _refreshOfflineQueueCount();
+    return true;
+  }
+
+  bool _isOfflineFailure(DioException error) {
+    return error.type == DioExceptionType.connectionError ||
+        error.type == DioExceptionType.connectionTimeout ||
+        error.type == DioExceptionType.receiveTimeout ||
+        error.type == DioExceptionType.sendTimeout ||
+        error.response == null;
+  }
+
+  Future<void> _syncOfflineQueue({required bool showFeedback}) async {
+    final staff = _resolveStaff();
+    final branch = _resolveBranch();
+    final shift = _resolveShift();
+    if (staff == null || branch == null || shift == null || _isSubmitting) {
+      return;
+    }
+
+    final pendingBefore =
+        (await OfflineAttendanceQueueService().pendingItems()).length;
+    if (pendingBefore == 0) {
+      if (mounted && _pendingQueueCount != 0) {
+        setState(() => _pendingQueueCount = 0);
+      }
+      return;
+    }
+
+    final result = await OfflineAttendanceQueueService().syncForStaff(
+      repository: ref.read(attendanceRepositoryProvider),
+      staff: staff,
+      branch: branch,
+      shift: shift,
+    );
+    _bumpRevision();
+    await _refreshOfflineQueueCount();
+
+    if (!mounted || !showFeedback) {
+      return;
+    }
+
+    if (result.synced > 0) {
+      AppUtils.showSnackBar(
+        context,
+        '${result.synced} offline attendance item(s) synced.',
+      );
+    } else if (result.failed > 0) {
+      AppUtils.showSnackBar(
+        context,
+        'Offline attendance sync failed. It will retry later.',
+        isError: true,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final authStaff = ref.watch(currentStaffProvider);
@@ -691,7 +1011,8 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
       );
     }
 
-    final branch = ref.watch(branchByIdProvider(staff.branchId));
+    final assignedBranch = ref.watch(branchByIdProvider(staff.branchId));
+    final branch = _effectiveBranchForStaff(staff, assignedBranch);
     final shift = ref.watch(shiftByIdProvider(staff.shiftId));
     final todayAttendance =
         ref.watch(todayAttendanceForStaffProvider(staff.id));
@@ -722,6 +1043,11 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
         : _effectiveDutyStatus(activeAttendance);
     final canProceed = _accessResult?.canProceed ?? false;
     final canSubmit = !_isSubmitting && canProceed;
+    final isOutsideAssignedRange =
+        _accessResult?.location.permissionGranted == true &&
+            _accessResult?.location.position != null &&
+            _accessResult?.location.isMockGps == false &&
+            _accessResult?.location.isInsideGeofence == false;
 
     if (_accessResult == null && !_isRefreshingAccess) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -759,18 +1085,26 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
         onRefresh: () async {
           await _refreshAccessStatus();
           await _enforceDutyRules(showFeedback: false);
+          await _syncOfflineQueue(showFeedback: true);
         },
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
             _buildClockCard(),
             const SizedBox(height: 16),
+            if (_pendingQueueCount > 0) ...[
+              _buildOfflineQueueCard(),
+              const SizedBox(height: 16),
+            ],
             _buildStaffCard(staff, shift, branch),
+            const SizedBox(height: 16),
+            _buildRangePolicyCard(staff, branch),
             const SizedBox(height: 16),
             if (activeAttendance != null) ...[
               _buildDutyStatusCard(
                 attendance: activeAttendance,
                 dutyStatus: dutyStatus,
+                staff: staff,
               ),
               const SizedBox(height: 16),
             ],
@@ -824,6 +1158,15 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
                 ),
               ),
             ],
+            if (isOutsideAssignedRange) ...[
+              const SizedBox(height: 12),
+              _buildOutsideRangeActions(
+                staff: staff,
+                branch: branch,
+                activeAttendance: activeAttendance,
+                dutyStatus: dutyStatus,
+              ),
+            ],
             const SizedBox(height: 16),
             _buildSelfieCard(),
             const SizedBox(height: 16),
@@ -861,11 +1204,13 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
             ),
             const SizedBox(height: 12),
             Text(
-              activeAttendance == null
-                  ? 'Check-in only works when branch location and office Wi-Fi both match.'
-                  : dutyStatus == AppConstants.dutyStatusPaused
-                      ? 'Duty is paused. Reconnect the correct office Wi-Fi and move inside the branch geofence to resume time.'
-                      : 'Duty timer runs only while branch location and office Wi-Fi stay verified.',
+              isOutsideAssignedRange
+                  ? 'Outside assigned range: Check In/Out is blocked. Only Visit or Break can be recorded.'
+                  : activeAttendance == null
+                      ? 'Check-in only works when branch location and office Wi-Fi both match.'
+                      : dutyStatus == AppConstants.dutyStatusPaused
+                          ? 'Duty is paused. Reconnect the correct office Wi-Fi and move inside the branch geofence to resume time.'
+                          : 'Duty timer runs only while branch location and office Wi-Fi stay verified.',
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 12,
@@ -932,6 +1277,39 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
               color: Colors.white,
               size: 32,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOfflineQueueCard() {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.warning.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.warning.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.cloud_off_outlined, color: AppColors.warning),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              '$_pendingQueueCount attendance item(s) offline queue mein hain.',
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: _isSubmitting
+                ? null
+                : () => _syncOfflineQueue(showFeedback: true),
+            child: const Text('Sync'),
           ),
         ],
       ),
@@ -1032,9 +1410,155 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
     );
   }
 
+  Widget _buildRangePolicyCard(StaffModel staff, BranchModel branch) {
+    final employeeRange = staff.allowedLocationRadiusMeters;
+    final rangeSource =
+        employeeRange == null ? 'Branch default range' : 'Employee fixed range';
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.16)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppColors.primarySurface,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.radar_outlined, color: AppColors.primary),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Assigned Range Rule',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${branch.allowedRadius.toStringAsFixed(0)}m from ${branch.branchName} • $rangeSource',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Daily break limit: ${staff.dailyBreakMinutes} minutes',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOutsideRangeActions({
+    required StaffModel staff,
+    required BranchModel branch,
+    required AttendanceModel? activeAttendance,
+    required String dutyStatus,
+  }) {
+    final distance = _accessResult?.location.distanceMeters?.toStringAsFixed(0);
+    final canStartBreak = activeAttendance != null &&
+        dutyStatus != AppConstants.dutyStatusPaused &&
+        !_isSubmitting;
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.warning.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.warning.withValues(alpha: 0.34)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.location_off_rounded,
+                  color: AppColors.warning, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  distance == null
+                      ? 'Outside assigned range'
+                      : 'Outside assigned range (${distance}m away)',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            'Normal Check In/Out yahan allowed nahi hai. Sirf Visit record ya Break start ho sakta hai.',
+            style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: _isSubmitting
+                      ? null
+                      : () => _markVisit(staff: staff, branch: branch),
+                  icon: const Icon(Icons.route_outlined, size: 18),
+                  label: const Text('Mark Visit'),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: canStartBreak
+                      ? () => _startBreak(activeAttendance, staff)
+                      : null,
+                  icon: Icon(
+                    dutyStatus == AppConstants.dutyStatusPaused
+                        ? Icons.pause_circle_filled_rounded
+                        : Icons.free_breakfast_outlined,
+                    size: 18,
+                  ),
+                  label: Text(
+                    activeAttendance == null
+                        ? 'Break needs Check In'
+                        : dutyStatus == AppConstants.dutyStatusPaused
+                            ? 'Break Running'
+                            : 'Start Break',
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.warning,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildDutyStatusCard({
     required AttendanceModel attendance,
     required String dutyStatus,
+    required StaffModel staff,
   }) {
     final statusLabel = dutyStatus == AppConstants.dutyStatusPaused
         ? AppConstants.attendanceDutyPaused
@@ -1042,6 +1566,7 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
     final statusColor = AppUtils.getStatusColor(statusLabel);
     final workedHours = _workedHours(attendance);
     final pausedHours = _effectivePausedMinutes(attendance, _now) / 60.0;
+    final remainingBreak = _remainingBreakMinutes(staff, attendance);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -1108,6 +1633,7 @@ class _CheckinCheckoutScreenState extends ConsumerState<CheckinCheckoutScreen>
               ),
               _metricItem('Worked', AppUtils.formatDuration(workedHours)),
               _metricItem('Paused', AppUtils.formatDuration(pausedHours)),
+              _metricItem('Break Left', '$remainingBreak min'),
               _metricItem('Late', '${attendance.lateMinutes} min'),
             ],
           ),

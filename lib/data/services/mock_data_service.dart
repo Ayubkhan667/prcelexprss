@@ -1540,10 +1540,10 @@ class MockDataService {
         : 0;
     final pausedMinutes = existing.pausedMinutes + livePausedMinutes;
     final workingHours = (_calculateWorkingHours(
-          existing.checkInTime!,
-          checkOutTime,
-        ) -
-        (pausedMinutes / 60.0))
+              existing.checkInTime!,
+              checkOutTime,
+            ) -
+            (pausedMinutes / 60.0))
         .clamp(0.0, double.infinity);
     final overtimeHours = workingHours > shift.standardHours
         ? workingHours - shift.standardHours
@@ -1608,7 +1608,8 @@ class MockDataService {
     required DateTime pausedAt,
     String? reason,
   }) {
-    final index = _attendance.indexWhere((attendance) => attendance.id == attendanceId);
+    final index =
+        _attendance.indexWhere((attendance) => attendance.id == attendanceId);
     if (index < 0) {
       return null;
     }
@@ -1637,7 +1638,8 @@ class MockDataService {
     required DateTime resumedAt,
     String? reason,
   }) {
-    final index = _attendance.indexWhere((attendance) => attendance.id == attendanceId);
+    final index =
+        _attendance.indexWhere((attendance) => attendance.id == attendanceId);
     if (index < 0) {
       return null;
     }
@@ -2278,12 +2280,26 @@ class MockDataService {
     int mPresent = 0, mAbsent = 0, mLate = 0, mOnLeave = 0, mOvertime = 0;
     for (final att in monthlyAttendance) {
       switch (att.status) {
-        case 'Present': mPresent++; break;
-        case 'Late': mLate++; mPresent++; break;
-        case 'On Leave': mOnLeave++; break;
-        case 'Overtime': mOvertime++; mPresent++; break;
-        case 'Missing Checkout': mPresent++; break;
-        case 'Absent': mAbsent++; break;
+        case 'Present':
+          mPresent++;
+          break;
+        case 'Late':
+          mLate++;
+          mPresent++;
+          break;
+        case 'On Leave':
+          mOnLeave++;
+          break;
+        case 'Overtime':
+          mOvertime++;
+          mPresent++;
+          break;
+        case 'Missing Checkout':
+          mPresent++;
+          break;
+        case 'Absent':
+          mAbsent++;
+          break;
       }
     }
 

@@ -44,18 +44,18 @@ class UserModel {
   }
 
   Map<String, dynamic> toMap() => {
-    'id': id,
-    'name': name,
-    'email': email,
-    'mobile': mobile,
-    'role': role,
-    'scope_branch_id': scopeBranchId,
-    'scope_department': scopeDepartment,
-    'status': status,
-    'device_id': deviceId,
-    'profile_image_url': profileImageUrl,
-    'created_at': createdAt.toIso8601String(),
-  };
+        'id': id,
+        'name': name,
+        'email': email,
+        'mobile': mobile,
+        'role': role,
+        'scope_branch_id': scopeBranchId,
+        'scope_department': scopeDepartment,
+        'status': status,
+        'device_id': deviceId,
+        'profile_image_url': profileImageUrl,
+        'created_at': createdAt.toIso8601String(),
+      };
 
   UserModel copyWith({
     String? name,

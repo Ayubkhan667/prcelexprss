@@ -11,7 +11,13 @@
       "Read(//Users/apple/.gradle/caches/8.9/kotlin-dsl/**)",
       "Bash(export JAVA_HOME)",
       "Bash(./gradlew help *)",
-      "Bash(export JAVA_HOME=\"/Applications/Android Studio.app/Contents/jbr/Contents/Home\")"
+      "Bash(export JAVA_HOME=\"/Applications/Android Studio.app/Contents/jbr/Contents/Home\")",
+      "Bash(rm -rf /Users/apple/.gradle/caches/8.9/kotlin-dsl/accessors/3fae09cfda0f624b48d07b2c4452087f && echo \"Cache cleared\")",
+      "Bash(rm -rf /Users/apple/.gradle/caches/8.9/kotlin-dsl && echo \"Cleared kotlin-dsl cache\")"
+    ],
+    "additionalDirectories": [
+      "/Users/apple/.gradle/caches/8.9/kotlin-dsl/accessors",
+      "/Users/apple/.gradle/caches/8.9"
     ]
   }
 }

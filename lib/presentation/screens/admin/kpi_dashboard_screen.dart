@@ -19,7 +19,6 @@ class KpiDashboardScreen extends ConsumerWidget {
 
     kpiList.sort((a, b) => b.totalKpiScore.compareTo(a.totalKpiScore));
     final best = kpiList.first;
-    final lowest = kpiList.last;
     final avgScore =
         kpiList.fold<double>(0, (s, k) => s + k.totalKpiScore) / kpiList.length;
 
@@ -110,7 +109,7 @@ class KpiDashboardScreen extends ConsumerWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-            colors: [color, color.withOpacity(0.8)],
+            colors: [color, color.withValues(alpha: 0.8)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight),
         borderRadius: BorderRadius.circular(12),
@@ -126,7 +125,7 @@ class KpiDashboardScreen extends ConsumerWidget {
                   color: Colors.white)),
           Text(label,
               style: TextStyle(
-                  fontSize: 10, color: Colors.white.withOpacity(0.85)),
+                  fontSize: 10, color: Colors.white.withValues(alpha: 0.85)),
               textAlign: TextAlign.center),
         ],
       ),
@@ -208,8 +207,8 @@ class KpiDashboardScreen extends ConsumerWidget {
               children: [
                 CircleAvatar(
                   radius: 16,
-                  backgroundColor:
-                      AppUtils.getKpiColor(k.totalKpiScore).withOpacity(0.1),
+                  backgroundColor: AppUtils.getKpiColor(k.totalKpiScore)
+                      .withValues(alpha: 0.1),
                   child: Text(AppUtils.getInitials(k.staffName),
                       style: TextStyle(
                           fontSize: 11,
@@ -317,7 +316,7 @@ class KpiDashboardScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
             decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12)),
             child: Text('$weight pts',
                 style: TextStyle(
@@ -339,7 +338,8 @@ class KpiDashboardScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              color: const Color.fromARGB(255, 139, 84, 84).withOpacity(0.05),
+              color: const Color.fromARGB(255, 139, 84, 84)
+                  .withValues(alpha: 0.05),
               blurRadius: 6)
         ],
       );

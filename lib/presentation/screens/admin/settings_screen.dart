@@ -8,9 +8,11 @@ import '../../../data/providers/auth_provider.dart';
 import '../../../core/utils/app_utils.dart';
 import '../../../data/providers/settings_provider.dart';
 import '../../widgets/common/account_actions.dart';
+import 'admin_audit_log_screen.dart';
+import 'backup_export_screen.dart';
 import 'branch_management_screen.dart';
 import 'shift_management_screen.dart';
-import 'attendance_edit_log_screen.dart';
+import 'supervisor_permissions_screen.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -115,6 +117,18 @@ class SettingsScreen extends ConsumerWidget {
                   subtitle: '${settings.departments.length} departments',
                   onTap: () =>
                       _showDepartmentsSheet(context, settings, notifier),
+                ),
+                _divider(),
+                _navTile(
+                  icon: Icons.admin_panel_settings_outlined,
+                  title: 'Supervisor Permissions',
+                  subtitle: 'Control supervisor module access',
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const SupervisorPermissionsScreen(),
+                    ),
+                  ),
                 ),
               ]),
 
@@ -282,8 +296,7 @@ class SettingsScreen extends ConsumerWidget {
                 value: apiConfig.useRemote,
                 onChanged: remoteModeLocked
                     ? null
-                    : (value) =>
-                        _confirmRemoteModeChange(context, ref, value),
+                    : (value) => _confirmRemoteModeChange(context, ref, value),
               ),
             ]),
 
@@ -325,6 +338,20 @@ class SettingsScreen extends ConsumerWidget {
 
             // ── Reports & Export ──────────────────────────────────────
             _section('Reports & Export', [
+              if (isAdmin) ...[
+                _navTile(
+                  icon: Icons.backup_outlined,
+                  title: 'Backup & Export',
+                  subtitle: 'Staff, attendance, tasks, KPI, leaves',
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const BackupExportScreen(),
+                    ),
+                  ),
+                ),
+                _divider(),
+              ],
               _navTile(
                 icon: Icons.file_download_outlined,
                 title: 'Export Formats',
@@ -337,11 +364,15 @@ class SettingsScreen extends ConsumerWidget {
               _navTile(
                 icon: Icons.history,
                 title: 'Audit Logs',
-                subtitle: 'View attendance edit logs',
+                subtitle: isAdmin
+                    ? 'Staff edits, range changes, tasks, overtime, reads'
+                    : 'View local audit trail',
                 onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const AttendanceEditLogScreen())),
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const AdminAuditLogScreen(),
+                  ),
+                ),
               ),
             ]),
 
@@ -440,13 +471,9 @@ class SettingsScreen extends ConsumerWidget {
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          useRemote ? 'Remote backend mode enabled' : 'Demo mode enabled',
-        ),
-        backgroundColor: AppColors.success,
-      ),
+    AppUtils.showSnackBar(
+      context,
+      useRemote ? 'Remote backend mode enabled' : 'Demo mode enabled',
     );
     context.go('/login');
   }
@@ -754,10 +781,7 @@ class _CompanySheetState extends State<_CompanySheet> {
         ));
     if (mounted) {
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Company settings saved'),
-        backgroundColor: AppColors.success,
-      ));
+      AppUtils.showSnackBar(context, 'Company settings saved');
     }
   }
 
@@ -1078,10 +1102,7 @@ class _ApiUrlSheetState extends State<_ApiUrlSheet> {
     await widget.onSave(_ctrl.text.trim());
     if (mounted) {
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('API URL saved'),
-        backgroundColor: AppColors.success,
-      ));
+      AppUtils.showSnackBar(context, 'API URL saved');
     }
   }
 

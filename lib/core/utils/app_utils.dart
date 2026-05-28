@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../constants/app_constants.dart';
 import '../theme/app_colors.dart';
+import 'tap_effects.dart';
 
 class AppUtils {
   static String formatDate(DateTime date, {String format = 'dd MMM yyyy'}) {
@@ -82,6 +83,8 @@ class AppUtils {
         return AppColors.success;
       case 'terminated':
         return AppColors.error;
+      case 'visit':
+        return AppColors.accent;
       case 'paid':
         return AppColors.success;
       case 'hold':
@@ -137,6 +140,11 @@ class AppUtils {
 
   static void showSnackBar(BuildContext context, String message,
       {bool isError = false}) {
+    if (isError) {
+      SoundService.instance.playReject();
+    } else {
+      SoundService.instance.playConfirm();
+    }
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -163,11 +171,21 @@ class AppUtils {
         content: Text(message),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
+            onPressed: () {
+              SoundService.instance.playClick();
+              Navigator.pop(ctx, false);
+            },
             child: Text(cancelText),
           ),
           ElevatedButton(
-            onPressed: () => Navigator.pop(ctx, true),
+            onPressed: () {
+              if (isDangerous) {
+                SoundService.instance.playReject();
+              } else {
+                SoundService.instance.playConfirm();
+              }
+              Navigator.pop(ctx, true);
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor:
                   isDangerous ? AppColors.error : AppColors.primary,

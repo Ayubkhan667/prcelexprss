@@ -103,7 +103,8 @@ class NotificationService {
     await showNotification(
       id: 1004,
       title: 'Missing Check-Out',
-      body: '$staffName has not checked out yet. Please check out if shift is over.',
+      body:
+          '$staffName has not checked out yet. Please check out if shift is over.',
       channelId: 'smart_hr_alerts',
       channelName: 'HR Alerts',
     );

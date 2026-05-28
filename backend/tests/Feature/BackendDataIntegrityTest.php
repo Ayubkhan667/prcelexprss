@@ -351,7 +351,7 @@ class BackendDataIntegrityTest extends TestCase
             'longitude' => 58.3829,
             'allowed_radius' => 120,
             'status' => 'Active',
-            'address' => $branchName . ', Oman',
+            'address' => $branchName.', Oman',
             'wifi_ssid' => 'Office-WiFi',
         ]);
         $shift = Shift::query()->create([
@@ -383,7 +383,7 @@ class BackendDataIntegrityTest extends TestCase
         return Staff::query()->create([
             'id' => $overrides['id'] ?? (string) str()->uuid(),
             'user_id' => $user->id,
-            'staff_code' => $overrides['staff_code'] ?? 'SHR-' . random_int(100, 999),
+            'staff_code' => $overrides['staff_code'] ?? 'SHR-'.random_int(100, 999),
             'name' => $overrides['name'] ?? 'Staff Member',
             'email' => $overrides['email'] ?? $user->email,
             'mobile' => $overrides['mobile'] ?? '+96890000000',

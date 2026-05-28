@@ -79,10 +79,14 @@ class _AppButtonState extends State<AppButton>
         ? null
         : LinearGradient(
             colors: switch (widget.variant) {
-              AppButtonVariant.accent =>
-                const [Color(0xFFFF6B35), Color(0xFFFF8A65)],
-              AppButtonVariant.danger =>
-                const [Color(0xFFC62828), Color(0xFFE53935)],
+              AppButtonVariant.accent => const [
+                  Color(0xFFFF6B35),
+                  Color(0xFFFF8A65)
+                ],
+              AppButtonVariant.danger => const [
+                  Color(0xFFC62828),
+                  Color(0xFFE53935)
+                ],
               _ => const [Color(0xFF1565C0), Color(0xFF1E88E5)],
             },
             begin: Alignment.centerLeft,

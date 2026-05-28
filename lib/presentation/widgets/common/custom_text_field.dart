@@ -55,7 +55,9 @@ class CustomTextField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: AppColors.textSecondary, size: 20) : null,
+        prefixIcon: prefixIcon != null
+            ? Icon(prefixIcon, color: AppColors.textSecondary, size: 20)
+            : null,
         suffixIcon: suffix,
       ),
     );
@@ -88,7 +90,9 @@ class CustomDropdown<T> extends StatelessWidget {
       validator: validator,
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: AppColors.textSecondary, size: 20) : null,
+        prefixIcon: prefixIcon != null
+            ? Icon(prefixIcon, color: AppColors.textSecondary, size: 20)
+            : null,
       ),
       items: items,
       style: const TextStyle(fontSize: 14, color: AppColors.textPrimary),

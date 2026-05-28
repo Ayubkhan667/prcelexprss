@@ -23,8 +23,10 @@ Future<void> main(List<String> args) async {
     'branches': service.getBranches().map((branch) => branch.toMap()).toList(),
     'shifts': service.getShifts().map((shift) => shift.toMap()).toList(),
     'staff': service.getStaffList().map((staff) => staff.toMap()).toList(),
-    'attendance':
-        service.getAttendance().map((attendance) => attendance.toMap()).toList(),
+    'attendance': service
+        .getAttendance()
+        .map((attendance) => attendance.toMap())
+        .toList(),
     'salaries': service.getSalaries().map((salary) => salary.toMap()).toList(),
     'loans': service.getLoans().map((loan) => loan.toMap()).toList(),
     'leaves': service.getLeaves().map((leave) => leave.toMap()).toList(),

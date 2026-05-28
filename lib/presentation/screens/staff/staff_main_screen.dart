@@ -75,11 +75,26 @@ class _FloatingNavBar extends StatelessWidget {
   });
 
   static const _items = [
-    _NavItem(icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: 'Home'),
-    _NavItem(icon: Icons.fingerprint, activeIcon: Icons.fingerprint, label: 'Attend.'),
-    _NavItem(icon: Icons.history_outlined, activeIcon: Icons.history_rounded, label: 'History'),
-    _NavItem(icon: Icons.notifications_outlined, activeIcon: Icons.notifications_rounded, label: 'Alerts'),
-    _NavItem(icon: Icons.person_outline_rounded, activeIcon: Icons.person_rounded, label: 'Profile'),
+    _NavItem(
+        icon: Icons.home_outlined,
+        activeIcon: Icons.home_rounded,
+        label: 'Home'),
+    _NavItem(
+        icon: Icons.fingerprint,
+        activeIcon: Icons.fingerprint,
+        label: 'Attend.'),
+    _NavItem(
+        icon: Icons.history_outlined,
+        activeIcon: Icons.history_rounded,
+        label: 'History'),
+    _NavItem(
+        icon: Icons.notifications_outlined,
+        activeIcon: Icons.notifications_rounded,
+        label: 'Alerts'),
+    _NavItem(
+        icon: Icons.person_outline_rounded,
+        activeIcon: Icons.person_rounded,
+        label: 'Profile'),
   ];
 
   @override
@@ -166,9 +181,8 @@ class _FloatingNavBar extends StatelessWidget {
                           item.label,
                           style: TextStyle(
                             fontSize: 10,
-                            fontWeight: isActive
-                                ? FontWeight.w700
-                                : FontWeight.w400,
+                            fontWeight:
+                                isActive ? FontWeight.w700 : FontWeight.w400,
                             color: isActive
                                 ? Colors.white
                                 : AppColors.textSecondary,

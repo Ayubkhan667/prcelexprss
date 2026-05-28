@@ -292,7 +292,9 @@ class _LeaveApprovalScreenState extends ConsumerState<LeaveApprovalScreen>
                 }
                 final approver = ref.read(currentUserProvider)?.name ?? 'Admin';
                 try {
-                  await ref.read(leaveNotifierProvider(null).notifier).updateStatus(
+                  await ref
+                      .read(leaveNotifierProvider(null).notifier)
+                      .updateStatus(
                         leaveId: leave.id,
                         status: AppConstants.leaveStatusRejected,
                         approvedBy: approver,

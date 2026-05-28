@@ -231,8 +231,8 @@ class _SupervisorLeaveApprovalScreenState
         Icon(icon, size: 14, color: AppColors.textSecondary),
         const SizedBox(width: 6),
         Text('$label: ',
-            style: const TextStyle(
-                color: AppColors.textSecondary, fontSize: 12)),
+            style:
+                const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
         Expanded(
           child: Text(value,
               style: const TextStyle(
@@ -306,9 +306,12 @@ class _SupervisorLeaveApprovalScreenState
                 );
                 return;
               }
-              final approver = ref.read(currentUserProvider)?.name ?? 'Supervisor';
+              final approver =
+                  ref.read(currentUserProvider)?.name ?? 'Supervisor';
               try {
-                await ref.read(leaveNotifierProvider(null).notifier).updateStatus(
+                await ref
+                    .read(leaveNotifierProvider(null).notifier)
+                    .updateStatus(
                       leaveId: leave.id,
                       status: AppConstants.leaveStatusRejected,
                       approvedBy: approver,

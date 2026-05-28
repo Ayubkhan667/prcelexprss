@@ -8,6 +8,7 @@ use App\Models\Branch;
 use App\Models\Shift;
 use App\Models\Staff;
 use App\Models\User;
+use App\Support\AuditLogger;
 use App\Support\SmartHrPayloads;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -155,6 +156,21 @@ class StaffController extends Controller
             $staff->user_id = $user->id;
             $staff->save();
 
+            AuditLogger::record($request, [
+                'action' => 'staff_create',
+                'title' => 'Staff created',
+                'description' => $staff->name.' staff profile was created.',
+                'target_type' => 'staff',
+                'target_id' => $staff->id,
+                'target_name' => $staff->name,
+                'metadata' => [
+                    'staff_code' => $staff->staff_code,
+                    'branch_id' => $staff->branch_id,
+                    'allowed_location_radius_meters' => $staff->allowed_location_radius_meters,
+                    'daily_break_minutes' => $staff->daily_break_minutes,
+                ],
+            ]);
+
             $response = SmartHrPayloads::staff($staff);
             if ($generatedPassword !== null) {
                 $response['temporary_password'] = $generatedPassword;
@@ -168,6 +184,8 @@ class StaffController extends Controller
     {
         return DB::transaction(function () use ($request, $id) {
             $staff = Staff::query()->findOrFail($id);
+            $previousRange = $staff->allowed_location_radius_meters;
+            $previousBreak = $staff->daily_break_minutes;
             $this->validateStaffRequest($request, $staff);
             [$staffPayload, $userPayload] = $this->prepareStaffAndUserPayloads($request, $staff);
 
@@ -194,7 +212,25 @@ class StaffController extends Controller
                 }
             }
 
-            return response()->json(SmartHrPayloads::staff($staff->fresh()));
+            $freshStaff = $staff->fresh();
+            AuditLogger::record($request, [
+                'action' => 'staff_edit',
+                'title' => 'Staff updated',
+                'description' => $freshStaff->name.' staff profile was updated.',
+                'target_type' => 'staff',
+                'target_id' => $freshStaff->id,
+                'target_name' => $freshStaff->name,
+                'metadata' => [
+                    'previous_range_meters' => $previousRange,
+                    'new_range_meters' => $freshStaff->allowed_location_radius_meters,
+                    'previous_break_minutes' => $previousBreak,
+                    'new_break_minutes' => $freshStaff->daily_break_minutes,
+                    'branch_id' => $freshStaff->branch_id,
+                    'status' => $freshStaff->status,
+                ],
+            ]);
+
+            return response()->json(SmartHrPayloads::staff($freshStaff));
         });
     }
 
@@ -300,6 +336,8 @@ class StaffController extends Controller
             'staff.branch_name' => ['nullable', 'string', 'max:255'],
             'staff.shift_id' => ['required', 'string', 'exists:shifts,id'],
             'staff.shift_name' => ['nullable', 'string', 'max:255'],
+            'staff.allowed_location_radius_meters' => ['nullable', 'numeric', 'min:1', 'max:100000'],
+            'staff.daily_break_minutes' => ['nullable', 'integer', 'min:0', 'max:1440'],
             'staff.joining_date' => ['required', 'date'],
             'staff.basic_salary' => ['nullable', 'numeric', 'min:0'],
             'staff.overtime_rate' => ['nullable', 'numeric', 'min:0'],

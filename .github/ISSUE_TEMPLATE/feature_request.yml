@@ -1,0 +1,47 @@
+name: Feature Request
+description: Suggest a product or technical improvement.
+title: "[Feature]: "
+labels: ["feature"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What user or business problem should this solve?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed Solution
+      description: Describe the behavior, screens, API changes, or reports needed.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: role
+    attributes:
+      label: Primary User Role
+      options:
+        - Admin
+        - Supervisor
+        - Staff
+        - Developer/Ops
+        - All roles
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      placeholder: |
+        - Given ...
+        - When ...
+        - Then ...
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional Context

@@ -48,7 +48,7 @@ class StaffDetailScreen extends ConsumerWidget {
                     const SizedBox(height: 40),
                     CircleAvatar(
                       radius: 40,
-                      backgroundColor: Colors.white.withOpacity(0.2),
+                      backgroundColor: Colors.white.withValues(alpha: 0.2),
                       child: Text(AppUtils.getInitials(staff.name),
                           style: const TextStyle(
                               fontSize: 26,
@@ -64,7 +64,7 @@ class StaffDetailScreen extends ConsumerWidget {
                     Text('${staff.staffCode} • ${staff.jobTitle}',
                         style: TextStyle(
                             fontSize: 12,
-                            color: Colors.white.withOpacity(0.8))),
+                            color: Colors.white.withValues(alpha: 0.8))),
                     const SizedBox(height: 6),
                     StatusBadge(status: staff.status),
                   ],
@@ -123,6 +123,13 @@ class StaffDetailScreen extends ConsumerWidget {
                             staff.department),
                         _infoRow(Icons.location_city_outlined, 'Branch',
                             staff.branchName),
+                        _infoRow(
+                          Icons.radar_outlined,
+                          'Assigned Range',
+                          staff.allowedLocationRadiusMeters == null
+                              ? 'Branch default'
+                              : '${staff.allowedLocationRadiusMeters!.toStringAsFixed(0)}m',
+                        ),
                       ],
                     ),
                   ),
@@ -150,6 +157,8 @@ class StaffDetailScreen extends ConsumerWidget {
                             'PKR ${staff.overtimeRate.toStringAsFixed(0)}/hr'),
                         _infoRow(Icons.weekend_outlined, 'Weekly Off',
                             staff.weeklyOffDay),
+                        _infoRow(Icons.free_breakfast_outlined, 'Daily Break',
+                            '${staff.dailyBreakMinutes} minutes'),
                       ],
                     ),
                   ),
@@ -224,7 +233,7 @@ class StaffDetailScreen extends ConsumerWidget {
                                   height: 36,
                                   decoration: BoxDecoration(
                                     color: AppUtils.getStatusColor(a.status)
-                                        .withOpacity(0.1),
+                                        .withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Icon(_statusIcon(a.status),
@@ -271,7 +280,7 @@ class StaffDetailScreen extends ConsumerWidget {
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 6)
+          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 6)
         ],
       );
 

@@ -18,7 +18,6 @@ class _AttendanceReportScreenState extends ConsumerState<AttendanceReportScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   DateTime _selectedDate = DateTime.now();
-  final String _selectedBranch = '';
 
   @override
   void initState() {
@@ -169,7 +168,8 @@ class _AttendanceReportScreenState extends ConsumerState<AttendanceReportScreen>
             color: AppColors.cardBg,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
-              BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 6)
+              BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05), blurRadius: 6)
             ],
           ),
           padding: const EdgeInsets.all(14),
@@ -228,7 +228,7 @@ class _AttendanceReportScreenState extends ConsumerState<AttendanceReportScreen>
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 4)
+          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 4)
         ],
       ),
       child: ListTile(
@@ -340,9 +340,9 @@ class _AttendanceReportScreenState extends ConsumerState<AttendanceReportScreen>
   }
 
   void _exportReport() {
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text('Exporting report... (Feature available in full version)'),
-      behavior: SnackBarBehavior.floating,
-    ));
+    AppUtils.showSnackBar(
+      context,
+      'Exporting report... (Feature available in full version)',
+    );
   }
 }

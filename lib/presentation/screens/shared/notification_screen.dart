@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -6,6 +8,7 @@ import '../../../core/utils/app_utils.dart';
 import '../../../data/providers/app_providers.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../../data/models/notification_model.dart';
+import '../../../data/services/audit_log_service.dart';
 
 class NotificationScreen extends ConsumerStatefulWidget {
   const NotificationScreen({super.key});
@@ -68,12 +71,32 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                 ? null
                 : () async {
                     try {
-                      await ref.read(hrOperationsRepositoryProvider).markNotificationsAsRead(
+                      await ref
+                          .read(hrOperationsRepositoryProvider)
+                          .markNotificationsAsRead(
                             targetRole: role,
                             staffId: staffId,
                             type: _typeFilter.isEmpty ? null : _typeFilter,
                           );
                       ref.read(mockDataRevisionProvider.notifier).state++;
+                      unawaited(
+                        AuditLogService.record(
+                          action: 'notification_read_all',
+                          title: 'Notifications marked read',
+                          description:
+                              'Marked notifications as read for $role${_typeFilter.isEmpty ? '' : ' / $_typeFilter'}.',
+                          targetType: 'notification',
+                          targetName: _typeFilter.isEmpty ? 'all' : _typeFilter,
+                          actor: user,
+                        ),
+                      );
+                      if (!context.mounted) {
+                        return;
+                      }
+                      AppUtils.showSnackBar(
+                        context,
+                        'Notifications marked as read',
+                      );
                     } catch (_) {
                       if (!context.mounted) {
                         return;
@@ -164,8 +187,21 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
         }
 
         try {
-          await ref.read(hrOperationsRepositoryProvider).markNotificationAsRead(n.id);
+          await ref
+              .read(hrOperationsRepositoryProvider)
+              .markNotificationAsRead(n.id);
           ref.read(mockDataRevisionProvider.notifier).state++;
+          unawaited(
+            AuditLogService.record(
+              action: 'notification_read',
+              title: 'Notification read',
+              description: n.title,
+              targetType: 'notification',
+              targetId: n.id,
+              targetName: n.type,
+              actor: ref.read(currentUserProvider),
+            ),
+          );
         } catch (_) {
           if (!mounted) {
             return;

@@ -30,12 +30,12 @@ class ShiftModel {
   }
 
   Map<String, dynamic> toMap() => {
-    'id': id,
-    'shift_name': shiftName,
-    'start_time': startTime,
-    'end_time': endTime,
-    'standard_hours': standardHours,
-    'grace_minutes': graceMinutes,
-    'status': status,
-  };
+        'id': id,
+        'shift_name': shiftName,
+        'start_time': startTime,
+        'end_time': endTime,
+        'standard_hours': standardHours,
+        'grace_minutes': graceMinutes,
+        'status': status,
+      };
 }

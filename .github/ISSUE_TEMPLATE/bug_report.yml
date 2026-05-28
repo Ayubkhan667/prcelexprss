@@ -1,0 +1,59 @@
+name: Bug Report
+description: Report a reproducible problem.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps To Reproduce
+      description: List exact steps, screen names, and test user role.
+      placeholder: |
+        1. Sign in as ...
+        2. Open ...
+        3. Tap ...
+        4. See ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Flutter app
+        - Laravel backend
+        - Android build/APK
+        - iOS build
+        - Attendance/location/Wi-Fi
+        - Admin/Supervisor
+        - Documentation/CI
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: App Version / Commit
+      placeholder: "1.0.0+1 or commit SHA"
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs Or Screenshots
+      description: Remove tokens, passwords, employee personal data, and private URLs before uploading.

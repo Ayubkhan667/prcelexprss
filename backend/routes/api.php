@@ -98,6 +98,8 @@ Route::middleware(['auth:sanctum', 'active-user-session', 'track-token-metadata'
     });
 
     Route::middleware('role:admin')->group(function () {
+        Route::get('/audit-logs', [HrModuleController::class, 'auditLogs']);
+
         Route::post('/branches', [BranchController::class, 'store']);
         Route::put('/branches/{id}', [BranchController::class, 'update']);
 

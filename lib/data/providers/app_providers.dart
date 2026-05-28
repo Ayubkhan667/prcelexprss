@@ -307,7 +307,9 @@ final shiftByIdProvider = Provider.family<ShiftModel?, String>((ref, id) {
 final salaryListAsyncProvider =
     FutureProvider.family<List<SalaryModel>, String?>((ref, staffId) async {
   ref.watch(mockDataRevisionProvider);
-  return ref.watch(hrOperationsRepositoryProvider).getSalaries(staffId: staffId);
+  return ref
+      .watch(hrOperationsRepositoryProvider)
+      .getSalaries(staffId: staffId);
 });
 
 final salaryListProvider = Provider.family<List<SalaryModel>, String?>(
@@ -390,12 +392,11 @@ class LeaveNotifier extends StateNotifier<List<LeaveModel>> {
 
 final leaveNotifierProvider =
     StateNotifierProvider.family<LeaveNotifier, List<LeaveModel>, String?>(
-  (ref, staffId) =>
-      LeaveNotifier(
-        ref,
-        ref.watch(hrOperationsRepositoryProvider),
-        staffId,
-      ),
+  (ref, staffId) => LeaveNotifier(
+    ref,
+    ref.watch(hrOperationsRepositoryProvider),
+    staffId,
+  ),
 );
 
 final leaveListAsyncProvider =
@@ -495,7 +496,8 @@ final dashboardStatsProvider = Provider<Map<String, dynamic>>((ref) {
       };
 });
 
-final notificationsAsyncProvider = FutureProvider<List<NotificationModel>>((ref) async {
+final notificationsAsyncProvider =
+    FutureProvider<List<NotificationModel>>((ref) async {
   ref.watch(mockDataRevisionProvider);
   final user = ref.watch(currentUserProvider);
   if (user == null) {
@@ -508,9 +510,9 @@ final notificationsAsyncProvider = FutureProvider<List<NotificationModel>>((ref)
       : null;
 
   return ref.watch(hrOperationsRepositoryProvider).getNotifications(
-    targetRole: user.role,
-    staffId: staffId,
-  );
+        targetRole: user.role,
+        staffId: staffId,
+      );
 });
 
 final notificationsProvider = Provider<List<NotificationModel>>((ref) {
@@ -556,12 +558,11 @@ class ExpenseNotifier extends StateNotifier<List<ExpenseModel>> {
 
 final expenseNotifierProvider =
     StateNotifierProvider.family<ExpenseNotifier, List<ExpenseModel>, String?>(
-  (ref, staffId) =>
-      ExpenseNotifier(
-        ref,
-        ref.watch(hrOperationsRepositoryProvider),
-        staffId,
-      ),
+  (ref, staffId) => ExpenseNotifier(
+    ref,
+    ref.watch(hrOperationsRepositoryProvider),
+    staffId,
+  ),
 );
 
 final expenseListProvider =
@@ -569,7 +570,8 @@ final expenseListProvider =
   return ref.watch(expenseNotifierProvider(staffId));
 });
 
-final allExpensesAsyncProvider = FutureProvider<List<ExpenseModel>>((ref) async {
+final allExpensesAsyncProvider =
+    FutureProvider<List<ExpenseModel>>((ref) async {
   ref.watch(mockDataRevisionProvider);
   return ref.watch(hrOperationsRepositoryProvider).getExpenses();
 });

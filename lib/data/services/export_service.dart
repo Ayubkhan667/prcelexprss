@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:excel/excel.dart';
 import 'package:pdf/pdf.dart';
@@ -9,6 +10,8 @@ import '../models/salary_model.dart';
 import '../models/loan_model.dart';
 import '../models/kpi_model.dart';
 import '../models/staff_model.dart';
+import '../models/task_model.dart';
+import '../models/leave_model.dart';
 
 class ExportService {
   static Future<String> _getTempPath(String filename) async {
@@ -285,6 +288,137 @@ class ExportService {
       await File(path).writeAsBytes(bytes);
       await OpenFilex.open(path);
     }
+  }
+
+  // ─── TASKS EXCEL ────────────────────────────────────────────────────────────
+
+  static Future<void> exportTasksToExcel(List<TaskModel> records) async {
+    final excel = Excel.createExcel();
+    final sheet = excel['Tasks'];
+
+    final headers = [
+      'Task ID',
+      'Group ID',
+      'Title',
+      'Staff Code',
+      'Staff Name',
+      'Assigned By',
+      'Assigned Role',
+      'Assigned To All',
+      'Daily Task',
+      'Due Date',
+      'Status',
+      'Created At',
+      'Completed At',
+      'Terminated At',
+    ];
+    _writeExcelHeader(sheet, headers);
+
+    for (int i = 0; i < records.length; i++) {
+      final task = records[i];
+      _writeExcelRow(sheet, i + 1, [
+        task.id,
+        task.groupId,
+        task.title,
+        task.staffCode,
+        task.staffName,
+        task.assignedBy,
+        task.assignedByRole,
+        task.assignedToAll ? 'Yes' : 'No',
+        task.isDailyTask ? 'Yes' : 'No',
+        _formatDate(task.dueDate),
+        task.status,
+        _formatDate(task.createdAt),
+        task.completedAt != null ? _formatDate(task.completedAt!) : '-',
+        task.terminatedAt != null ? _formatDate(task.terminatedAt!) : '-',
+      ]);
+    }
+
+    _autoFitColumns(sheet, headers.length);
+    final path = await _getTempPath('task_cards_report.xlsx');
+    final bytes = excel.save();
+    if (bytes != null) {
+      await File(path).writeAsBytes(bytes);
+      await OpenFilex.open(path);
+    }
+  }
+
+  // ─── LEAVES EXCEL ───────────────────────────────────────────────────────────
+
+  static Future<void> exportLeavesToExcel(List<LeaveModel> records) async {
+    final excel = Excel.createExcel();
+    final sheet = excel['Leaves'];
+
+    final headers = [
+      'Staff Code',
+      'Staff Name',
+      'Leave Type',
+      'From',
+      'To',
+      'Days',
+      'Reason',
+      'Status',
+      'Approved By',
+      'Rejection Reason',
+      'Created At',
+    ];
+    _writeExcelHeader(sheet, headers);
+
+    for (int i = 0; i < records.length; i++) {
+      final leave = records[i];
+      _writeExcelRow(sheet, i + 1, [
+        leave.staffCode,
+        leave.staffName,
+        leave.leaveType,
+        _formatDate(leave.fromDate),
+        _formatDate(leave.toDate),
+        leave.totalDays.toString(),
+        leave.reason,
+        leave.status,
+        leave.approvedBy ?? '-',
+        leave.rejectionReason ?? '-',
+        _formatDate(leave.createdAt),
+      ]);
+    }
+
+    _autoFitColumns(sheet, headers.length);
+    final path = await _getTempPath('leave_report.xlsx');
+    final bytes = excel.save();
+    if (bytes != null) {
+      await File(path).writeAsBytes(bytes);
+      await OpenFilex.open(path);
+    }
+  }
+
+  // ─── DATABASE BACKUP JSON ───────────────────────────────────────────────────
+
+  static Future<void> exportDatabaseBackupToJson({
+    required List<StaffModel> staff,
+    required List<AttendanceModel> attendance,
+    required List<TaskModel> tasks,
+    required List<KpiModel> kpis,
+    required List<LeaveModel> leaves,
+  }) async {
+    final createdAt = DateTime.now();
+    final payload = {
+      'meta': {
+        'app': 'Parcel Express HR',
+        'created_at': createdAt.toIso8601String(),
+        'format': 'smart_hr_backup_v1',
+      },
+      'staff': staff.map((item) => item.toMap()).toList(),
+      'attendance': attendance.map((item) => item.toMap()).toList(),
+      'tasks': tasks.map((item) => item.toMap()).toList(),
+      'kpis': kpis.map((item) => item.toMap()).toList(),
+      'leaves': leaves.map((item) => item.toMap()).toList(),
+    };
+
+    final filename =
+        'smart_hr_backup_${createdAt.year}${createdAt.month.toString().padLeft(2, '0')}${createdAt.day.toString().padLeft(2, '0')}.json';
+    final path = await _getTempPath(filename);
+    const encoder = JsonEncoder.withIndent('  ');
+    await File(path).writeAsString(encoder.convert(payload));
+    await OpenFilex.open(path);
   }
 
   // ─── ATTENDANCE PDF ──────────────────────────────────────────────────────────

@@ -101,10 +101,7 @@ class _StaffProfileScreenState extends ConsumerState<StaffProfileScreen> {
     String message, {
     bool isError = false,
   }) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-      backgroundColor: isError ? AppColors.error : AppColors.success,
-    ));
+    AppUtils.showSnackBar(context, message, isError: isError);
   }
 
   @override
@@ -343,6 +340,21 @@ class _StaffProfileScreenState extends ConsumerState<StaffProfileScreen> {
                             : '-'),
                     _infoRow(Icons.location_city_outlined, 'Work Location',
                         staff?.branchName ?? '-'),
+                    _infoRow(
+                        Icons.radar_outlined,
+                        'Assigned Range',
+                        staff == null
+                            ? '-'
+                            : _rangeLabel(
+                                staff.allowedLocationRadiusMeters,
+                                branch?.allowedRadius,
+                              )),
+                    _infoRow(
+                        Icons.free_breakfast_outlined,
+                        'Daily Break',
+                        staff == null
+                            ? '-'
+                            : '${staff.dailyBreakMinutes} minutes'),
                     _infoRow(Icons.apartment_outlined, 'Office Address',
                         branch?.address ?? '-'),
                     _infoRow(Icons.calendar_view_week_outlined, 'Work Week',
@@ -695,6 +707,13 @@ class _StaffProfileScreenState extends ConsumerState<StaffProfileScreen> {
       default:
         return weeklyOffDay ?? '-';
     }
+  }
+
+  String _rangeLabel(double? staffRange, double? branchRange) {
+    final range = staffRange ?? branchRange;
+    if (range == null || range <= 0) return '-';
+    final source = staffRange == null ? 'branch default' : 'employee fixed';
+    return '${range.toStringAsFixed(0)}m ($source)';
   }
 
   String _reportTo(List<StaffModel> staffList, StaffModel? staff) {

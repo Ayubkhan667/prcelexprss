@@ -13,10 +13,15 @@ class LoanScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final staff = ref.watch(currentStaffProvider);
-    final loans = staff != null ? ref.watch(loanListProvider(staff.id)) : <LoanModel>[];
+    final loans =
+        staff != null ? ref.watch(loanListProvider(staff.id)) : <LoanModel>[];
 
-    final totalBalance = loans.where((l) => l.status == 'Active').fold<double>(0, (s, l) => s + l.balanceAmount);
-    final totalMonthly = loans.where((l) => l.status == 'Active').fold<double>(0, (s, l) => s + l.monthlyDeduction);
+    final totalBalance = loans
+        .where((l) => l.status == 'Active')
+        .fold<double>(0, (s, l) => s + l.balanceAmount);
+    final totalMonthly = loans
+        .where((l) => l.status == 'Active')
+        .fold<double>(0, (s, l) => s + l.monthlyDeduction);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -34,16 +39,33 @@ class LoanScreen extends ConsumerWidget {
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: AppColors.error.withValues(alpha: 0.25), blurRadius: 10, offset: const Offset(0, 4))],
+                boxShadow: [
+                  BoxShadow(
+                      color: AppColors.error.withValues(alpha: 0.25),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4))
+                ],
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _summaryItem('Total Balance', 'OMR ${totalBalance.toStringAsFixed(0)}', Icons.account_balance),
+                  _summaryItem(
+                      'Total Balance',
+                      'OMR ${totalBalance.toStringAsFixed(0)}',
+                      Icons.account_balance),
                   Container(width: 1, height: 40, color: Colors.white24),
-                  _summaryItem('Monthly Ded.', 'OMR ${totalMonthly.toStringAsFixed(0)}', Icons.calendar_month),
+                  _summaryItem(
+                      'Monthly Ded.',
+                      'OMR ${totalMonthly.toStringAsFixed(0)}',
+                      Icons.calendar_month),
                   Container(width: 1, height: 40, color: Colors.white24),
-                  _summaryItem('Active Loans', loans.where((l) => l.status == 'Active').length.toString(), Icons.pending_actions),
+                  _summaryItem(
+                      'Active Loans',
+                      loans
+                          .where((l) => l.status == 'Active')
+                          .length
+                          .toString(),
+                      Icons.pending_actions),
                 ],
               ),
             ),
@@ -53,9 +75,12 @@ class LoanScreen extends ConsumerWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.account_balance_wallet_outlined, size: 64, color: AppColors.textHint),
+                        Icon(Icons.account_balance_wallet_outlined,
+                            size: 64, color: AppColors.textHint),
                         SizedBox(height: 16),
-                        Text('No active loans', style: TextStyle(fontSize: 16, color: AppColors.textSecondary)),
+                        Text('No active loans',
+                            style: TextStyle(
+                                fontSize: 16, color: AppColors.textSecondary)),
                       ],
                     ),
                   )
@@ -75,8 +100,14 @@ class LoanScreen extends ConsumerWidget {
       children: [
         Icon(icon, color: Colors.white70, size: 20),
         const SizedBox(height: 4),
-        Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white)),
-        Text(label, style: TextStyle(fontSize: 10, color: Colors.white.withValues(alpha: 0.7))),
+        Text(value,
+            style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: Colors.white)),
+        Text(label,
+            style: TextStyle(
+                fontSize: 10, color: Colors.white.withValues(alpha: 0.7))),
       ],
     );
   }
@@ -88,7 +119,9 @@ class LoanScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(14),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 8)],
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 8)
+        ],
       ),
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -98,16 +131,23 @@ class LoanScreen extends ConsumerWidget {
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: AppColors.errorLight, borderRadius: BorderRadius.circular(8)),
-                child: const Icon(Icons.account_balance, color: AppColors.error, size: 20),
+                decoration: BoxDecoration(
+                    color: AppColors.errorLight,
+                    borderRadius: BorderRadius.circular(8)),
+                child: const Icon(Icons.account_balance,
+                    color: AppColors.error, size: 20),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(loan.purpose ?? 'Loan', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
-                    Text('Since ${AppUtils.formatDate(loan.loanDate)}', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                    Text(loan.purpose ?? 'Loan',
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w700, fontSize: 14)),
+                    Text('Since ${AppUtils.formatDate(loan.loanDate)}',
+                        style: const TextStyle(
+                            fontSize: 11, color: AppColors.textSecondary)),
                   ],
                 ),
               ),
@@ -118,18 +158,36 @@ class LoanScreen extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _loanStat('Loan Amount', 'OMR ${loan.loanAmount.toStringAsFixed(0)}', AppColors.textPrimary),
-              _loanStat('Paid', 'OMR ${loan.paidAmount.toStringAsFixed(0)}', AppColors.success),
-              _loanStat('Balance', 'OMR ${loan.balanceAmount.toStringAsFixed(0)}', AppColors.error),
-              _loanStat('Monthly', 'OMR ${loan.monthlyDeduction.toStringAsFixed(0)}', AppColors.primary),
+              _loanStat(
+                  'Loan Amount',
+                  'OMR ${loan.loanAmount.toStringAsFixed(0)}',
+                  AppColors.textPrimary),
+              _loanStat('Paid', 'OMR ${loan.paidAmount.toStringAsFixed(0)}',
+                  AppColors.success),
+              _loanStat(
+                  'Balance',
+                  'OMR ${loan.balanceAmount.toStringAsFixed(0)}',
+                  AppColors.error),
+              _loanStat(
+                  'Monthly',
+                  'OMR ${loan.monthlyDeduction.toStringAsFixed(0)}',
+                  AppColors.primary),
             ],
           ),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Repaid: $pct%', style: const TextStyle(fontSize: 12, color: AppColors.success, fontWeight: FontWeight.w600)),
-              Text('Remaining: ${100 - int.parse(pct)}%', style: const TextStyle(fontSize: 12, color: AppColors.error, fontWeight: FontWeight.w600)),
+              Text('Repaid: $pct%',
+                  style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.success,
+                      fontWeight: FontWeight.w600)),
+              Text('Remaining: ${100 - int.parse(pct)}%',
+                  style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.error,
+                      fontWeight: FontWeight.w600)),
             ],
           ),
           const SizedBox(height: 6),
@@ -139,7 +197,8 @@ class LoanScreen extends ConsumerWidget {
               value: loan.repaymentProgress,
               minHeight: 8,
               backgroundColor: AppColors.errorLight,
-              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.success),
+              valueColor:
+                  const AlwaysStoppedAnimation<Color>(AppColors.success),
             ),
           ),
         ],
@@ -150,8 +209,12 @@ class LoanScreen extends ConsumerWidget {
   Widget _loanStat(String label, String value, Color color) {
     return Column(
       children: [
-        Text(value, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: color)),
-        Text(label, style: const TextStyle(fontSize: 10, color: AppColors.textSecondary)),
+        Text(value,
+            style: TextStyle(
+                fontSize: 12, fontWeight: FontWeight.w700, color: color)),
+        Text(label,
+            style:
+                const TextStyle(fontSize: 10, color: AppColors.textSecondary)),
       ],
     );
   }
