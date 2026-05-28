@@ -15,7 +15,7 @@ class AppTheme {
         surface: AppColors.surface,
         error: AppColors.error,
       ),
-      scaffoldBackgroundColor: AppColors.background,
+      scaffoldBackgroundColor: const Color(0xFFF0F4FF),
       fontFamily: 'Poppins',
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.primary,
@@ -31,10 +31,10 @@ class AppTheme {
       ),
       cardTheme: CardThemeData(
         color: AppColors.cardBg,
-        elevation: 2,
-        shadowColor: Colors.black12,
+        elevation: 0,
+        shadowColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
         ),
         margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 4),
       ),

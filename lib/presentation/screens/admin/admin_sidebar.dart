@@ -421,15 +421,16 @@ class AdminSidebar extends ConsumerWidget {
                         ? context.tr('api_url_required')
                         : apiConfig.apiUrl,
                     onTap: () {
+                      final notifier = ref.read(apiConfigProvider.notifier);
+                      final currentUrl = apiConfig.apiUrl;
                       Navigator.pop(context);
                       showModalBottomSheet(
                         context: context,
                         isScrollControlled: true,
                         backgroundColor: Colors.transparent,
                         builder: (_) => _ApiUrlSheet(
-                          currentUrl: apiConfig.apiUrl,
-                          onSave: (url) =>
-                              ref.read(apiConfigProvider.notifier).setApiUrl(url),
+                          currentUrl: currentUrl,
+                          onSave: (url) => notifier.setApiUrl(url),
                         ),
                       );
                     },
@@ -817,6 +818,7 @@ class AdminSidebar extends ConsumerWidget {
   }
 
   void _confirmLogoutAll(BuildContext context, WidgetRef ref) {
+    final authNotifier = ref.read(authControllerProvider.notifier);
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -830,7 +832,7 @@ class AdminSidebar extends ConsumerWidget {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              ref.read(authControllerProvider.notifier).logoutAll();
+              authNotifier.logoutAll();
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: Text(context.tr('logout_all_btn')),

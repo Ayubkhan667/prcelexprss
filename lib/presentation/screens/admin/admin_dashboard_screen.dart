@@ -31,48 +31,132 @@ class AdminDashboardScreen extends ConsumerWidget {
         slivers: [
           // AppBar
           SliverAppBar(
-            expandedHeight: 130,
+            expandedHeight: 160,
             floating: false,
             pinned: true,
-            backgroundColor: AppColors.primary,
+            backgroundColor: AppColors.primaryDark,
+            elevation: 0,
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
-                decoration:
-                    const BoxDecoration(gradient: AppColors.primaryGradient),
-                padding: const EdgeInsets.fromLTRB(20, 50, 20, 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.end,
+                decoration: const BoxDecoration(
+                  gradient: AppColors.dashboardGradient,
+                ),
+                child: Stack(
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                '${_greeting(context)}, ${user?.name.split(' ').first ?? 'Admin'}!',
-                                style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white)),
-                            Text(AppUtils.formatDate(date),
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color:
-                                        Colors.white.withValues(alpha: 0.8))),
-                          ],
+                    // Decorative circles
+                    Positioned(
+                      right: -30,
+                      top: -30,
+                      child: Container(
+                        width: 160,
+                        height: 160,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withValues(alpha: 0.06),
                         ),
-                        CircleAvatar(
-                          radius: 22,
-                          backgroundColor: Colors.white.withValues(alpha: 0.2),
-                          child: Text(AppUtils.getInitials(user?.name ?? 'A'),
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 16)),
+                      ),
+                    ),
+                    Positioned(
+                      right: 40,
+                      bottom: -20,
+                      child: Container(
+                        width: 90,
+                        height: 90,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.primaryLight.withValues(alpha: 0.15),
                         ),
-                      ],
+                      ),
+                    ),
+                    Positioned(
+                      left: -20,
+                      bottom: 10,
+                      child: Container(
+                        width: 70,
+                        height: 70,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withValues(alpha: 0.05),
+                        ),
+                      ),
+                    ),
+                    // Content
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 56, 20, 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '${_greeting(context)} 👋',
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.white.withValues(alpha: 0.8),
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    user?.name.split(' ').first ?? 'Admin',
+                                    style: const TextStyle(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.white,
+                                        letterSpacing: -0.3),
+                                  ),
+                                  const SizedBox(height: 3),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.18),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      AppUtils.formatDate(date),
+                                      style: TextStyle(
+                                          fontSize: 11,
+                                          color: Colors.white.withValues(alpha: 0.95),
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                      color: Colors.white.withValues(alpha: 0.4),
+                                      width: 2.5),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppColors.primaryDark.withValues(alpha: 0.4),
+                                      blurRadius: 12,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: CircleAvatar(
+                                  radius: 24,
+                                  backgroundColor: Colors.white.withValues(alpha: 0.22),
+                                  child: Text(
+                                    AppUtils.getInitials(user?.name ?? 'A'),
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 17),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -360,21 +444,41 @@ class AdminDashboardScreen extends ConsumerWidget {
     return Expanded(
       child: TapEffect(
         onTap: onTap,
-        borderRadius: 12,
+        borderRadius: 16,
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: color.withValues(alpha: 0.2)),
+            gradient: LinearGradient(
+              colors: [color, color.withValues(alpha: 0.78)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: color.withValues(alpha: 0.35),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: Column(
             children: [
-              Icon(icon, color: color, size: 24),
-              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.all(7),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.22),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: Colors.white, size: 20),
+              ),
+              const SizedBox(height: 6),
               Text(label,
-                  style: TextStyle(
-                      fontSize: 11, color: color, fontWeight: FontWeight.w600)),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      fontSize: 10,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700)),
             ],
           ),
         ),
@@ -383,47 +487,80 @@ class AdminDashboardScreen extends ConsumerWidget {
   }
 
   Widget _sectionHeader(String title) {
-    return Text(title,
-        style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary));
+    return Row(
+      children: [
+        Container(
+          width: 4,
+          height: 20,
+          decoration: BoxDecoration(
+            gradient: AppColors.primaryGradient,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Text(title,
+            style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: AppColors.textPrimary,
+                letterSpacing: -0.2)),
+      ],
+    );
   }
 
   Widget _highlightCard(
       IconData icon, String label, String? value, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 6)
+          BoxShadow(
+              color: color.withValues(alpha: 0.12),
+              blurRadius: 12,
+              offset: const Offset(0, 4)),
         ],
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8)),
-            child: Icon(icon, color: color, size: 20),
+              gradient: LinearGradient(
+                colors: [color.withValues(alpha: 0.85), color],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                    color: color.withValues(alpha: 0.3),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2)),
+              ],
+            ),
+            child: Icon(icon, color: Colors.white, size: 20),
           ),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(label,
-                  style: const TextStyle(
-                      fontSize: 11, color: AppColors.textSecondary)),
-              Text(value ?? '-',
-                  style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary)),
-            ],
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label,
+                    style: const TextStyle(
+                        fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
+                const SizedBox(height: 2),
+                Text(value ?? '-',
+                    style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.textPrimary)),
+              ],
+            ),
           ),
+          Icon(Icons.chevron_right_rounded,
+              color: AppColors.textHint, size: 20),
         ],
       ),
     );
